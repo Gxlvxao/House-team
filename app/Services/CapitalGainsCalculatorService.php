@@ -63,21 +63,24 @@ class CapitalGainsCalculatorService
         $taxableGainBase = $grossGain;
         $reinvestmentValue = 0.0;
 
-        if (isset($data['hpp_status']) && ($data['hpp_status'] === 'Sim' || $data['hpp_status'] === 'Menos12Meses')) {
+        // CORREÇÃO 1: A isenção por reinvestimento só se aplica se o status for 'Sim' (HPP há >= 12 meses).
+        if (isset($data['hpp_status']) && $data['hpp_status'] === 'Sim') {
             $reinvest = ($data['reinvest_intention'] === 'Sim') ? (float) ($data['reinvestment_amount'] ?? 0) : 0;
             $amortize = ($data['amortize_credit'] === 'Sim') ? (float) ($data['amortization_amount'] ?? 0) : 0;
             
             $reinvestmentValue = $reinvest + $amortize;
 
             if ($reinvestmentValue >= $saleValue) {
-                $taxableGainBase = 0;
+                $taxableGainBase = 0; // Ganho totalmente isento
             } elseif ($reinvestmentValue > 0) {
+                // Cálculo da mais-valia não isenta (base para aplicação dos 50%)
                 $nonExemptRatio = ($saleValue - $reinvestmentValue) / $saleValue;
                 $taxableGainBase = $grossGain * $nonExemptRatio;
             }
         }
 
-        $taxableGain = $taxableGainBase;
+        // CORREÇÃO 2: Aplica-se a regra de tributação: apenas 50% do ganho (ou do ganho não isento) é tributável em IRS.
+        $taxableGain = $taxableGainBase * 0.5;
 
         $annualIncome = (float) ($data['annual_income'] ?? 0);
         $isJoint = isset($data['joint_tax_return']) && $data['joint_tax_return'] === 'Sim';
@@ -125,6 +128,9 @@ class CapitalGainsCalculatorService
         return 0;
     }
 
+    /**
+     * Formata os resultados numéricos para o formato PT-PT (vírgula como separador decimal).
+     */
     private function buildResult($sale, $acqUpd, $exp, $reinvest, $gross, $taxable, $tax, $coef, $status): array
     {
         return [

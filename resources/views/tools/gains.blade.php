@@ -121,7 +121,7 @@
                     </div>
                 </div>
 
-                {{-- 4. Situação Fiscal --}}
+                {{-- 4. Situação Fiscal (Dinamismo aplicado aqui) --}}
                 <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 space-y-8">
                     <h3 class="text-lg font-bold text-ht-navy border-b border-slate-100 pb-4 mb-6 flex items-center gap-3">
                         <span class="bg-ht-accent text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">4</span>
@@ -134,11 +134,13 @@
                         </label>
                         <div class="flex gap-6 mt-3">
                             <label class="inline-flex items-center cursor-pointer group">
-                                <input type="radio" value="Sim" x-model="form.sold_to_state" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300">
+                                {{-- Adicionado resetHPPFields --}}
+                                <input type="radio" value="Sim" x-model="form.sold_to_state" @change="resetHPPFields" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300">
                                 <span class="ml-2 font-bold text-ht-navy group-hover:text-ht-accent transition-colors">Sim</span>
                             </label>
                             <label class="inline-flex items-center cursor-pointer group">
-                                <input type="radio" value="Não" x-model="form.sold_to_state" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300">
+                                {{-- Adicionado resetHPPFields --}}
+                                <input type="radio" value="Não" x-model="form.sold_to_state" @change="resetHPPFields" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300">
                                 <span class="ml-2 font-bold text-slate-600 group-hover:text-ht-navy transition-colors">Não</span>
                             </label>
                         </div>
@@ -148,95 +150,113 @@
                         </div>
                     </div>
 
+                    {{-- BLOCO CONDICIONAL: APENAS SE NÃO FOR VENDIDO AO ESTADO --}}
                     <div x-show="form.sold_to_state === 'Não'" x-transition class="space-y-6">
                         
-                        <div>
+                        {{-- HPP Status --}}
+                        <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
                             <label class="block text-sm font-bold text-ht-navy mb-3">O imóvel era a sua HPP há, pelo menos, 12 meses?</label>
                             <div class="flex flex-col gap-3">
-                                <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.hpp_status" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Sim</span></label>
-                                <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Menos12Meses" x-model="form.hpp_status" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Não, era há menos de 12 meses</span></label>
-                                <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.hpp_status" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Não</span></label>
+                                {{-- Adicionado resetReinvestmentFields --}}
+                                <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.hpp_status" @change="resetReinvestmentFields" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Sim (Beneficia de isenção por reinvestimento)</span></label>
+                                <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Menos12Meses" x-model="form.hpp_status" @change="resetReinvestmentFields" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Não, era há menos de 12 meses (Tributação de 50%)</span></label>
+                                <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.hpp_status" @change="resetReinvestmentFields" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Não (Imóvel Secundário/Investimento - Tributação de 50%)</span></label>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-bold text-ht-navy mb-3">Está reformado ou tem mais de 65 anos?</label>
-                                <div class="flex gap-6">
-                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.retired_status" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Sim</span></label>
-                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.retired_status" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Não</span></label>
+                        {{-- BLOCO CONDICIONAL DE ISENÇÕES (SÓ MOSTRA SE FOR HPP >= 12 MESES) --}}
+                        <div x-show="form.hpp_status === 'Sim'" x-transition class="space-y-6 p-6 rounded-2xl border border-ht-accent/40 bg-ht-accent/10">
+                            <h4 class="text-base font-bold text-ht-navy border-b border-ht-accent/30 pb-3">Opções de Reinvestimento e Benefícios</h4>
+
+                            {{-- Reinvestimento --}}
+                            <div class="pl-4 border-l-4 border-ht-accent/20">
+                                <label class="block text-sm font-bold text-ht-navy mb-3">Pretende reinvestir o dinheiro noutra habitação própria permanente?</label>
+                                <div class="flex gap-6 mb-3">
+                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.reinvest_intention" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Sim</span></label>
+                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.reinvest_intention" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Não</span></label>
+                                </div>
+                                <div x-show="form.reinvest_intention === 'Sim'" x-transition>
+                                    <label class="block text-xs font-bold text-slate-500 mb-1">Valor a Reinvestir (€)</label>
+                                    <input type="number" step="0.01" x-model="form.reinvestment_amount" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary">
                                 </div>
                             </div>
-                            <div>
-                                <label class="block text-sm font-bold text-ht-navy mb-3">A habitação foi construída por si?</label>
-                                <div class="flex gap-6">
-                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.self_built" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Sim</span></label>
-                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.self_built" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Não</span></label>
+
+                            {{-- Amortização --}}
+                            <div class="pl-4 border-l-4 border-ht-primary/20">
+                                <label class="block text-sm font-bold text-ht-navy mb-3">Pretende amortizar o crédito habitação com o valor da sua mais-valia?</label>
+                                <div class="flex gap-6 mb-3">
+                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.amortize_credit" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Sim</span></label>
+                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.amortize_credit" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Não</span></label>
+                                </div>
+                                <div x-show="form.amortize_credit === 'Sim'" x-transition>
+                                    <label class="block text-xs font-bold text-slate-500 mb-1">Valor a Amortizar (€)</label>
+                                    <input type="number" step="0.01" x-model="form.amortization_amount" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary">
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="pl-4 border-l-4 border-ht-accent/20">
-                            <label class="block text-sm font-bold text-ht-navy mb-3">Pretende reinvestir o dinheiro noutra habitação própria permanente?</label>
-                            <div class="flex gap-6 mb-3">
-                                <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.reinvest_intention" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Sim</span></label>
-                                <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.reinvest_intention" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Não</span></label>
-                            </div>
-                            <div x-show="form.reinvest_intention === 'Sim'" x-transition>
-                                <label class="block text-xs font-bold text-slate-500 mb-1">Valor a Reinvestir (€)</label>
-                                <input type="number" step="0.01" x-model="form.reinvestment_amount" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary">
-                            </div>
-                        </div>
-
-                        <div class="pl-4 border-l-4 border-ht-primary/20">
-                            <label class="block text-sm font-bold text-ht-navy mb-3">Pretende amortizar o crédito habitação com o valor da sua mais-valia?</label>
-                            <div class="flex gap-6 mb-3">
-                                <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.amortize_credit" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Sim</span></label>
-                                <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.amortize_credit" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Não</span></label>
-                            </div>
-                            <div x-show="form.amortize_credit === 'Sim'" x-transition>
-                                <label class="block text-xs font-bold text-slate-500 mb-1">Valor a Amortizar (€)</label>
-                                <input type="number" step="0.01" x-model="form.amortization_amount" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-bold text-ht-navy mb-3">Tem declaração fiscal conjunta?</label>
-                            <div class="flex gap-6">
-                                <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.joint_tax_return" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Sim</span></label>
-                                <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.joint_tax_return" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Não</span></label>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-bold text-ht-navy mb-2">Qual é o seu Rendimento Anual Coletável para IRS? (Valor Bruto)</label>
-                            <input type="number" step="0.01" x-model="form.annual_income" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary focus:border-transparent text-ht-navy placeholder-slate-400" placeholder="Ex: 25000,00">
-                        </div>
-
-                        <div class="pt-6 border-t border-slate-100">
-                            <label class="block text-sm font-bold text-ht-navy mb-3">Relativamente ao imóvel alienado, beneficiou de apoio não reembolsável (>30% VPT)?</label>
-                            <div class="flex gap-6 mb-3">
-                                <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.public_support" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Sim</span></label>
-                                <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.public_support" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Não</span></label>
-                            </div>
-                            <div x-show="form.public_support === 'Sim'" x-transition class="grid grid-cols-2 gap-4 bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                            
+                            {{-- Status Adicionais --}}
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-ht-accent/30">
                                 <div>
-                                    <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Ano Apoio</label>
-                                    <select x-model="form.public_support_year" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary text-ht-navy">
-                                        @foreach(range(2025, 1980) as $year)
-                                            <option value="{{ $year }}">{{ $year }}</option>
-                                        @endforeach
-                                    </select>
+                                    <label class="block text-sm font-bold text-ht-navy mb-3">Está reformado ou tem mais de 65 anos?</label>
+                                    <div class="flex gap-6">
+                                        <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.retired_status" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Sim</span></label>
+                                        <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.retired_status" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Não</span></label>
+                                    </div>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Mês Apoio</label>
-                                    <select x-model="form.public_support_month" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary text-ht-navy">
-                                        @foreach(['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'] as $month)
-                                            <option value="{{ $month }}">{{ $month }}</option>
-                                        @endforeach
-                                    </select>
+                                    <label class="block text-sm font-bold text-ht-navy mb-3">A habitação foi construída por si?</label>
+                                    <div class="flex gap-6">
+                                        <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.self_built" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Sim</span></label>
+                                        <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.self_built" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Não</span></label>
+                                    </div>
                                 </div>
                             </div>
+
+                        </div>
+
+                        {{-- Perguntas de IRS Gerais (sempre visíveis) --}}
+                        <div class="space-y-6 pt-6 border-t border-slate-100">
+
+                            <div>
+                                <label class="block text-sm font-bold text-ht-navy mb-3">Tem declaração fiscal conjunta?</label>
+                                <div class="flex gap-6">
+                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.joint_tax_return" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Sim</span></label>
+                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.joint_tax_return" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Não</span></label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-ht-navy mb-2">Qual é o seu Rendimento Anual Coletável para IRS? (€)</label>
+                                <input type="number" step="0.01" x-model="form.annual_income" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary focus:border-transparent text-ht-navy placeholder-slate-400" placeholder="Ex: 25000,00">
+                                <p class="text-xs text-slate-400 mt-1">*Valor do Anexo A da sua declaração de IRS.</p>
+                            </div>
+
+                            <div class="pt-6 border-t border-slate-100">
+                                <label class="block text-sm font-bold text-ht-navy mb-3">Relativamente ao imóvel alienado, beneficiou de apoio não reembolsável (>30% VPT)?</label>
+                                <div class="flex gap-6 mb-3">
+                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.public_support" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Sim</span></label>
+                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.public_support" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Não</span></label>
+                                </div>
+                                <div x-show="form.public_support === 'Sim'" x-transition class="grid grid-cols-2 gap-4 bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                                    <div>
+                                        <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Ano Apoio</label>
+                                        <select x-model="form.public_support_year" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary text-ht-navy">
+                                            @foreach(range(2025, 1980) as $year)
+                                                <option value="{{ $year }}">{{ $year }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Mês Apoio</label>
+                                        <select x-model="form.public_support_month" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary text-ht-navy">
+                                            @foreach(['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'] as $month)
+                                                <option value="{{ $month }}">{{ $month }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
 
                     </div>
@@ -270,7 +290,7 @@
                                     <div class="text-xl font-bold text-white" x-text="results.gross_gain_fmt + ' €'"></div>
                                 </div>
                                 <div>
-                                    <div class="text-xs text-slate-400 font-medium mb-1">Deste valor, a parte tributável será:</div>
+                                    <div class="text-xs text-slate-400 font-medium mb-1">Deste valor, a parte tributável (50%) será:</div>
                                     <div class="text-xl font-bold text-white" x-text="results.taxable_gain_fmt + ' €'"></div>
                                 </div>
                             </div>
@@ -298,11 +318,11 @@
                                     <span class="font-medium text-red-600" x-text="'- ' + results.expenses_fmt + ' €'"></span>
                                 </div>
                                 <div class="flex justify-between items-center border-b border-slate-100 pb-3" x-show="results.reinvestment_fmt !== '0,00'">
-                                    <span class="text-slate-500">Valor reinvestido em nova habitação</span>
+                                    <span class="text-slate-500">Valor reinvestido / amortizado (Isento)</span>
                                     <span class="font-medium text-red-600" x-text="'- ' + results.reinvestment_fmt + ' €'"></span>
                                 </div>
                                 <div class="flex justify-between items-center pt-2">
-                                    <span class="font-bold text-ht-navy">Mais-valia</span>
+                                    <span class="font-bold text-ht-navy">Mais-valia Bruta</span>
                                     <span class="font-bold text-green-600" x-text="results.gross_gain_fmt + ' €'"></span>
                                 </div>
                             </div>
@@ -313,12 +333,19 @@
                             Os ganhos provenientes da venda de imóveis para habitação ao Estado, às Regiões Autónomas, às entidades públicas empresariais na área da habitação ou às autarquias locais estão isentos de tributação em IRS e IRC.
                         </div>
 
+                        {{-- Mensagem sobre a regra dos 50% --}}
+                        <div x-show="results.taxable_gain_fmt !== '0,00'" class="p-4 bg-yellow-100 border border-yellow-300 rounded-2xl text-xs text-yellow-800 font-medium">
+                            <strong class="block mb-1 text-sm text-yellow-900">Por que apenas 50% é tributável?</strong>
+                            Em Portugal, a lei do IRS estabelece que apenas 50% do valor da mais-valia (após as deduções e isenções de reinvestimento) é englobado e sujeito a imposto (IRS). A outra metade fica isenta. O cálculo que vê em "Parte tributável" já reflete esta redução.
+                        </div>
+
                     </div>
                 </div>
             </div>
 
         </div>
 
+        {{-- Modal de Lead (Não alterado) --}}
         <div x-show="showLeadModal" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
             <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                 
@@ -410,6 +437,27 @@
                 taxable_gain_fmt: '0,00',
                 estimated_tax_fmt: '0,00',
                 status: ''
+            },
+            
+            // Função para resetar campos de isenção/benefícios quando a finalidade muda.
+            resetHPPFields() {
+                // Se vender ao estado, zera tudo condicional
+                if(this.form.sold_to_state === 'Sim') {
+                    this.form.hpp_status = 'Não'; // Força para não mostrar bloco HPP
+                }
+                this.resetReinvestmentFields();
+            },
+
+            resetReinvestmentFields() {
+                // Se não for HPP há mais de 12 meses, zera as opções de benefício fiscal
+                 if(this.form.hpp_status !== 'Sim') {
+                    this.form.reinvest_intention = 'Não';
+                    this.form.reinvestment_amount = '';
+                    this.form.amortize_credit = 'Não';
+                    this.form.amortization_amount = '';
+                    this.form.retired_status = 'Não';
+                    this.form.self_built = 'Não';
+                }
             },
             
             openModal() {
