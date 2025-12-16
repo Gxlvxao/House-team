@@ -48,7 +48,7 @@
                                 <span class="text-xs text-blue-600 font-bold" x-text="'LTV: ' + ltv.toFixed(1) + '%'"></span>
                             </div>
                             <div class="text-3xl font-black text-ht-primary">
-                                <span x-text="formatMoney(loanAmount)"></span> €
+                                € <span x-text="formatMoney(loanAmount)"></span>
                             </div>
                         </div>
                         <div x-show="ltv > 90" class="text-ht-accent text-xs font-bold flex items-center gap-2">
@@ -123,7 +123,8 @@
                         {{-- Taxa Fixa Manual (Se Fixa) --}}
                         <div x-show="rateType === 'fixed'" x-transition>
                             <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Taxa Fixa Anual (%)</label>
-                            <input type="number" step="0.01" x-model.number="fixedRate" @input="calculate()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary text-ht-navy" placeholder="Ex: 3.5">
+                            {{-- Valor padrão alterado para 4.0% no JS --}}
+                            <input type="number" step="0.01" x-model.number="fixedRate" @input="calculate()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary text-ht-navy" placeholder="Ex: 4.0">
                         </div>
 
                         {{-- Spread --}}
@@ -144,29 +145,7 @@
                     </div>
                 </div>
 
-                {{-- 3. Seguros (Opcional) --}}
-                <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
-                    <h3 class="text-xl font-bold text-ht-navy border-b border-slate-100 pb-4 mb-6 flex items-center gap-3">
-                        <span class="bg-ht-accent text-white w-8 h-8 rounded-full flex items-center justify-center text-sm">3</span>
-                        Seguros Obrigatórios
-                    </h3>
-                    
-                    <div class="mb-6 flex items-center gap-3">
-                        <input type="checkbox" id="autoInsurance" x-model="autoInsurance" @change="calculate()" class="w-5 h-5 text-ht-accent rounded border-slate-300 focus:ring-ht-accent">
-                        <label for="autoInsurance" class="text-sm font-bold text-ht-navy cursor-pointer">Calcular estimativa automática de seguros</label>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 transition-opacity duration-300" :class="{'opacity-50 pointer-events-none': autoInsurance}">
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Seguro de Vida (€/mês)</label>
-                            <input type="number" step="0.01" x-model.number="lifeInsurance" @input="calculate()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary text-ht-navy">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Seguro Multirriscos (€/mês)</label>
-                            <input type="number" step="0.01" x-model.number="multiRiskInsurance" @input="calculate()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary text-ht-navy">
-                        </div>
-                    </div>
-                </div>
+                {{-- 3. Seguros (Opcional) REMOVIDO --}}
 
             </div>
 
@@ -194,10 +173,7 @@
                                 <span>Imposto de Selo (4%)</span>
                                 <span class="text-white">€ <span x-text="formatMoney(monthlyStampDuty)"></span></span>
                             </div>
-                            <div class="flex justify-between items-center">
-                                <span>Seguros (Vida + Casa)</span>
-                                <span class="text-white">€ <span x-text="formatMoney(totalInsurance)"></span></span>
-                            </div>
+                            {{-- Linha de Seguros (Vida + Casa) REMOVIDA --}}
                         </div>
                     </div>
 
@@ -242,10 +218,10 @@
 
                     {{-- CTA --}}
                     <div class="text-center">
-                         <a href="{{ route('contact') }}" class="block w-full bg-ht-accent text-white font-black uppercase tracking-widest py-5 rounded-3xl shadow-lg hover:bg-red-700 hover:shadow-xl transition-all transform hover:-translate-y-1 text-xs">
-                            Pedir Aprovação Bancária
-                        </a>
-                        <p class="text-[10px] text-slate-400 mt-3 font-medium">Valores meramente indicativos. Não dispensa proposta oficial.</p>
+                           <a href="{{ route('contact') }}" class="block w-full bg-ht-accent text-white font-black uppercase tracking-widest py-5 rounded-3xl shadow-lg hover:bg-red-700 hover:shadow-xl transition-all transform hover:-translate-y-1 text-xs">
+                                Pedir Aprovação Bancária
+                            </a>
+                            <p class="text-[10px] text-slate-400 mt-3 font-medium">Valores meramente indicativos. Não dispensa proposta oficial.</p>
                     </div>
 
                 </div>
@@ -265,17 +241,15 @@
             age: 30,
             rateType: 'variable', 
             euriborRate: 2.17, 
-            fixedRate: 3.5,
+            fixedRate: 4.0, // <-- NOVO VALOR PADRÃO
             spread: 0.85,
             tan: 0,
             
-            autoInsurance: true,
-            lifeInsurance: 0,
-            multiRiskInsurance: 0,
+            // Variáveis de Seguros REMOVIDAS
             
             monthlyPayment: 0,
             monthlyStampDuty: 0,
-            totalInsurance: 0,
+            // totalInsurance: 0, REMOVIDO
             monthlyTotal: 0,
             
             openingStampDuty: 0,
@@ -320,6 +294,7 @@
             },
 
             calculate() {
+                // 1. Validar LTV
                 if(this.propertyValue > 0) {
                     this.ltv = (this.loanAmount / this.propertyValue) * 100;
                 } else {
@@ -328,12 +303,14 @@
 
                 this.checkMaxTerm();
 
+                // 2. Definir Taxa Anual Nominal (TAN)
                 if (this.rateType === 'variable') {
                     this.tan = this.euriborRate + this.spread;
                 } else {
                     this.tan = this.fixedRate; 
                 }
 
+                // 3. Cálculo da Prestação (PMT)
                 let i = (this.tan / 100) / 12;
                 let n = this.years * 12;
 
@@ -343,33 +320,37 @@
                     this.monthlyPayment = (this.loanAmount * i) / (1 - Math.pow(1 + i, -n));
                 }
 
+                // 4. Imposto de Selo Mensal sobre Juros (4%)
                 let firstMonthInterest = this.loanAmount * i;
                 this.monthlyStampDuty = firstMonthInterest * 0.04;
 
+                // 5. Seguros (CÁLCULO REMOVIDO)
+                /*
                 if (this.autoInsurance) {
                     let lifeRate = 0.00035 + ((this.age - 30) * 0.00001); 
                     if (lifeRate < 0.0002) lifeRate = 0.0002;
-                    
                     this.lifeInsurance = this.loanAmount * lifeRate;
                     this.multiRiskInsurance = (this.propertyValue * 0.0008) / 12;
                 }
-                
                 this.totalInsurance = this.lifeInsurance + this.multiRiskInsurance;
-                this.monthlyTotal = this.monthlyPayment + this.monthlyStampDuty + this.totalInsurance;
+                */
 
+                // 6. Total Mensal (Apenas Prestação + IS Juros)
+                this.monthlyTotal = this.monthlyPayment + this.monthlyStampDuty;
+
+                // 7. Custos Iniciais
                 this.openingStampDuty = this.loanAmount * 0.006;
                 this.upfrontTotal = this.downPayment + this.openingStampDuty + this.bankFees;
 
+                // 8. Totais Finais (Aproximados)
                 let totalPayments = this.monthlyPayment * n;
                 this.totalInterest = totalPayments - this.loanAmount;
                 
+                // MTIC = Total Pagamentos + IS Juros Totais + Custos Iniciais (IS Abertura + Comissões)
                 let totalStampOnInterest = this.totalInterest * 0.04;
-                let totalLife = this.lifeInsurance * n; 
-                if(this.autoInsurance) totalLife = totalLife * 0.6; 
-
-                let totalMulti = this.multiRiskInsurance * n; 
-
-                this.mtic = totalPayments + totalStampOnInterest + totalLife + totalMulti + this.openingStampDuty + this.bankFees;
+                
+                // Variáveis de seguro removidas do MTIC: totalLife e totalMulti
+                this.mtic = totalPayments + totalStampOnInterest + this.openingStampDuty + this.bankFees;
             }
         }
     }
