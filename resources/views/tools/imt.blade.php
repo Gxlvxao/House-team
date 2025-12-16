@@ -187,7 +187,7 @@
                         <div class="flex justify-between items-start mb-6 border-b border-white/10 pb-4 relative z-10">
                             <h3 class="text-xl font-bold text-white tracking-tight">Resultados</h3>
                             
-                            {{-- Botão de Transparência do Cálculo (NOVO) --}}
+                            {{-- Botão de Transparência do Cálculo --}}
                             <button @click="showBreakdown = !showBreakdown" class="text-xs font-bold text-slate-400 hover:text-white transition-colors flex items-center gap-1 uppercase">
                                 <svg x-show="!showBreakdown" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M10 12h.01"/></svg>
                                 <svg x-show="showBreakdown" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -195,7 +195,7 @@
                             </button>
                         </div>
 
-                        {{-- Seção de Detalhes do Cálculo (Transparência) (NOVO) --}}
+                        {{-- Seção de Detalhes do Cálculo (Transparência) --}}
                         <div x-show="showBreakdown" x-transition:enter.duration.300ms x-transition:leave.duration.300ms class="bg-white/5 p-4 mb-6 rounded-2xl border border-white/10 text-xs relative z-10">
                             <h4 class="font-bold mb-3 text-ht-accent uppercase tracking-wider">Transparência do Cálculo (IMT)</h4>
                             
@@ -280,7 +280,7 @@
             finalStamp: 0,
             totalPayable: 0,
             
-            // Variáveis de Transparência (NOVAS)
+            // Variáveis de Transparência
             imtBreakdown: {
                 taxableValue: 0,
                 rateText: 'N/A',
@@ -292,7 +292,6 @@
                 marginalRate: 0,
             },
             showBreakdown: false,
-            // Fim Variáveis Novas
 
             setBuyerEligible(buyerIndex, value) {
                 if (buyerIndex === 1) this.buyer1Eligible = value;
@@ -416,7 +415,7 @@
                 }
 
                 let imtBaseNormal = 0;
-                let rateSelo = 0.008; 
+                let rateSelo = 0.008; // Taxa padrão do Imposto de Selo (0.8%)
                 let isHPP = this.purpose === 'hpp';
                 let isContinente = this.location === 'continente';
                 let imtBreakdownText = '';
@@ -430,7 +429,7 @@
                     imtBreakdownText = '6.5% (Taxa Única) sobre o valor total';
                 } else if (this.purpose === 'offshore_pessoal' || this.purpose === 'offshore_entidade') {
                     imtBaseNormal = valorTotal * 0.10;
-                    rateSelo = 0.10; 
+                    // rateSelo = 0.008; // Mantemos o IS em 0.8% (0.008)
                     imtBreakdownText = '10% (Taxa de Paraíso Fiscal) sobre o valor total';
                 } else {
                     let tabela = isHPP ? 
@@ -442,7 +441,7 @@
                     imtBreakdownText = isHPP ? 'Tabela Progressiva HPP Normal' : 'Tabela Progressiva Habitação Secundária';
                 }
 
-                // 2. Determinar IMT se fosse 100% Jovem (Apenas se HPP)
+                // 2. Determinar IMT e Selo se fosse 100% Jovem (Apenas se HPP)
                 let imtBaseJovem = imtBaseNormal;
                 let seloBaseJovem = valorTotal * rateSelo;
                 let isJovemBenefitApplied = false;
