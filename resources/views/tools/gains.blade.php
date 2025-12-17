@@ -105,6 +105,8 @@
                         <div>
                             <label class="block text-xs font-bold text-slate-500 mb-1">Obras e melhorias (€)</label>
                             <input type="number" step="0.01" x-model="form.expenses_works" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary">
+                            {{-- AVISO LEGAL IMPORTANTE --}}
+                            <p class="text-[10px] text-slate-400 mt-1">*Apenas obras realizadas nos últimos 12 anos.</p>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 mb-1">IMT (€)</label>
