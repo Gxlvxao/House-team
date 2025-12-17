@@ -4,8 +4,6 @@ namespace App\Services;
 
 class CapitalGainsCalculatorService
 {
-    // Coeficientes baseados na última Portaria conhecida.
-    // Devem ser atualizados anualmente (geralmente em Outubro).
     private const COEFFICIENTS = [
         2025 => 1.00, 2024 => 1.00, 2023 => 1.00, 2022 => 1.05, 2021 => 1.13,
         2020 => 1.14, 2019 => 1.14, 2018 => 1.15, 2017 => 1.17, 2016 => 1.19,
@@ -17,7 +15,6 @@ class CapitalGainsCalculatorService
         1990 => 2.73
     ];
 
-    // Escalões IRS Provisórios 2025 (Confirmar com OE2025 aprovado)
     private const IRS_BRACKETS_2025 = [
         ['limit' => 8059,  'rate' => 0.1250, 'deduction' => 0.00],
         ['limit' => 12160, 'rate' => 0.1600, 'deduction' => 282.07],
@@ -37,58 +34,68 @@ class CapitalGainsCalculatorService
         $acquisitionYear = (int) $data['acquisition_year'];
         $expenses = (float) ($data['expenses_total'] ?? 0);
 
-        // Lógica de Coeficiente (Default para anos muito antigos usa o último disponível ou lógica customizada)
+        // Se construiu a própria casa, o coeficiente pode depender de outras regras, mas aqui usamos o ano base
+        // (Nota: Num cenário real complexo, "self_built" poderia alterar a data base, mas mantemos simples)
         $coefficient = self::COEFFICIENTS[$acquisitionYear] ?? ($acquisitionYear < 1990 ? 2.73 : 1.00);
         $updatedAcquisitionValue = $acquisitionValue * $coefficient;
 
         $grossGain = $saleValue - $updatedAcquisitionValue - $expenses;
 
-        // --- CENÁRIOS DE ISENÇÃO TOTAL ---
+        // --- ISENÇÕES TOTAIS ---
 
-        // 1. Venda ao Estado (Isenção total art. 102.º CIT)
+        // Venda ao Estado
         if (($data['sold_to_state'] ?? 'Não') === 'Sim') {
             return $this->buildResult($saleValue, $updatedAcquisitionValue, $expenses, 0, $grossGain, 0, 0, $coefficient, 'Isento (Venda ao Estado)');
         }
 
-        // 2. Aquisição anterior a 1989 (Regime transitório)
+        // Aquisição antes de 1989
         if ($acquisitionYear < 1989) {
-            return $this->buildResult($saleValue, $updatedAcquisitionValue, $expenses, 0, $grossGain, 0, 0, $coefficient, 'Isento (Aquisição anterior a 1989)');
+            return $this->buildResult($saleValue, $updatedAcquisitionValue, $expenses, 0, $grossGain, 0, 0, $coefficient, 'Isento (Anterior a 1989)');
         }
 
-        // 3. Prejuízo (Menos-valia)
         if ($grossGain <= 0) {
             return $this->buildResult($saleValue, $updatedAcquisitionValue, $expenses, 0, $grossGain, 0, 0, $coefficient, 'Sem Mais-Valia');
         }
 
-        // --- CÁLCULO DA MATÉRIA COLETÁVEL ---
+        // --- CÁLCULO DA MATÉRIA COLETÁVEL (CORREÇÃO AQUI) ---
 
         $taxableGainBase = $grossGain;
-        $reinvestmentValue = 0.0;
+        $amountToExclude = 0.0; // Valor total a abater à mais-valia (Reinvestimento + Amortização)
 
-        // Isenção por Reinvestimento ou Amortização (HPP >= 12 meses)
-        if (($data['hpp_status'] ?? 'Não') === 'Sim') {
-            $reinvestIntention = $data['reinvest_intention'] ?? 'Não';
-            $amortizeCredit = $data['amortize_credit'] ?? 'Não';
-            
-            $reinvest = ($reinvestIntention === 'Sim') ? (float) ($data['reinvestment_amount'] ?? 0) : 0;
-            $amortize = ($amortizeCredit === 'Sim') ? (float) ($data['amortization_amount'] ?? 0) : 0;
-            
-            $reinvestmentValue = $reinvest + $amortize;
+        $isHPP = ($data['hpp_status'] ?? 'Não') === 'Sim';
 
-            if ($reinvestmentValue >= $saleValue) {
-                // Se reinvestiu tudo o que realizou (valor de venda), o ganho é totalmente isento
-                $taxableGainBase = 0; 
-            } elseif ($reinvestmentValue > 0) {
-                // Fórmula Proporcional: (Valor Venda - Reinvestido) / Valor Venda
-                $nonExemptRatio = ($saleValue - $reinvestmentValue) / $saleValue;
-                $taxableGainBase = $grossGain * $nonExemptRatio;
-            }
+        // 1. Reinvestimento em NOVA habitação (Apenas se vendeu HPP)
+        if ($isHPP && ($data['reinvest_intention'] ?? 'Não') === 'Sim') {
+            $amountToExclude += (float) ($data['reinvestment_amount'] ?? 0);
         }
 
-        // Regra de Englobamento Obrigatório (Residentes): Apenas 50% do saldo é tributado
+        // 2. Amortização de Crédito Habitação (Válido para HPP e Secundários - Norma Mais Habitação)
+        // Se o user preencheu, assumimos que é elegível
+        if (($data['amortize_credit'] ?? 'Não') === 'Sim') {
+            $amountToExclude += (float) ($data['amortization_amount'] ?? 0);
+        }
+
+        // 3. Reformados (PPR/Seguros) - Apenas se vendeu HPP
+        if ($isHPP && ($data['retired_status'] ?? 'Não') === 'Sim') {
+             // O formulário não tem campo específico "valor investido em PPR", 
+             // mas assumimos que entra no "reinvestment_amount" se a lógica for simplificada,
+             // ou se não houver campo, ignoramos por agora para não complicar sem dados.
+        }
+
+        // Aplicar a exclusão proporcional
+        if ($amountToExclude >= $saleValue) {
+            $taxableGainBase = 0; // Tudo isento
+        } elseif ($amountToExclude > 0) {
+            // A parte do ganho proporcional ao valor reinvestido/amortizado fica isenta
+            // Fórmula: Mais-Valia Tributável = Mais-Valia Total * (1 - (Valor Reinvestido / Valor Realização))
+            $ratio = ($saleValue - $amountToExclude) / $saleValue;
+            $taxableGainBase = $grossGain * $ratio;
+        }
+
+        // Regra dos 50% (Englobamento)
         $taxableGain = $taxableGainBase * 0.5;
 
-        // --- CÁLCULO DO IMPOSTO ESTIMADO ---
+        // --- CÁLCULO IMPOSTO ---
 
         $annualIncome = (float) ($data['annual_income'] ?? 0);
         $isJoint = ($data['joint_tax_return'] ?? 'Não') === 'Sim';
@@ -99,7 +106,7 @@ class CapitalGainsCalculatorService
             $saleValue,
             $updatedAcquisitionValue,
             $expenses,
-            $reinvestmentValue,
+            $amountToExclude, // Passamos o total abatido para mostrar na View
             $grossGain,
             $taxableGain,
             $estimatedTax,
@@ -112,33 +119,22 @@ class CapitalGainsCalculatorService
     {
         if ($gain <= 0) return 0;
 
-        // Se for conjunto, dividimos por 2 para achar a taxa, e no final multiplicamos o imposto por 2 (splitting)
         $incomeBase = $isJoint ? ($income / 2) : $income;
-        
-        // Rendimento Global para determinar a taxa (Salário + Mais-Valia)
         $incomeWithGain = $isJoint ? (($income + $gain) / 2) : ($income + $gain);
 
-        // 1. Calcular IRS Normal (Progressivo)
+        // 1. IRS Normal
         $taxBase = $this->calculateIRS($incomeBase);
         $taxFinal = $this->calculateIRS($incomeWithGain);
-        
         $irsNormal = max(0, $taxFinal - $taxBase);
 
-        // 2. Calcular Taxa Adicional de Solidariedade (Para rendimentos muito altos)
-        // Aplica-se sobre o rendimento COLETÁVEL agregado (income + gain)
-        // Se for conjunto, a taxa aplica-se individualmente a cada sujeito passivo após o splitting? 
-        // Simplificação: Aplica-se ao rendimento sujeito às taxas gerais.
-        
+        // 2. Taxa Solidariedade (>80k)
         $solidarityTax = $this->calculateSolidarityTax($incomeWithGain);
-        
-        // Diferencial da solidariedade (quanto a mais-valia acrescentou de taxa solidária)
-        // Nota: Se o salário já pagava solidariedade, pagamos apenas a diferença.
         $solidarityBase = $this->calculateSolidarityTax($incomeBase);
         $solidarityDiff = max(0, $solidarityTax - $solidarityBase);
 
-        $totalTaxPerPerson = $irsNormal + $solidarityDiff;
+        $totalPerPerson = $irsNormal + $solidarityDiff;
 
-        return $isJoint ? $totalTaxPerPerson * 2 : $totalTaxPerPerson;
+        return $isJoint ? $totalPerPerson * 2 : $totalPerPerson;
     }
 
     private function calculateIRS(float $income): float
@@ -150,33 +146,25 @@ class CapitalGainsCalculatorService
                 return ($income * $bracket['rate']) - $bracket['deduction'];
             }
         }
-        // Fallback para último escalão (já coberto pelo INF, mas por segurança)
+        // Fallback (acima do último escalão)
         return ($income * 0.48) - 10939.45;
     }
 
-    /**
-     * Calcula a Taxa Adicional de Solidariedade (Lei n.º 2/2020 e Art 68-A CIRS)
-     * 80.000€ a 250.000€ -> 2.5%
-     * > 250.000€ -> 5%
-     */
     private function calculateSolidarityTax(float $income): float
     {
         if ($income <= 80000) return 0.0;
 
         $tax = 0.0;
-
-        // Nível 1: Entre 80k e 250k
+        // Nível 1: 80k a 250k (2.5%)
         if ($income > 80000) {
-            $taxableAmount = min($income, 250000) - 80000;
-            $tax += $taxableAmount * 0.025;
+            $taxable = min($income, 250000) - 80000;
+            $tax += $taxable * 0.025;
         }
-
-        // Nível 2: Acima de 250k
+        // Nível 2: > 250k (5%)
         if ($income > 250000) {
-            $taxableAmount = $income - 250000;
-            $tax += $taxableAmount * 0.05;
+            $taxable = $income - 250000;
+            $tax += $taxable * 0.05;
         }
-
         return $tax;
     }
 
