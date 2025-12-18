@@ -41,7 +41,9 @@ class PropertyController extends Controller
             'video_url' => 'nullable|url',
             'whatsapp_number' => 'nullable|string',
             'description' => 'nullable|string',
-            'cover_image' => 'nullable|image|max:2048',
+            'cover_image' => 'nullable|image|max:20480',
+            'gallery' => 'nullable|array',
+            'gallery.*' => 'image|max:20480',
             'has_pool' => 'nullable',
             'has_garden' => 'nullable',
             'has_lift' => 'nullable',
@@ -70,11 +72,13 @@ class PropertyController extends Controller
 
         if ($request->hasFile('gallery')) {
             foreach ($request->file('gallery') as $image) {
-                $path = $image->store('properties/gallery', 'public');
-                PropertyImage::create([
-                    'property_id' => $property->id,
-                    'path' => $path
-                ]);
+                if ($image->isValid()) {
+                    $path = $image->store('properties/gallery', 'public');
+                    PropertyImage::create([
+                        'property_id' => $property->id,
+                        'path' => $path
+                    ]);
+                }
             }
         }
 
@@ -106,7 +110,9 @@ class PropertyController extends Controller
             'video_url' => 'nullable|url',
             'whatsapp_number' => 'nullable|string',
             'description' => 'nullable|string',
-            'cover_image' => 'nullable|image|max:2048',
+            'cover_image' => 'nullable|image|max:20480',
+            'gallery' => 'nullable|array',
+            'gallery.*' => 'image|max:20480',
             'has_pool' => 'nullable',
             'has_garden' => 'nullable',
             'has_lift' => 'nullable',
@@ -140,11 +146,13 @@ class PropertyController extends Controller
 
         if ($request->hasFile('gallery')) {
             foreach ($request->file('gallery') as $image) {
-                $path = $image->store('properties/gallery', 'public');
-                PropertyImage::create([
-                    'property_id' => $property->id,
-                    'path' => $path
-                ]);
+                if ($image->isValid()) {
+                    $path = $image->store('properties/gallery', 'public');
+                    PropertyImage::create([
+                        'property_id' => $property->id,
+                        'path' => $path
+                    ]);
+                }
             }
         }
 
