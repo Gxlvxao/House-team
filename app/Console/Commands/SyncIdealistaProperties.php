@@ -25,12 +25,14 @@ class SyncIdealistaProperties extends Command
             $size = (int) $this->option('limit');
 
             // 1. Pega os headers de autenticação para usar nas imagens depois
+            // (Requer que o método getHeaders no Service seja public)
             $authHeaders = $service->getHeaders();
-            // Remove Content-Type pois no GET de imagem não enviamos JSON
-            unset($authHeaders['Content-Type']);
+            unset($authHeaders['Content-Type']); // Remove JSON type para download de imagens
 
+            // 2. Busca os imóveis
             $response = $service->getProperties($page, $size);
             
+            // 3. Normaliza a resposta (pode vir em várias chaves dependendo do endpoint)
             $listings = $response['properties'] ?? $response['elementList'] ?? $response['items'] ?? [];
             if (empty($listings) && isset($response[0])) $listings = $response;
 
@@ -45,9 +47,11 @@ class SyncIdealistaProperties extends Command
             $this->output->progressStart(count($listings));
 
             foreach ($listings as $data) {
+                // Tenta encontrar o ID único
                 $idealistaId = $data['propertyId'] ?? $data['propertyCode'] ?? $data['id'] ?? null;
                 if (!$idealistaId) continue;
 
+                // Extração de dados
                 $features = $data['features'] ?? [];
                 $operation = $data['operation'] ?? [];
                 $address = $data['address'] ?? [];
@@ -59,6 +63,7 @@ class SyncIdealistaProperties extends Command
                 $rooms = $features['rooms'] ?? 0;
                 $typology = $rooms > 0 ? "T{$rooms}" : "";
                 
+                // Título e Slug
                 $generatedTitle = trim("{$typeLabel} {$typology} em {$city}");
                 if (isset($data['reference']) && !empty($data['reference'])) {
                     $generatedTitle .= " (Ref: {$data['reference']})";
@@ -91,10 +96,11 @@ class SyncIdealistaProperties extends Command
                     'status'         => $statusLabel,
                     'type'           => $typeLabel,
                     'idealista_url'  => $data['additionalLink'] ?? "https://www.idealista.pt/imovel/{$idealistaId}/",
-                    'is_visible'     => true, 
+                    'is_visible'     => true, // FORÇAR VISIBILIDADE
                     'last_synced_at' => now(),
                 ];
 
+                // Salva no banco com proteção contra Slug duplicado
                 try {
                     $property = Property::updateOrCreate(['idealista_id' => $idealistaId], $propertyData);
                 } catch (\Illuminate\Database\QueryException $e) {
@@ -106,7 +112,7 @@ class SyncIdealistaProperties extends Command
                     }
                 }
 
-                // --- IMPORTAR IMAGENS (COM AUTH) ---
+                // --- IMPORTAR IMAGENS ---
                 $imagesData = $data['images'] ?? $service->getPropertyImages($idealistaId);
                 
                 if (!empty($imagesData)) {
@@ -146,22 +152,22 @@ class SyncIdealistaProperties extends Command
             $filename = 'idealista_' . $property->id . '_' . md5($url) . '.jpg';
             $path = 'properties/gallery/' . $filename;
 
-            // Só baixa se não existir ou se o arquivo existente for inválido (0 bytes ou muito pequeno)
+            // Só baixa se não existir ou se o arquivo existente for inválido (< 500 bytes)
             $exists = Storage::disk('public')->exists($path);
             $size = $exists ? Storage::disk('public')->size($path) : 0;
 
-            if (!$exists || $size < 500) { // Menor que 500 bytes é certeza que é erro
+            if (!$exists || $size < 500) { 
                 try {
-                    // Tenta baixar COM a autenticação do Idealista
+                    // Tenta baixar COM a autenticação do Idealista (Plano A)
                     $response = Http::withHeaders($authHeaders)
-                        ->withHeaders(['User-Agent' => 'Mozilla/5.0']) // User agent + Auth
+                        ->withHeaders(['User-Agent' => 'Mozilla/5.0']) 
                         ->get($url);
 
                     if ($response->successful()) {
                         Storage::disk('public')->put($path, $response->body());
                     } else {
-                        // Tenta sem autenticação (caso seja URL pública de CDN)
-                        $responsePublic = Http::get($url);
+                        // Tenta sem autenticação (Plano B - URL Pública)
+                        $responsePublic = Http::withHeaders(['User-Agent' => 'Mozilla/5.0'])->get($url);
                         if ($responsePublic->successful()) {
                             Storage::disk('public')->put($path, $responsePublic->body());
                         } else {
@@ -175,7 +181,7 @@ class SyncIdealistaProperties extends Command
                 }
             }
 
-            // Confirma se o arquivo foi salvo corretamente antes de registar no banco
+            // Confirma se o arquivo foi salvo corretamente e tem tamanho válido
             if (Storage::disk('public')->exists($path) && Storage::disk('public')->size($path) > 500) {
                 $existingImage = PropertyImage::where('property_id', $property->id)->where('path', $path)->first();
                 
@@ -184,6 +190,7 @@ class SyncIdealistaProperties extends Command
                 }
 
                 if (!$coverSet) {
+                    // Define a primeira imagem válida como capa
                     if (!$property->cover_image || !Storage::disk('public')->exists($property->cover_image)) {
                         $property->update(['cover_image' => $path]);
                     }
