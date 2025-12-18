@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Novo Imóvel | House Team Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    {{-- Importante: AlpineJS para o Dropdown --}}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
@@ -80,6 +82,58 @@
                                 <label class="block text-xs font-bold uppercase tracking-wide text-ht-navy mb-2 ml-1">Título do Anúncio</label>
                                 <input type="text" name="title" value="{{ old('title') }}" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-ht-blue focus:ring-1 focus:ring-ht-blue transition-all" placeholder="Ex: Moradia T4 de Luxo com Piscina">
                             </div>
+
+                            {{-- IMPLEMENTAÇÃO DO DROPDOWN DE CONSULTORES --}}
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-50">
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wide text-ht-navy mb-2 ml-1">Consultor Responsável</label>
+                                    
+                                    <div x-data="{ 
+                                            open: false, 
+                                            search: '', 
+                                            selectedId: '', 
+                                            selectedName: 'Selecione um Consultor',
+                                            options: {{ $consultants->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'photo' => asset('img/team/'.$c->photo)])->toJson() }}
+                                         }" 
+                                         class="relative">
+                                        
+                                        <input type="hidden" name="consultant_id" :value="selectedId">
+
+                                        <button type="button" 
+                                                @click="open = !open" 
+                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-left flex items-center justify-between focus:outline-none focus:border-ht-blue focus:ring-1 focus:ring-ht-blue transition-all">
+                                            <span x-text="selectedName" :class="selectedId ? 'text-ht-navy' : 'text-slate-400'"></span>
+                                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                        </button>
+
+                                        <div x-show="open" 
+                                             @click.away="open = false"
+                                             class="absolute top-full left-0 w-full mt-2 bg-white border border-slate-100 rounded-xl shadow-xl max-h-60 overflow-y-auto z-50 p-2"
+                                             style="display: none;">
+                                            
+                                            <div class="px-2 pb-2 mb-2 border-b border-slate-100">
+                                                <input x-model="search" 
+                                                       type="text" 
+                                                       class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-ht-blue" 
+                                                       placeholder="Pesquisar nome...">
+                                            </div>
+
+                                            <template x-for="option in options.filter(i => i.name.toLowerCase().includes(search.toLowerCase()))" :key="option.id">
+                                                <div @click="selectedId = option.id; selectedName = option.name; open = false"
+                                                     class="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg cursor-pointer transition-colors">
+                                                    <img :src="option.photo" class="w-8 h-8 rounded-full object-cover border border-slate-200">
+                                                    <span class="text-sm font-medium text-ht-navy" x-text="option.name"></span>
+                                                </div>
+                                            </template>
+                                            
+                                            <div x-show="options.filter(i => i.name.toLowerCase().includes(search.toLowerCase())).length === 0" class="p-3 text-xs text-slate-400 text-center">
+                                                Nenhum consultor encontrado.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="text-[10px] text-slate-400 mt-1 ml-1">Se vazio, usará o WhatsApp padrão nas páginas.</p>
+                                </div>
+                            </div>
                             
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div>
@@ -121,8 +175,8 @@
                             <span class="w-8 h-8 rounded-full bg-ht-blue text-white flex items-center justify-center text-xs">2</span>
                             Detalhes do Imóvel
                         </h3>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        {{-- (MANTIDO IGUAL AO ORIGINAL, APENAS RESUMIDO AQUI PARA ECONOMIA) --}}
+                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <div>
                                 <label class="block text-xs font-bold uppercase tracking-wide text-ht-navy mb-2 ml-1">Concelho / Zona</label>
                                 <input type="text" name="location" value="{{ old('location') }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-ht-blue focus:ring-1 focus:ring-ht-blue transition-all" placeholder="Ex: Cascais, Quinta da Marinha">
@@ -132,7 +186,7 @@
                                 <input type="text" name="address" value="{{ old('address') }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-ht-blue focus:ring-1 focus:ring-ht-blue transition-all" placeholder="Rua...">
                             </div>
                         </div>
-
+                        {{-- Os restantes inputs de Área, Quartos, etc., mantêm-se iguais --}}
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                             <div>
                                 <label class="block text-xs font-bold uppercase tracking-wide text-ht-navy mb-2 ml-1">Área Bruta (m²)</label>
@@ -166,7 +220,7 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                             <div>
                                 <label class="block text-xs font-bold uppercase tracking-wide text-ht-navy mb-2 ml-1">Andar</label>
                                 <input type="text" name="floor" value="{{ old('floor') }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-ht-blue focus:ring-1 focus:ring-ht-blue transition-all" placeholder="Ex: 2º Esq, R/C">
@@ -190,7 +244,8 @@
                         </div>
                     </div>
 
-                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+                    {{-- Mantive o restante das sessões 3 e 4 (Comodidades, Mídia, Descrição) idênticas ao original --}}
+                     <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
                         <h3 class="text-lg font-bold text-ht-navy mb-6 flex items-center gap-2">
                             <span class="w-8 h-8 rounded-full bg-ht-blue text-white flex items-center justify-center text-xs">3</span>
                             Comodidades
@@ -264,11 +319,12 @@
         </main>
     </div>
 
+    {{-- Script mantido igual --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const input = document.getElementById('gallery-input');
             const previewContainer = document.getElementById('gallery-preview');
-            const dt = new DataTransfer(); // Acumulador de ficheiros
+            const dt = new DataTransfer(); 
 
             input.addEventListener('change', function() {
                 for(let i = 0; i < this.files.length; i++) {
@@ -306,7 +362,6 @@
                         newDt.items.add(dt.files[i]);
                     }
                 }
-                // Limpar e re-adicionar no dt global
                 dt.items.clear();
                 for (let i = 0; i < newDt.files.length; i++) {
                     dt.items.add(newDt.files[i]);

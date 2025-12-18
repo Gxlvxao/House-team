@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Property;
 use App\Models\PropertyImage;
+use App\Models\Consultant; // <--- Importado
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -18,13 +19,16 @@ class PropertyController extends Controller
 
     public function create()
     {
-        return view('admin.properties.create');
+        // <--- Alterado: Buscar consultores para o dropdown
+        $consultants = Consultant::where('is_active', true)->orderBy('name')->get();
+        return view('admin.properties.create', compact('consultants'));
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
             'title' => 'required|string|max:255',
+            'consultant_id' => 'nullable|exists:consultants,id', // <--- Alterado: Validação
             'price' => 'nullable|numeric',
             'type' => 'required|string',
             'status' => 'required|string',
@@ -87,13 +91,16 @@ class PropertyController extends Controller
 
     public function edit(Property $property)
     {
-        return view('admin.properties.edit', compact('property'));
+        // <--- Alterado: Buscar consultores e passar para a view
+        $consultants = Consultant::where('is_active', true)->orderBy('name')->get();
+        return view('admin.properties.edit', compact('property', 'consultants'));
     }
 
     public function update(Request $request, Property $property)
     {
         $data = $request->validate([
             'title' => 'required|string|max:255',
+            'consultant_id' => 'nullable|exists:consultants,id', // <--- Alterado: Validação
             'price' => 'nullable|numeric',
             'type' => 'required|string',
             'status' => 'required|string',
@@ -217,7 +224,8 @@ class PropertyController extends Controller
 
     public function show(Property $property)
     {
-        $property->load('images');
+        // <--- Alterado: Carregar relação consultant
+        $property->load(['images', 'consultant']);
         return view('properties.show', compact('property'));
     }
 }
