@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Services\IdealistaService;
+use App\Services\IdealistaExportService;
 use App\Models\Property;
 
 class SendPropertyToIdealista extends Command
@@ -11,7 +11,7 @@ class SendPropertyToIdealista extends Command
     protected $signature = 'idealista:export {id : ID do imóvel no seu banco local}';
     protected $description = 'Envia um imóvel local para o Idealista (Criação + Imagens)';
 
-    public function handle(IdealistaService $service)
+    public function handle(IdealistaExportService $service)
     {
         $localId = $this->argument('id');
         $property = Property::with('images')->find($localId); // Carrega imagens junto

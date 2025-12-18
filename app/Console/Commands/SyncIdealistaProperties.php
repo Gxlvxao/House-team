@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Services\IdealistaService;
+use App\Services\IdealistaImportService;
 use App\Models\Property;
 use App\Models\PropertyImage;
 use Illuminate\Support\Str;
@@ -16,7 +16,7 @@ class SyncIdealistaProperties extends Command
     protected $signature = 'idealista:sync {--page=1 : Página inicial} {--limit=50 : Itens por página}';
     protected $description = 'Sincroniza imóveis da API Partner do Idealista para o banco local';
 
-    public function handle(IdealistaService $service)
+    public function handle(IdealistaImportService $service)
     {
         $this->info('A conectar à API do Idealista (Partner v1)...');
 
