@@ -45,7 +45,7 @@
                                 </select>
                             </div>
                         </div>
-                        {{-- CONSTRUÇÃO PRÓPRIA (MOVIDO PARA AQUI - VISÍVEL SEMPRE) --}}
+                        {{-- CONSTRUÇÃO PRÓPRIA --}}
                         <div class="md:col-span-2 pt-2 border-t border-slate-100 mt-2">
                              <label class="block text-sm font-bold text-ht-navy mb-3">A habitação foi construída por si?</label>
                              <div class="flex gap-6">
@@ -158,7 +158,6 @@
                         </div>
                     </div>
 
-                    {{-- BLOCO CONDICIONAL: APENAS SE NÃO FOR VENDIDO AO ESTADO --}}
                     <div x-show="form.sold_to_state === 'Não'" x-transition class="space-y-6">
                         
                         {{-- HPP Status --}}
@@ -172,7 +171,6 @@
                         </div>
 
                         {{-- ISENÇÕES / REINVESTIMENTO / AMORTIZAÇÃO --}}
-                        {{-- Agora visível para todos (com condicionais internas) --}}
                         <div class="space-y-6 p-6 rounded-2xl border border-ht-accent/40 bg-ht-accent/10">
                             <h4 class="text-base font-bold text-ht-navy border-b border-ht-accent/30 pb-3">Opções de Reinvestimento e Benefícios</h4>
 
@@ -284,11 +282,11 @@
                             
                             <div class="grid grid-cols-1 gap-4 border-t border-white/10 pt-6 text-sm">
                                 <div>
-                                    <div class="text-xs text-slate-400 font-medium mb-1">O valor da sua mais-valia será:</div>
+                                    <div class="text-xs text-slate-400 font-medium mb-1">Mais-Valia Bruta (Lucro):</div>
                                     <div class="text-xl font-bold text-white" x-text="results.gross_gain_fmt + ' €'"></div>
                                 </div>
                                 <div>
-                                    <div class="text-xs text-slate-400 font-medium mb-1">Deste valor, a parte tributável (50%) será:</div>
+                                    <div class="text-xs text-slate-400 font-medium mb-1">Parte Tributável (após 50%):</div>
                                     <div class="text-xl font-bold text-white" x-text="results.taxable_gain_fmt + ' €'"></div>
                                 </div>
                             </div>
@@ -296,7 +294,7 @@
 
                         <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden text-sm">
                             <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 font-bold text-ht-navy uppercase text-xs tracking-widest">
-                                Mais-valia <span class="text-slate-400 font-normal">| Cálculo da Isenção</span>
+                                Detalhes do Apuramento
                             </div>
                             <div class="p-6 space-y-4">
                                 <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -304,36 +302,47 @@
                                     <span class="font-bold text-ht-navy" x-text="results.sale_fmt + ' €'"></span>
                                 </div>
                                 <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                                    <span class="text-slate-500">Coeficiente de atualização monetária</span>
+                                    <span class="text-slate-500">Coef. Desvalorização</span>
                                     <span class="font-medium text-ht-navy" x-text="results.coefficient"></span>
                                 </div>
                                 <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                                    <span class="text-slate-500">Valor de aquisição atualizado</span>
+                                    <span class="text-slate-500">Valor Aquisição (Corrigido)</span>
                                     <span class="font-medium text-red-600" x-text="'- ' + results.acquisition_updated_fmt + ' €'"></span>
                                 </div>
                                 <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                                    <span class="text-slate-500">Despesas e encargos</span>
+                                    <span class="text-slate-500">Despesas</span>
                                     <span class="font-medium text-red-600" x-text="'- ' + results.expenses_fmt + ' €'"></span>
                                 </div>
-                                <div class="flex justify-between items-center border-b border-slate-100 pb-3" x-show="results.reinvestment_fmt !== '0,00'">
-                                    <span class="text-slate-500">Valor reinvestido / amortizado (Isento)</span>
-                                    <span class="font-medium text-red-600" x-text="'- ' + results.reinvestment_fmt + ' €'"></span>
-                                </div>
-                                <div class="flex justify-between items-center pt-2">
+                                
+                                {{-- RESULTADO INTERMÉDIO --}}
+                                <div class="flex justify-between items-center pt-2 bg-slate-50 -mx-6 px-6 py-3 border-y border-slate-100">
                                     <span class="font-bold text-ht-navy">Mais-valia Bruta</span>
                                     <span class="font-bold text-green-600" x-text="results.gross_gain_fmt + ' €'"></span>
+                                </div>
+
+                                {{-- BOTÃO DE DETALHES DA ISENÇÃO (O QUE VOCÊ PEDIU) --}}
+                                <div x-show="results.reinvestment_fmt !== '0,00'" class="pt-2">
+                                    <button @click="showDetails = !showDetails" class="w-full flex justify-between items-center text-xs font-bold uppercase tracking-wide text-ht-accent hover:text-ht-navy transition-colors">
+                                        <span>Ver Detalhes da Isenção</span>
+                                        <svg class="w-4 h-4 transform transition-transform" :class="showDetails ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </button>
+                                    
+                                    <div x-show="showDetails" x-collapse class="mt-3 bg-ht-accent/5 p-4 rounded-xl text-xs text-slate-600 space-y-2">
+                                        <div class="flex justify-between">
+                                            <span>Valor Reinvestido/Amortizado:</span>
+                                            <span class="font-bold text-ht-navy" x-text="results.reinvestment_fmt + ' €'"></span>
+                                        </div>
+                                        <p class="italic text-[10px] text-slate-400 border-t border-slate-200 pt-2 mt-2">
+                                            A isenção é calculada proporcionalmente ao valor reinvestido face ao valor de venda.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="bg-blue-50 border border-blue-100 rounded-2xl p-6 text-xs text-blue-800 leading-relaxed">
-                            <strong class="block mb-2 font-bold text-blue-900">Notas: Lei n.º 3-B/2010, art. 102.º</strong>
-                            Os ganhos provenientes da venda de imóveis para habitação ao Estado, às Regiões Autónomas, às entidades públicas empresariais na área da habitação ou às autarquias locais estão isentos de tributação em IRS e IRC.
-                        </div>
-
-                        <div x-show="results.taxable_gain_fmt !== '0,00'" class="p-4 bg-yellow-100 border border-yellow-300 rounded-2xl text-xs text-yellow-800 font-medium">
-                            <strong class="block mb-1 text-sm text-yellow-900">Por que apenas 50% é tributável?</strong>
-                            Em Portugal, a lei do IRS estabelece que apenas 50% do valor da mais-valia (após as deduções e isenções de reinvestimento) é englobado e sujeito a imposto (IRS). A outra metade fica isenta. O cálculo que vê em "Parte tributável" já reflete esta redução.
+                            <strong class="block mb-2 font-bold text-blue-900">Nota Legal</strong>
+                            Os ganhos provenientes da venda de imóveis para habitação ao Estado ou autarquias estão totalmente isentos de tributação. Se reinvestiu, o imposto é reduzido proporcionalmente.
                         </div>
                     </div>
                 </div>
@@ -341,7 +350,7 @@
 
         </div>
 
-        {{-- Modal de Lead (Mantido Igual) --}}
+        {{-- Modal de Lead --}}
         <div x-show="showLeadModal" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
             <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                 <div x-show="showLeadModal" x-transition.opacity class="fixed inset-0 bg-ht-navy/80 backdrop-blur-sm transition-opacity" aria-hidden="true" @click="showLeadModal = false"></div>
@@ -392,6 +401,7 @@
         return {
             hasCalculated: false,
             showLeadModal: false,
+            showDetails: false, // NOVO ESTADO para o botão de isenção
             form: {
                 acquisition_value: '',
                 acquisition_year: 2010,
@@ -443,7 +453,6 @@
                  if(this.form.hpp_status !== 'Sim') {
                     this.form.reinvest_intention = 'Não';
                     this.form.reinvestment_amount = '';
-                    // NOTA: NÃO resetamos mais a amortização aqui, pois pode ser usada para secundários
                     this.form.retired_status = 'Não'; 
                 }
             },

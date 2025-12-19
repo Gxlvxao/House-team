@@ -52,12 +52,9 @@
          x-data="{ isOpen: false, isScrolled: false }"
          @scroll.window="isScrolled = (window.pageYOffset > 20)">
          
-        {{-- Removido o 'justify-between' e ajustado para centralizar o menu já que não tem logo --}}
         <div class="glass-nav rounded-full px-6 py-3 shadow-glass flex justify-center items-center md:gap-6 transition-all duration-300"
              :class="isScrolled ? 'py-3' : 'py-4'">
             
-            {{-- LOGO REMOVIDA DAQUI --}}
-
             <div class="hidden md:flex items-center gap-1">
                 <a href="{{ route('home') }}" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">Home</a>
                 <a href="{{ route('about') }}" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">Equipa</a>
@@ -82,7 +79,6 @@
                 </a>
             </div>
 
-            {{-- Ajuste para manter o botão mobile alinhado --}}
             <div class="md:hidden flex w-full justify-between items-center">
                  <span class="text-white text-xs font-bold uppercase tracking-widest">Menu</span>
                 <button @click="isOpen = !isOpen" class="text-white p-1 rounded-full hover:bg-white/10 transition">
@@ -110,11 +106,14 @@
         @yield('content')
     </main>
 
+    {{-- RODAPÉ (FOOTER) CORRIGIDO --}}
     <footer class="bg-ht-navy text-white pt-24 pb-12 border-t border-white/5">
         <div class="container mx-auto px-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-12 border-b border-white/10 pb-12">
                 <div class="col-span-1 md:col-span-2">
-                    <img src="{{ asset('img/logo.png') }}" alt="House Team" class="h-12 mb-6 opacity-90 grayscale hover:grayscale-0 transition-all">
+                    <a href="{{ route('home') }}" class="block mb-6">
+                        <img src="{{ asset('img/logo.png') }}" alt="House Team" class="h-14 w-auto brightness-0 invert opacity-90 hover:opacity-100 transition-opacity">
+                    </a>
                     <p class="text-slate-400 text-sm leading-relaxed max-w-md">
                         Broker Empreendedor. Uma abordagem moderna ao imobiliário, focada na transparência, tecnologia e resultados.
                     </p>
@@ -125,19 +124,29 @@
                         <li><a href="{{ route('home') }}" class="hover:text-white transition">Home</a></li>
                         <li><a href="{{ route('about') }}" class="hover:text-white transition">Equipa</a></li>
                         <li><a href="{{ route('portfolio') }}" class="hover:text-white transition">Imóveis</a></li>
+                        <li><a href="{{ route('contact') }}" class="hover:text-white transition">Contactos</a></li>
                     </ul>
                 </div>
                 <div>
                     <h5 class="text-xs font-bold uppercase tracking-widest mb-6 text-ht-accent">Contactos</h5>
-                    <ul class="space-y-3 text-sm text-slate-400">
-                        <li>+351 910 739 610</li>
-                        <li>dmgmaia@remax.pt</li>
-                        <li>Av. Casal Ribeiro 12B</li>
+                    <ul class="space-y-4 text-sm text-slate-400">
+                        <li class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-ht-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                            <a href="tel:+351923224551" class="hover:text-white transition">+351 923 224 551</a>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-ht-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            <a href="mailto:Clientes@houseteamconsultores.pt" class="hover:text-white transition break-all">Clientes@houseteamconsultores.pt</a>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-ht-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <span>Av. Casal Ribeiro 12B</span>
+                        </li>
                     </ul>
                 </div>
             </div>
             <div class="pt-8 text-center text-xs text-slate-500 uppercase tracking-widest">
-                © 2025 House Team Consultores.
+                &copy; {{ date('Y') }} House Team Consultores. Todos os direitos reservados.
             </div>
         </div>
     </footer>
