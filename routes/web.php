@@ -2,9 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Models\Property;
+use App\Models\Consultant; // <--- Importado para a rota /sobre
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\PropertyController;
-use App\Http\Controllers\ToolsController; // <--- OBRIGATÓRIO: Importar este controller
+use App\Http\Controllers\ToolsController;
+use App\Http\Controllers\ConsultantController;
 
 // --- HOME & PÁGINAS GERAIS ---
 Route::get('/', function () {
@@ -12,8 +14,21 @@ Route::get('/', function () {
     return view('home', compact('properties'));
 })->name('home');
 
+// Rota /sobre agora busca dados do banco
 Route::get('/sobre', function () {
-    return view('about');
+    $consultants = Consultant::where('is_active', true)
+        ->orderBy('order', 'asc')
+        ->get();
+
+    // Assume que o primeiro (ordem mais baixa) é o Líder
+    $leader = $consultants->first();
+    
+    // O resto é a equipa
+    $team = $consultants->filter(function ($consultant) use ($leader) {
+        return $consultant->id !== ($leader->id ?? null);
+    });
+
+    return view('about', compact('leader', 'team'));
 })->name('about');
 
 // --- IMÓVEIS ---
@@ -22,23 +37,21 @@ Route::get('/imoveis/{property:slug}', [PropertyController::class, 'show'])->nam
 
 // --- FERRAMENTAS ---
 
-// Simulador de Crédito (Cálculo feito no browser, só precisa de ver a página)
+// Simulador de Crédito
 Route::get('/ferramentas/simulador-credito', function () {
     return view('tools.credit');
 })->name('tools.credit');
 
-// Simulador de IMT (Cálculo feito no browser, só precisa de ver a página)
+// Simulador de IMT
 Route::get('/ferramentas/imt', function () {
     return view('tools.imt');
 })->name('tools.imt');
 
-// Simulador de Mais-Valias (Requer Backend)
-// 1. Rota para mostrar o formulário
+// Simulador de Mais-Valias
 Route::get('/ferramentas/mais-valias', function () {
     return view('tools.gains');
 })->name('tools.gains');
 
-// 2. Rota OBRIGATÓRIA para fazer o cálculo (Esta era a que faltava!)
 Route::post('/ferramentas/mais-valias/calcular', [ToolsController::class, 'calculateGains'])
     ->name('tools.gains.calculate');
 
@@ -66,7 +79,6 @@ Route::get('/contato', function () {
     return view('contact');
 })->name('contact');
 
-// Rota para processar o envio do formulário de contacto (Home e Página Contacto)
 Route::post('/contato', [ToolsController::class, 'sendContact'])->name('contact.submit');
 
 
@@ -83,5 +95,6 @@ Route::prefix('admin')->group(function () {
         })->name('admin.dashboard');
 
         Route::resource('properties', PropertyController::class)->names('admin.properties');
+        Route::resource('consultants', ConsultantController::class)->names('admin.consultants');
     });
 });

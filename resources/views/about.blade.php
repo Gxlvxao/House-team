@@ -2,199 +2,120 @@
 
 @section('content')
 
-{{-- DADOS DA EQUIPA (CONFIGURAÇÃO) --}}
-@php
-    $leader = [
-        'name' => 'Hugo Gaito',
-        'role' => 'Broker Empreendedor',
-        'photo' => 'Hugo.png',
-        'phone' => null,
-        'email' => null,
-        'bio' => null
-    ];
-
-    $team = [
-        [
-            'name' => 'Carlos Pinto',
-            'role' => 'Consultor Imobiliário',
-            'photo' => 'carlos.png',
-            'phone' => '+351917204561',
-            'email' => null,
-            'bio' => ''
-        ],
-        [
-            'name' => 'Mariana Faria',
-            'role' => 'Consultora Imobiliária',
-            'photo' => 'mariana.png',
-            'phone' => '+351961222024',
-            'email' => null,
-            'bio' => ''
-        ],
-        [
-            'name' => 'Leonor Tudela',
-            'role' => 'Consultora Imobiliária',
-            'photo' => 'leonor.png',
-            'phone' => '+351962501264',
-            'email' => null,
-            'bio' => 'Sou licenciada em Gestão de Marketing, com 25 anos de experiência profissional, sempre focada no cuidado ao outro. Sou uma pessoa alegre, dedicada, humilde, responsável e cumpridora, que gosta de novos desafios, que se preocupa com o outro e, sobretudo, que gosta de se relacionar…'
-        ],
-        [
-            'name' => 'Anabela Inácio',
-            'role' => 'Consultora Imobiliária',
-            'photo' => 'anabela.png',
-            'phone' => '+351964872394',
-            'email' => null,
-            'bio' => 'O meu nome é Anabela Inácio, fui bancária durante 26 anos. Sempre dedicada à área comercial, passando do financiamento automóvel a Gestora de conta de Clientes, considero o ramo Imobiliário um valor acrescentado a toda a minha relação com pessoas. Procuro estar sempre bem informada…'
-        ],
-        [
-            'name' => 'Sandra Guedes',
-            'role' => 'Consultora Imobiliária',
-            'photo' => 'sandra.png',
-            'phone' => '+351934188303',
-            'email' => null,
-            'bio' => 'O meu nome é Sandra Guedes, tenho 50 anos e sou uma apaixonada por “pessoas” e por “casas”, pelos sonhos e projetos envolvidos, pelas histórias nelas vividas… Sou licenciada em Gestão de Recursos Humanos, com mais de 25 anos de experiência profissional, a lidar com…'
-        ],
-        [
-            'name' => 'Sofia Leitão',
-            'role' => 'Consultora Imobiliária',
-            'photo' => 'sofia.png',
-            'phone' => '+351917715544',
-            'email' => 'sofialeitao@remax.pt',
-            'bio' => 'O meu nome é Sofia, tenho 52 anos e para mim o imobiliário é a forma que encontrei de satisfazer um interesse pessoal e ao mesmo tempo realizar os sonhos de outras pessoas. Morei fora de Portugal durante 17 anos, e durante esse período era…'
-        ],
-        [
-            'name' => 'Inês Lobo',
-            'role' => 'Consultora Imobiliária',
-            'photo' => 'ines.png',
-            'phone' => '+351913163655',
-            'email' => 'inesamaral@remax.pt',
-            'bio' => 'O meu nome é Inês Lobo, tenho 28 anos e sou consultora imobiliária. Licenciei-me em Psicologia, mas sempre tive uma grande paixão pelo ramo imobiliário, por isso escolhi a RE/MAX para trabalhar. A par com a Equipa House Team consultores, integro a RE/MAX – ExpoGroup,…'
-        ],
-        [
-            'name' => 'Matilde Pereira',
-            'role' => 'Consultora Imobiliária',
-            'photo' => 'matilde.png',
-            'phone' => '+351967823022',
-            'email' => 'matildepereira@remax.pt',
-            'bio' => 'O meu nome é Matilde Pereira. Desde que me conheço como pessoa que estou no mundo do empreendedorismo! Tenho um gosto especial por relações com pessoas e por fazer parte da vida dos meus clientes. Acredito que para se ser grande tem de se sonhar…'
-        ],
-        [
-            'name' => 'Marília Miranda',
-            'role' => 'Consultora Imobiliária',
-            'photo' => 'marilia.png',
-            'phone' => '+351910970808',
-            'email' => 'mmiranda@remax.pt',
-            'bio' => ''
-        ],
-        [
-            'name' => 'Margarida Lopes',
-            'role' => 'Consultora Imobiliária',
-            'photo' => 'margarida.png',
-            'phone' => '+351967635312',
-            'email' => null,
-            'bio' => 'Desde 2008 a trabalhar no Ramo Imobiliário, tendo me iniciado na área da Consultoria Financeira e, mais tarde, em 2014, encontrado a minha vocação comercial como Consultora Imobiliária. Desde essa data tenho sido reconhecida e premiada todos os anos pelo trabalho e volume de negócios…'
-        ],
-        [
-            'name' => 'Marina Machado',
-            'role' => 'Assistente',
-            'photo' => 'marina.png',
-            'phone' => '+351916123562',
-            'email' => null,
-            'bio' => 'O seu percurso profissional por áreas de trabalho muito distintas, formação na área da saúde e 5 anos de experiência no ramo imobiliário, determinou a sua elevada capacidade de adaptação e experiência no contacto com pessoas. No ramo imobiliário foi consultora mas é a componente…'
-        ],
-        [
-            'name' => 'Pedro Santos',
-            'role' => 'Consultor Imobiliário',
-            'photo' => 'pedro.png',
-            'phone' => '+351917827196',
-            'email' => null,
-            'bio' => 'Desde sempre ligado à área comercial, abracei este projeto em 2015. Pode contar com o meu profissionalismo e dedicação.'
-        ],
-        [
-            'name' => 'Hugo Carvalho',
-            'role' => 'Consultor Imobiliário',
-            'photo' => 'hugo2.png',
-            'phone' => '+351961407430',
-            'email' => null,
-            'bio' => 'Possuo um forte interesse pela área imobiliária, visto que gosto de casas e das suas ínfimas particularidades. Para mim uma “casa” não se trata apenas de algo físico, mas sim de um conceito construtivo, das vivências associadas e memórias que se constroem. É com base…'
-        ],
-        [
-            'name' => 'David Simões',
-            'role' => 'Consultor Imobiliário',
-            'photo' => 'david.png',
-            'phone' => '+351961044596',
-            'email' => null,
-            'bio' => 'Com vasta experiência na área comercial e no ramo imobiliário, conte com o meu profissionalismo'
-        ],
-    ];
-@endphp
-
-{{-- COMPONENTE ALPINE PARA O MODAL --}}
 <div x-data="{ 
     activeMember: null, 
     openModal: false,
     showMember(member) {
         this.activeMember = member;
         this.openModal = true;
-        document.body.style.overflow = 'hidden'; // Bloqueia scroll
+        document.body.style.overflow = 'hidden';
     },
     closeModal() {
         this.openModal = false;
         setTimeout(() => this.activeMember = null, 300);
-        document.body.style.overflow = 'auto'; // Libera scroll
+        document.body.style.overflow = 'auto';
     }
 }">
 
-    <section class="bg-ht-navy pt-40 pb-20 text-center relative overflow-hidden">
-        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
+    {{-- HERO SECTION --}}
+    <section class="bg-ht-navy pt-40 pb-24 text-center relative overflow-hidden">
+        {{-- Background Pattern & Gradient --}}
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-ht-navy via-slate-900 to-ht-navy opacity-80"></div>
+        
         <div class="container mx-auto px-6 relative z-10">
-            <p class="text-ht-accent font-bold text-xs uppercase tracking-[0.3em] mb-4">A Nossa Força</p>
-            <h1 class="text-4xl md:text-6xl font-black text-white mb-6">Conheça a Equipa</h1>
-            <p class="text-slate-400 max-w-2xl mx-auto text-lg font-light">
-                Profissionais dedicados, apaixonados pelo imobiliário e focados em realizar os seus sonhos.
-            </p>
-        </div>
-    </section>
-
-    <section class="py-20 bg-white relative">
-        <div class="container mx-auto px-6 text-center">
-            <div class="inline-block relative group cursor-default" data-aos="zoom-in">
-                <div class="absolute -inset-4 bg-gradient-to-r from-ht-navy via-ht-accent to-ht-navy rounded-full opacity-20 blur-xl group-hover:opacity-40 transition duration-700"></div>
-                
-                <div class="relative w-48 h-48 md:w-64 md:h-64 mx-auto rounded-full p-2 bg-white shadow-2xl overflow-hidden border-4 border-slate-50">
-                    <img src="{{ asset('img/team/' . $leader['photo']) }}" 
-                         alt="{{ $leader['name'] }}" 
-                         class="w-full h-full object-cover rounded-full transform group-hover:scale-105 transition duration-700">
-                </div>
-                
-                <h2 class="text-3xl font-black text-ht-navy mt-8">{{ $leader['name'] }}</h2>
-                <p class="text-ht-accent font-bold uppercase tracking-widest text-sm mt-2">{{ $leader['role'] }}</p>
+            <div data-aos="fade-down" data-aos-duration="1000">
+                <span class="inline-block py-1 px-3 rounded-full bg-white/10 border border-white/20 text-ht-accent font-bold text-[10px] uppercase tracking-[0.3em] mb-6 backdrop-blur-sm">
+                    A Nossa Força
+                </span>
+                <h1 class="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight leading-tight">
+                    Conheça a <span class="text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">Equipa</span>
+                </h1>
+                <p class="text-slate-400 max-w-2xl mx-auto text-lg md:text-xl font-light leading-relaxed">
+                    Profissionais dedicados, apaixonados pelo imobiliário e focados em realizar os seus sonhos com excelência.
+                </p>
             </div>
         </div>
     </section>
 
-    <section class="py-16 bg-slate-50 border-t border-slate-200">
+    {{-- LEADER SECTION --}}
+    @if($leader)
+    <section class="py-24 bg-white relative overflow-hidden">
+        {{-- Decorative Elements --}}
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-full bg-slate-50/50 -skew-y-3 z-0"></div>
+
+        <div class="container mx-auto px-6 text-center relative z-10">
+            <div class="inline-block group cursor-pointer" data-aos="zoom-in" @click="showMember({{ json_encode($leader) }})">
+                <div class="relative">
+                    {{-- Glow Effect --}}
+                    <div class="absolute -inset-6 bg-gradient-to-tr from-ht-navy via-ht-accent to-blue-500 rounded-full opacity-20 blur-2xl group-hover:opacity-40 transition duration-700"></div>
+                    
+                    {{-- Image Container --}}
+                    <div class="relative w-56 h-56 md:w-72 md:h-72 mx-auto rounded-full p-2 bg-white shadow-2xl ring-1 ring-slate-100">
+                        <div class="w-full h-full rounded-full overflow-hidden border-4 border-slate-50 relative">
+                            <img src="{{ $leader->image_url }}" 
+                                 alt="{{ $leader->name }}" 
+                                 class="w-full h-full object-cover transform group-hover:scale-110 transition duration-700 ease-out">
+                             {{-- Overlay on Hover --}}
+                             <div class="absolute inset-0 bg-ht-navy/20 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                        </div>
+                         {{-- Badge Icon --}}
+                         <div class="absolute bottom-4 right-4 bg-ht-navy text-white p-3 rounded-full shadow-lg transform translate-y-2 group-hover:translate-y-0 transition duration-500 border-4 border-white">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                         </div>
+                    </div>
+                </div>
+                
+                <h2 class="text-4xl font-black text-ht-navy mt-10 tracking-tight">{{ $leader->name }}</h2>
+                <div class="flex items-center justify-center gap-2 mt-2">
+                    <span class="h-px w-8 bg-ht-accent/50"></span>
+                    <p class="text-ht-accent font-bold uppercase tracking-widest text-sm">{{ $leader->role }}</p>
+                    <span class="h-px w-8 bg-ht-accent/50"></span>
+                </div>
+                <p class="mt-4 text-sm text-slate-400 font-medium group-hover:text-ht-blue transition-colors">Ver Perfil Completo &rarr;</p>
+            </div>
+        </div>
+    </section>
+    @endif
+
+    {{-- TEAM GRID --}}
+    <section class="py-24 bg-slate-50 border-t border-slate-200">
         <div class="container mx-auto px-6 md:px-12">
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
+            <div class="text-center mb-16">
+                <h3 class="text-2xl font-bold text-ht-navy">Nossos Consultores</h3>
+                <div class="w-20 h-1 bg-ht-accent mx-auto mt-4 rounded-full"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
                 @foreach($team as $member)
-                    <div class="bg-white rounded-3xl p-8 text-center shadow-sm hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer border border-slate-100 group relative overflow-hidden"
-                         @click="showMember({{ json_encode($member) }})"
-                         data-aos="fade-up">
+                    <div class="group relative" data-aos="fade-up" @click="showMember({{ json_encode($member) }})">
                         
-                        <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-ht-navy to-ht-accent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+                        {{-- Card Background --}}
+                        <div class="absolute inset-0 bg-white rounded-3xl shadow-sm border border-slate-100 transform transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-xl group-hover:border-ht-blue/20"></div>
 
-                        <div class="w-32 h-32 mx-auto rounded-full p-1 border-2 border-slate-100 group-hover:border-ht-accent transition-colors duration-300 mb-6 relative">
-                            <img src="{{ asset('img/team/' . $member['photo']) }}" 
-                                 class="w-full h-full object-cover rounded-full grayscale group-hover:grayscale-0 transition duration-500">
+                        <div class="relative p-8 text-center cursor-pointer">
+                            {{-- Top Gradient Line --}}
+                            <div class="absolute top-0 left-8 right-8 h-1 bg-gradient-to-r from-transparent via-ht-accent to-transparent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+
+                            {{-- Image --}}
+                            <div class="w-32 h-32 mx-auto rounded-full p-1 border border-slate-200 group-hover:border-ht-accent transition-colors duration-300 mb-6 bg-white">
+                                <div class="w-full h-full rounded-full overflow-hidden relative">
+                                    <img src="{{ $member->image_url }}" 
+                                         class="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transform group-hover:scale-110 transition duration-500">
+                                </div>
+                            </div>
+
+                            {{-- Info --}}
+                            <h3 class="text-lg font-bold text-ht-navy mb-1 group-hover:text-ht-blue transition-colors">{{ $member->name }}</h3>
+                            <p class="text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-6">{{ $member->role }}</p>
+
+                            {{-- Action --}}
+                            <div class="inline-flex items-center gap-1 text-xs font-bold text-slate-400 group-hover:text-ht-navy transition-colors">
+                                <span>Ver Detalhes</span>
+                                <svg class="w-3 h-3 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                            </div>
                         </div>
-
-                        <h3 class="text-lg font-bold text-ht-navy mb-1 group-hover:text-ht-accent transition-colors">{{ $member['name'] }}</h3>
-                        <p class="text-xs text-slate-400 uppercase tracking-wider font-bold mb-6">{{ $member['role'] }}</p>
-
-                        <button class="text-xs font-bold text-ht-navy border-b-2 border-ht-navy/10 pb-1 group-hover:border-ht-accent group-hover:text-ht-accent transition-all">
-                            Ver Perfil
-                        </button>
                     </div>
                 @endforeach
             </div>
@@ -202,11 +123,13 @@
         </div>
     </section>
 
+    {{-- MODAL --}}
     <div x-show="openModal" 
-         class="fixed inset-0 z-[100] flex items-center justify-center p-4"
+         class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6"
          style="display: none;">
         
-        <div class="absolute inset-0 bg-ht-navy/80 backdrop-blur-md transition-opacity duration-300"
+        {{-- Backdrop --}}
+        <div class="absolute inset-0 bg-ht-navy/90 backdrop-blur-sm transition-opacity duration-300"
              x-show="openModal"
              x-transition:enter="ease-out duration-300"
              x-transition:enter-start="opacity-0"
@@ -216,55 +139,80 @@
              x-transition:leave-end="opacity-0"
              @click="closeModal()"></div>
 
-        <div class="relative bg-white w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row transform transition-all duration-300"
+        {{-- Modal Content --}}
+        <div class="relative bg-white w-full max-w-5xl rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row transform transition-all duration-300 max-h-[90vh] md:max-h-auto"
              x-show="openModal"
-             x-transition:enter="ease-out duration-300"
-             x-transition:enter-start="opacity-0 scale-95 translate-y-10"
+             x-transition:enter="ease-out duration-500"
+             x-transition:enter-start="opacity-0 scale-95 translate-y-8"
              x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-             x-transition:leave="ease-in duration-200"
+             x-transition:leave="ease-in duration-300"
              x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-             x-transition:leave-end="opacity-0 scale-95 translate-y-10">
+             x-transition:leave-end="opacity-0 scale-95 translate-y-8">
             
-            <button @click="closeModal()" class="absolute top-4 right-4 z-50 p-2 bg-white/20 backdrop-blur rounded-full text-slate-800 md:text-white hover:bg-white/40 transition">
+            {{-- Close Button --}}
+            <button @click="closeModal()" class="absolute top-4 right-4 z-50 p-2 bg-white/10 backdrop-blur-md rounded-full text-white/80 hover:bg-white hover:text-ht-navy transition-all border border-white/20 shadow-lg">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
 
-            <div class="md:w-2/5 bg-slate-100 relative h-64 md:h-auto">
+            {{-- Left Side: Image --}}
+            <div class="md:w-5/12 bg-slate-100 relative h-72 md:h-auto shrink-0">
                 <template x-if="activeMember">
-                    <img :src="'{{ asset('img/team/') }}/' + activeMember.photo" 
+                    <img :src="activeMember.image_url" 
                          class="w-full h-full object-cover absolute inset-0">
                 </template>
-                <div class="absolute inset-0 bg-gradient-to-t from-ht-navy/80 to-transparent md:bg-gradient-to-r"></div>
+                {{-- Gradient Overlay for text readability on mobile --}}
+                <div class="absolute inset-0 bg-gradient-to-t from-ht-navy/90 via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-white/10"></div>
+                
+                {{-- Name on Image (Mobile Only) --}}
+                <div class="absolute bottom-6 left-6 md:hidden text-white">
+                    <h2 class="text-3xl font-black" x-text="activeMember.name"></h2>
+                    <p class="text-sm font-bold opacity-80" x-text="activeMember.role"></p>
+                </div>
             </div>
 
-            <div class="md:w-3/5 p-8 md:p-12 flex flex-col justify-center bg-white relative">
+            {{-- Right Side: Info --}}
+            <div class="md:w-7/12 p-8 md:p-12 flex flex-col justify-center bg-white overflow-y-auto">
                 <template x-if="activeMember">
                     <div>
-                        <span class="inline-block px-3 py-1 bg-blue-50 text-ht-accent text-[10px] font-bold uppercase tracking-widest rounded-full mb-4" x-text="activeMember.role"></span>
-                        
-                        <h2 class="text-3xl md:text-4xl font-black text-ht-navy mb-6" x-text="activeMember.name"></h2>
-                        
-                        <div x-show="activeMember.bio" class="mb-8">
-                            <p class="text-slate-500 leading-relaxed text-sm md:text-base font-medium border-l-4 border-ht-accent pl-4" x-text="activeMember.bio"></p>
+                        {{-- Header (Desktop) --}}
+                        <div class="hidden md:block mb-8">
+                            <span class="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-ht-blue text-[10px] font-bold uppercase tracking-widest rounded-full mb-3 border border-blue-100">
+                                <span class="w-1.5 h-1.5 rounded-full bg-ht-blue"></span>
+                                <span x-text="activeMember.role"></span>
+                            </span>
+                            <h2 class="text-4xl md:text-5xl font-black text-ht-navy tracking-tight" x-text="activeMember.name"></h2>
                         </div>
-                        <div x-show="!activeMember.bio" class="mb-8">
-                            <p class="text-slate-400 italic text-sm">Contacte-me para agendar uma visita ou discutir o seu imóvel.</p>
+                        
+                        {{-- Bio --}}
+                        <div class="mb-10">
+                            <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-4">Sobre Profissional</h4>
+                            <div x-show="activeMember.bio">
+                                <p class="text-slate-600 leading-relaxed text-base md:text-lg font-light" x-text="activeMember.bio"></p>
+                            </div>
+                            <div x-show="!activeMember.bio" class="p-6 bg-slate-50 rounded-xl border border-slate-100 text-center">
+                                <p class="text-slate-400 italic text-sm">Biografia indisponível no momento.</p>
+                            </div>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <a :href="'https://wa.me/' + (activeMember.phone ? activeMember.phone.replace(/[^0-9]/g, '') : '')" 
-                               target="_blank"
-                               class="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-xl font-bold uppercase text-xs tracking-widest transition-all shadow-lg hover:shadow-green-500/30">
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-                                WhatsApp
-                            </a>
+                        {{-- Contacts --}}
+                        <div class="space-y-4">
+                            <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-2">Entrar em Contacto</h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <a x-show="activeMember.phone"
+                                   :href="'https://wa.me/' + (activeMember.phone ? activeMember.phone.replace(/[^0-9]/g, '') : '')" 
+                                   target="_blank"
+                                   class="group flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#128C7E] text-white py-4 px-6 rounded-xl font-bold transition-all shadow-lg hover:shadow-green-500/30 transform hover:-translate-y-0.5">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                                    <span>WhatsApp</span>
+                                </a>
 
-                            <a :href="'mailto:' + activeMember.email" 
-                               x-show="activeMember.email"
-                               class="flex items-center justify-center gap-2 bg-slate-100 hover:bg-ht-navy hover:text-white text-ht-navy py-3 px-6 rounded-xl font-bold uppercase text-xs tracking-widest transition-all">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                                Enviar Email
-                            </a>
+                                <a :href="'mailto:' + activeMember.email" 
+                                   x-show="activeMember.email"
+                                   class="group flex items-center justify-center gap-3 bg-ht-navy hover:bg-ht-blue text-white py-4 px-6 rounded-xl font-bold transition-all shadow-lg hover:shadow-blue-500/30 transform hover:-translate-y-0.5">
+                                    <svg class="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                    <span>Enviar Email</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </template>
