@@ -26,10 +26,14 @@ class ConsultantController extends Controller
             'role' => 'nullable|string|max:255',
             'email' => 'nullable|email|max:255',
             'phone' => 'nullable|string|max:20',
-            'photo' => 'nullable|image|max:2048', // Max 2MB
+            'photo' => 'nullable|image|max:2048',
             'bio' => 'nullable|string',
             'order' => 'integer',
             'is_active' => 'boolean',
+            'facebook' => 'nullable|string|max:255',
+            'instagram' => 'nullable|string|max:255',
+            'linkedin' => 'nullable|string|max:255',
+            'tiktok' => 'nullable|string|max:255',
         ]);
 
         if ($request->hasFile('photo')) {
@@ -58,17 +62,19 @@ class ConsultantController extends Controller
             'bio' => 'nullable|string',
             'order' => 'integer',
             'is_active' => 'boolean',
+            'facebook' => 'nullable|string|max:255',
+            'instagram' => 'nullable|string|max:255',
+            'linkedin' => 'nullable|string|max:255',
+            'tiktok' => 'nullable|string|max:255',
         ]);
 
         if ($request->hasFile('photo')) {
-            // Remove foto antiga se existir e não for a padrão
             if ($consultant->photo && Storage::disk('public')->exists($consultant->photo)) {
                 Storage::disk('public')->delete($consultant->photo);
             }
             $validated['photo'] = $request->file('photo')->store('team', 'public');
         }
 
-        // Checkbox html não envia valor se desmarcado, forçamos o false
         $validated['is_active'] = $request->has('is_active');
 
         $consultant->update($validated);

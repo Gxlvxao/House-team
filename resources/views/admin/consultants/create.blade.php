@@ -44,6 +44,28 @@
                     <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Biografia Curta</label>
                     <textarea name="bio" rows="4" class="w-full px-4 py-3 rounded-xl bg-slate-50 border-transparent focus:border-ht-blue focus:bg-white focus:ring-0 transition-all font-semibold text-slate-700">{{ old('bio') }}</textarea>
                 </div>
+
+                <div class="pt-4 border-t border-slate-100">
+                    <h4 class="text-sm font-bold text-ht-navy mb-4">Redes Sociais (Opcional)</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Instagram</label>
+                            <input type="text" name="instagram" value="{{ old('instagram') }}" class="w-full px-3 py-2 rounded-lg bg-slate-50 border-transparent focus:border-ht-blue focus:bg-white text-sm" placeholder="@usuario ou URL">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Facebook</label>
+                            <input type="text" name="facebook" value="{{ old('facebook') }}" class="w-full px-3 py-2 rounded-lg bg-slate-50 border-transparent focus:border-ht-blue focus:bg-white text-sm" placeholder="URL Perfil">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">LinkedIn</label>
+                            <input type="text" name="linkedin" value="{{ old('linkedin') }}" class="w-full px-3 py-2 rounded-lg bg-slate-50 border-transparent focus:border-ht-blue focus:bg-white text-sm" placeholder="URL Perfil">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">TikTok</label>
+                            <input type="text" name="tiktok" value="{{ old('tiktok') }}" class="w-full px-3 py-2 rounded-lg bg-slate-50 border-transparent focus:border-ht-blue focus:bg-white text-sm" placeholder="@usuario">
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="space-y-6">

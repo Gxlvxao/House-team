@@ -18,6 +18,10 @@ class Consultant extends Model
         'bio',
         'order',
         'is_active',
+        'facebook',
+        'instagram',
+        'linkedin',
+        'tiktok',
     ];
 
     protected $casts = [
