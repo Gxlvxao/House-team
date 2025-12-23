@@ -17,15 +17,12 @@ class ToolsController extends Controller
         $this->calculator = $calculator;
     }
 
-    // --- VIEWS ---
     public function showGainsSimulator() { return view('tools.gains'); }
-    public function showCreditSimulator() { return view('tools.credit'); } // Caso tenhas rota controller
-    public function showImtSimulator() { return view('tools.imt'); } // Caso tenhas rota controller
+    public function showCreditSimulator() { return view('tools.credit'); }
+    public function showImtSimulator() { return view('tools.imt'); }
 
-    // --- MAIS-VALIAS (Cálculo + Lead) ---
     public function calculateGains(Request $request)
     {
-        // 1. Validação Robusta com Condicionais
         $validated = $request->validate([
             'acquisition_value' => 'required|numeric|min:0',
             'acquisition_year' => 'required|integer|min:1900|max:2025',
@@ -40,7 +37,6 @@ class ToolsController extends Controller
             'expenses_other' => 'nullable|numeric|min:0',
             'sold_to_state' => 'required|string|in:Sim,Não',
             
-            // Campos Condicionais
             'hpp_status' => 'required_unless:sold_to_state,Sim|nullable|string',
             'retired_status' => 'required_unless:sold_to_state,Sim|nullable|string|in:Sim,Não',
             'self_built' => 'required_unless:sold_to_state,Sim|nullable|string|in:Sim,Não',
@@ -54,12 +50,10 @@ class ToolsController extends Controller
             'public_support_year' => 'nullable|integer',
             'public_support_month' => 'nullable|string',
             
-            // Dados da Lead
             'lead_name' => 'required|string|max:255',
             'lead_email' => 'required|email|max:255'
         ]);
 
-        // 2. Soma das Despesas
         $totalExpenses = 0.0;
         if ($validated['has_expenses'] === 'Sim') {
             $totalExpenses = 
@@ -70,16 +64,14 @@ class ToolsController extends Controller
         }
         $validated['expenses_total'] = $totalExpenses;
 
-        // 3. Cálculo
         $results = $this->calculator->calculate($validated);
 
-        // 4. Envio de Email
         if ($request->filled('lead_email')) {
             $this->sendEmailWithPdf(
                 $validated['lead_email'],
                 $validated['lead_name'],
                 'Simulação de Mais-Valias',
-                'pdfs.simulation', // View específica de mais-valias (já existente)
+                'pdfs.simulation',
                 ['data' => $validated, 'results' => $results]
             );
         }
@@ -87,7 +79,6 @@ class ToolsController extends Controller
         return response()->json($results);
     }
 
-    // --- CRÉDITO HABITAÇÃO (Novo Método) ---
     public function sendCreditSimulation(Request $request)
     {
         $data = $request->validate([
@@ -100,14 +91,13 @@ class ToolsController extends Controller
             $data['lead_email'],
             $data['lead_name'],
             'Simulação Crédito Habitação',
-            'pdfs.simple-report', // View genérica nova
+            'pdfs.simple-report', 
             ['title' => 'Relatório Crédito Habitação', 'data' => $data]
         );
 
         return response()->json(['success' => true]);
     }
 
-    // --- IMT (Novo Método) ---
     public function sendImtSimulation(Request $request)
     {
         $data = $request->validate([
@@ -120,39 +110,62 @@ class ToolsController extends Controller
             $data['lead_email'],
             $data['lead_name'],
             'Simulação IMT e Selo',
-            'pdfs.simple-report', // View genérica nova
+            'pdfs.simple-report',
             ['title' => 'Relatório IMT e Imposto de Selo', 'data' => $data]
         );
 
         return response()->json(['success' => true]);
     }
 
-    // --- CONTACTO GERAL ---
     public function sendContact(Request $request)
     {
-        // Validação e lógica de envio do formulário de contacto da página /contato
         $data = $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|email',
-            'phone' => 'nullable|string',
-            'message' => 'required|string',
+            'name'    => 'required|string|max:255',
+            'email'   => 'required|email|max:255',
+            'phone'   => 'nullable|string|max:20',
+            'subject' => 'nullable|string|max:255',
+            'message' => 'nullable|string', 
+            'property_type' => 'nullable|string',
+            'year'          => 'nullable|integer',
+            'area'          => 'nullable|numeric',
+            'bedrooms'      => 'nullable|integer',
+            'bathrooms'     => 'nullable|integer',
+            'garages'       => 'nullable|integer',
+            'parking_type'  => 'nullable|string',
+            'features'      => 'nullable|array',
+            'condition'     => 'nullable|string',
+            'address'       => 'nullable|string',
+            'is_owner'      => 'nullable|string',
+            'estimated_value' => 'nullable|numeric',
         ]);
-        
-        // Exemplo: Mail::to('admin@houseteam.pt')->send(new ContactMail($data));
-        
-        return back()->with('success', 'Mensagem enviada com sucesso!');
+
+        if (empty($data['subject'])) {
+            $data['subject'] = 'Novo Contacto Geral';
+        }
+
+        try {
+            $adminEmail = 'admin@houseteam.pt'; 
+
+            Mail::send('emails.contact-lead', ['data' => $data], function ($message) use ($adminEmail, $data) {
+                $message->to($adminEmail)
+                        ->subject('[House Team] ' . $data['subject']);
+            });
+
+            return back()->with('success', 'O seu pedido foi enviado com sucesso! Entraremos em contacto brevemente.');
+
+        } catch (\Exception $e) {
+            Log::error('Erro ao enviar contacto: ' . $e->getMessage());
+            return back()->with('error', 'Ocorreu um erro ao enviar a mensagem. Por favor tente novamente.');
+        }
     }
 
-    // --- HELPER PARA EMAIL ---
     private function sendEmailWithPdf($email, $name, $type, $pdfView, $viewData)
     {
         try {
             $viewData['date'] = date('d/m/Y');
             
-            // Gera o PDF
             $pdf = Pdf::loadView($pdfView, $viewData);
 
-            // Envia o Email com a Blade "simulation-lead"
             Mail::send('emails.simulation-lead', ['name' => $name, 'simulationType' => $type], function ($message) use ($email, $type, $pdf) {
                 $message->to($email)
                     ->subject($type . ' - Resultado Detalhado')

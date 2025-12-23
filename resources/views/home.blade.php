@@ -106,7 +106,7 @@
             
             <div class="lg:w-1/2 relative order-2 lg:order-1" data-aos="fade-right">
                 <div class="absolute inset-0 bg-ht-navy transform -rotate-3 rounded-3xl translate-x-4 translate-y-4 opacity-10"></div>
-                <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1000&auto=format&fit=crop" 
+                <img src="{{ asset('img/reuniao.jpg') }}" 
                      alt="House Team Equipa" 
                      class="relative rounded-3xl shadow-2xl w-full h-[500px] object-cover grayscale hover:grayscale-0 transition duration-700">
             </div>
@@ -169,6 +169,7 @@
             type: 'apartamento',
             bedrooms: 2,
             bathrooms: 1,
+            garages: 0, 
             features: [],
             condition: ''
         }" class="max-w-4xl mx-auto bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/10">
@@ -230,7 +231,7 @@
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold uppercase tracking-wide text-slate-500 mb-2">Banheiros</label>
+                                <label class="block text-xs font-bold uppercase tracking-wide text-slate-500 mb-2">Casas de banho</label>
                                 <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl p-2">
                                     <button type="button" @click="bathrooms = Math.max(0, bathrooms - 1)" class="w-8 h-8 rounded-lg bg-white shadow text-ht-navy hover:bg-slate-100">-</button>
                                     <input type="hidden" name="bathrooms" :value="bathrooms">
@@ -239,13 +240,42 @@
                                 </div>
                             </div>
                         </div>
+
+                        {{-- [NOVO] SECÇÃO DE ESTACIONAMENTO --}}
+                        <div class="grid grid-cols-2 gap-6 mt-6">
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wide text-slate-500 mb-2">Tipo de Garagem</label>
+                                <div class="relative">
+                                    <select name="parking_type" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium focus:ring-2 focus:ring-ht-accent outline-none appearance-none text-slate-600">
+                                        <option value="">Selecione</option>
+                                        <option value="Garagem (Box)">Garagem (Box)</option>
+                                        <option value="Lugar de Parqueamento">Lugar de Parqueamento</option>
+                                        <option value="Estacionamento Exterior">Estacionamento Exterior</option>
+                                        <option value="Garagem Dupla">Garagem Dupla</option>
+                                    </select>
+                                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wide text-slate-500 mb-2">Nº Lugares</label>
+                                <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl p-2">
+                                    <button type="button" @click="garages = Math.max(0, garages - 1)" class="w-8 h-8 rounded-lg bg-white shadow text-ht-navy hover:bg-slate-100">-</button>
+                                    <input type="hidden" name="garages" :value="garages">
+                                    <span class="font-bold text-lg text-ht-navy" x-text="garages"></span>
+                                    <button type="button" @click="garages++" class="w-8 h-8 rounded-lg bg-ht-accent text-white shadow hover:bg-blue-600">+</button>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
                     <div x-show="step === 2" x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="opacity-0 translate-x-10" x-transition:enter-end="opacity-100 translate-x-0" style="display: none;">
                         <h3 class="text-2xl font-bold text-ht-navy mb-6">Características & Condição</h3>
                         
                         <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-8">
-                            @foreach(['Terraço', 'Mobiliado', 'Piscina', 'Estacionamento', 'Jardim', 'Condomínio fechado', 'Boas vistas', 'Ar condicionado', 'Aquecimento', 'Domótica'] as $feature)
+                            @foreach(['Terraço', 'Mobilado', 'Piscina', 'Estacionamento', 'Jardim', 'Condomínio fechado', 'Boas vistas', 'Ar condicionado', 'Aquecimento', 'Domótica'] as $feature)
                                 <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors">
                                     <input type="checkbox" name="features[]" value="{{ $feature }}" class="accent-ht-accent w-4 h-4 rounded">
                                     <span class="text-xs font-bold text-slate-600">{{ $feature }}</span>
