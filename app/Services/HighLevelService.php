@@ -35,7 +35,7 @@ class HighLevelService
             'email'     => $data['email'] ?? null,
             'phone'     => $data['phone'] ?? null,
             'tags'      => $data['tags'] ?? [],
-            'source'    => 'Site House Team',
+            'source'    => 'Site House Team', // <--- VOLTAMOS PARA O NOME CLARO
         ];
 
         $payload = array_filter($payload, fn($value) => !empty($value));
@@ -59,36 +59,19 @@ class HighLevelService
         }
     }
 
-    // --- AQUI ESTÁ O DIAGNÓSTICO DA NOTA ---
     public function addNote(string $contactId, string $noteContent)
     {
-        if (empty($noteContent)) {
-            Log::warning('GHL: Tentativa de criar nota vazia para ID ' . $contactId);
-            return;
-        }
-
-        Log::info("GHL: Tentando criar NOTA para o ID {$contactId}. Tamanho do texto: " . strlen($noteContent));
+        if (empty($noteContent)) return;
 
         try {
-            $response = Http::withHeaders($this->getHeaders())
+            Http::withHeaders($this->getHeaders())
                 ->post("{$this->baseUrl}/contacts/{$contactId}/notes", [
                     'body' => $noteContent
                 ]);
-
-            if ($response->successful()) {
-                Log::info('GHL: NOTA CRIADA COM SUCESSO!');
-            } else {
-                // AQUI VAMOS VER PORQUE NÃO FOI
-                Log::error('GHL: ERRO AO CRIAR NOTA. Status: ' . $response->status(), [
-                    'resposta_crm' => $response->body()
-                ]);
-            }
-
         } catch (\Exception $e) {
-            Log::error('GHL: EXCEÇÃO AO CRIAR NOTA', ['msg' => $e->getMessage()]);
+            Log::error('GHL: Erro ao adicionar nota', ['msg' => $e->getMessage()]);
         }
     }
-    // ---------------------------------------
 
     public function createOpportunity(string $contactId, array $data, string $type = 'lead')
     {
@@ -110,7 +93,7 @@ class HighLevelService
             'contactId'  => $contactId,
             'title'      => ($data['name'] ?? 'Cliente') . $titleSuffix,
             'status'     => 'open',
-            'source'     => 'Site House Team', 
+            'source'     => 'Site House Team', // <--- AQUI TAMBÉM
         ];
 
         if (!empty($data['property_price'])) {
