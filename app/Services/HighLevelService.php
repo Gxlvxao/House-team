@@ -35,7 +35,7 @@ class HighLevelService
             'email'     => $data['email'] ?? null,
             'phone'     => $data['phone'] ?? null,
             'tags'      => $data['tags'] ?? [],
-            'source'    => 'Site House Team', // <--- VOLTAMOS PARA O NOME CLARO
+            'source'    => 'Site House Team - Whatsapp', // <--- VOLTAMOS PARA O NOME CLARO
         ];
 
         $payload = array_filter($payload, fn($value) => !empty($value));
@@ -93,7 +93,7 @@ class HighLevelService
             'contactId'  => $contactId,
             'title'      => ($data['name'] ?? 'Cliente') . $titleSuffix,
             'status'     => 'open',
-            'source'     => 'Site House Team', // <--- AQUI TAMBÉM
+            'source'     => 'Site House Team - Whatsapp', // <--- AQUI TAMBÉM
         ];
 
         if (!empty($data['property_price'])) {
