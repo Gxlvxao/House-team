@@ -9,7 +9,7 @@ use Exception;
 class IdealistaExportService extends AbstractIdealistaService
 {
     /**
-     * Cria ou Atualiza o imóvel (Fase 1)
+     * Cria um novo imóvel (Fase 1 - Create)
      */
     public function createProperty($localProperty)
     {
@@ -40,7 +40,35 @@ class IdealistaExportService extends AbstractIdealistaService
     }
 
     /**
-     * Envia as imagens do imóvel (Fase 2)
+     * Atualiza um imóvel existente (Fase 2 - Update)
+     */
+    public function updateProperty($localProperty, $idealistaId)
+    {
+        // Usa token 'write'
+        $headers = $this->getHeaders('write');
+
+        // Garante que temos o contato (igual ao create)
+        $contactId = $this->getOrCreateDefaultContact($headers);
+
+        // Reaproveita a mesma montagem de payload
+        $payload = $this->mapToIdealistaPayload($localProperty, $contactId);
+
+        Log::info("Atualizando Imóvel Idealista ID {$idealistaId}...", $payload);
+
+        // Endpoint PUT: /v1/properties/{id}
+        $response = Http::withHeaders($headers)
+            ->put("{$this->baseUrl}/v1/properties/{$idealistaId}", $payload);
+
+        if ($response->failed()) {
+            Log::error('Erro API Idealista (Update): ' . $response->body());
+            throw new Exception('Erro ao atualizar imóvel: ' . $response->body());
+        }
+
+        return $response->json();
+    }
+
+    /**
+     * Envia as imagens do imóvel
      */
     public function uploadImages($idealistaId, $localProperty)
     {
@@ -58,7 +86,7 @@ class IdealistaExportService extends AbstractIdealistaService
             
             $imagesPayload[] = [
                 'url' => $fullUrl,
-                'label' => 'unknown' 
+                'label' => 'unknown' // Label genérico seguro para evitar validações chatas
             ];
             
             if (count($imagesPayload) >= 200) break;
@@ -108,7 +136,7 @@ class IdealistaExportService extends AbstractIdealistaService
     {
         $type = $this->mapType($property->type);
         
-        // --- CORREÇÃO 3: Proteção de Área Mínima (Erro numeric >= 11) ---
+        // --- Proteção de Área Mínima ---
         $area = (int) $property->area_gross;
         if ($area < 20) $area = 60; // Garante que nunca envie menos que 20m²
 
@@ -147,12 +175,11 @@ class IdealistaExportService extends AbstractIdealistaService
             'type' => $type,
             'reference' => (string) $property->id,
             
-            // --- CORREÇÃO 1 e 2: Endereço Rigoroso ---
+            // --- Endereço Rigoroso ---
             'address' => [
                 'visibility' => 'hidden',
-                'precision'  => 'exact',      // Era 'street', mudou para 'exact'
-                'country'    => 'Portugal',   // Era 'PT', mudou para 'Portugal'
-                
+                'precision'  => 'exact',
+                'country'    => 'Portugal',
                 'streetName' => $property->address ?? 'Rua Principal',
                 'streetNumber' => '1',
                 'postalCode' => $this->formatPostalCode($property->postal_code),

@@ -128,6 +128,20 @@ class RunIdealistaCertification extends Command
             $this->info("   -> Property Created ID: " . $this->lastPropertyCode);
         });
 
+        // --- NOVO TESTE DE UPDATE (Property13) ---
+        if ($this->lastPropertyCode) {
+            $this->line("Preparando teste de Update (Property13)...");
+            
+            // Clonamos o payload de criação e mudamos o preço
+            $updatePayload = $payload;
+            $updatePayload['operation']['price'] = 160000; // Aumentou 10k
+            
+            // O endpoint de update é PUT /v1/properties/{id}
+            $this->executeTest('Property13', 'PUT', "/v1/properties/{$this->lastPropertyCode}", $updatePayload, 200);
+        } else {
+            $this->error("Pulei Property13 pois não temos ID do imóvel criado.");
+        }
+
         // Flat02: Error - area < 10
         // Clona o payload válido e força o erro apenas na área
         $badPayload = $payload;
@@ -151,7 +165,7 @@ class RunIdealistaCertification extends Command
         }
     }
 
-   private function runImageTests()
+    private function runImageTests()
     {
         $this->warn('--- TESTES DE IMAGEM ---');
         
@@ -161,7 +175,6 @@ class RunIdealistaCertification extends Command
         }
 
         // Image01: New images (2 images)
-        // CORREÇÃO: Trocamos 'interior' por 'unknown' (interior não é aceito)
         $payload = [
             'images' => [
                 ['url' => 'https://www.idealista.com/static/common/icons/logo-idealista-200.png', 'label' => 'facade'],
