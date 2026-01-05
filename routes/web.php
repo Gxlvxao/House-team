@@ -106,3 +106,11 @@ Route::prefix('admin')->group(function () {
         Route::resource('consultants', ConsultantController::class)->names('admin.consultants');
     });
 });
+
+
+Route::prefix('legal')->name('legal.')->group(function () {
+    Route::view('/termos', 'legal.terms')->name('terms');
+    Route::view('/privacidade', 'legal.privacy')->name('privacy');
+    Route::view('/cookies', 'legal.cookies')->name('cookies');
+    Route::view('/aviso-legal', 'legal.disclaimer')->name('disclaimer');
+});

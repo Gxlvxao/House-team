@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="pt-pt">
+<html lang="pt-pt" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>House Team Consultores</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', 'House Team Consultores')</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -36,7 +37,6 @@
 
     <style>
         [x-cloak] { display: none !important; }
-        html { scroll-behavior: smooth; }
         
         .glass-nav {
             background: rgba(2, 6, 23, 0.85);
@@ -148,11 +148,19 @@
             </div>
             
             <div class="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p class="text-slate-500 text-xs uppercase tracking-widest text-center md:text-left">
-                    &copy; {{ date('Y') }} House Team Consultores. Todos os direitos reservados.
-                </p>
+                <div class="text-center md:text-left">
+                    <p class="text-slate-500 text-xs uppercase tracking-widest">
+                        &copy; {{ date('Y') }} House Team Consultores. Todos os direitos reservados.
+                    </p>
+                    {{-- LINKS LEGAIS ADICIONADOS --}}
+                    <div class="flex flex-wrap justify-center md:justify-start gap-4 text-[10px] uppercase tracking-wider text-slate-500 mt-2">
+                        <a href="{{ route('legal.privacy') }}" class="hover:text-white transition">Privacidade</a>
+                        <a href="{{ route('legal.terms') }}" class="hover:text-white transition">Termos</a>
+                        <a href="{{ route('legal.cookies') }}" class="hover:text-white transition">Cookies</a>
+                        <a href="{{ route('legal.disclaimer') }}" class="hover:text-white transition">Aviso Legal</a>
+                    </div>
+                </div>
                 
-                {{-- LOGO MAXSELL ADVISOR --}}
                 <a href="https://www.maxselladvisor.com" target="_blank" class="opacity-50 hover:opacity-100 transition-opacity">
                     <img src="{{ asset('img/maxsell.png') }}" alt="MaxSell Advisor" class="h-6 w-auto brightness-0 invert">
                 </a>
@@ -160,7 +168,10 @@
         </div>
     </footer>
 
-    {{-- BOTÃO WHATSAPP (ESQUERDA) --}}
+    {{-- Banner de Cookies --}}
+    @include('partials.cookie-banner')
+
+    {{-- BOTÃO WHATSAPP --}}
     <div class="fixed bottom-6 left-6 z-[100]">
         <a href="https://wa.me/351923224551" 
            target="_blank" 
@@ -170,12 +181,11 @@
         </a>
     </div>
 
-    {{-- BOTÕES FLUTUANTES (DIREITA: VOLTAR + TOPO) --}}
+    {{-- BOTÕES FLUTUANTES (DIREITA) --}}
     <div class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3" 
          x-data="{ showTop: false }" 
          @scroll.window="showTop = (window.pageYOffset > 300)">
         
-        {{-- 1. Botão Topo (Seta Cima) - Seta Vermelha --}}
         <button x-show="showTop" 
                 x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 translate-y-4"
@@ -189,7 +199,6 @@
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
         </button>
 
-        {{-- 2. Botão Voltar (Seta Esquerda) --}}
         <button @click="history.back()" 
                 class="w-12 h-12 bg-white text-ht-navy rounded-full shadow-lg border border-slate-100 flex items-center justify-center hover:bg-ht-navy hover:text-white transition-all duration-300 focus:outline-none transform hover:scale-110" 
                 title="Voltar Página">
