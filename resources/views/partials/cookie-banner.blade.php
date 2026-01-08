@@ -1,14 +1,14 @@
 <div id="cookie-banner" class="fixed bottom-0 left-0 w-full bg-slate-900 text-white p-4 shadow-lg z-[60] hidden">
-    <div class="max-container px-6 lg:px-12 flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="container mx-auto px-6 lg:px-12 flex flex-col md:flex-row items-center justify-between gap-4">
         <div class="text-sm text-gray-300">
             <p>
-                🍪 <strong>Política de Cookies:</strong> Utilizamos cookies para garantir a melhor experiência no nosso site. 
-                Ao continuar a navegar, aceita a nossa <a href="{{ route('legal.cookies') }}" class="underline text-white hover:text-blue-400">Política de Cookies</a> e <a href="{{ route('legal.privacy') }}" class="underline text-white hover:text-blue-400">Privacidade</a>.
+                🍪 <strong>{{ __('cookies.title') }}:</strong> {{ __('cookies.text') }} 
+                {{ __('cookies.agree_text') }} <a href="{{ route('legal.cookies') }}" class="underline text-white hover:text-blue-400">{{ __('cookies.link_policy') }}</a> {{ __('cookies.and') }} <a href="{{ route('legal.privacy') }}" class="underline text-white hover:text-blue-400">{{ __('cookies.link_privacy') }}</a>.
             </p>
         </div>
         <div class="flex gap-3">
             <button onclick="acceptCookies()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded text-sm font-semibold transition">
-                Aceitar Todos
+                {{ __('cookies.btn_accept') }}
             </button>
         </div>
     </div>

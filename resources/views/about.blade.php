@@ -38,13 +38,13 @@
         <div class="container mx-auto px-6 relative z-10">
             <div data-aos="fade-down" data-aos-duration="1000">
                 <span class="inline-block py-1 px-3 rounded-full bg-white/10 border border-white/20 text-ht-accent font-bold text-[10px] uppercase tracking-[0.3em] mb-6 backdrop-blur-sm">
-                    A Nossa Força
+                    {{ __('about.hero_badge') }}
                 </span>
                 <h1 class="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight leading-tight">
-                    Conheça a <span class="text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">Equipa</span>
+                    {{ __('about.hero_title_prefix') }} <span class="text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">{{ __('about.hero_title_suffix') }}</span>
                 </h1>
                 <p class="text-slate-400 max-w-2xl mx-auto text-lg md:text-xl font-light leading-relaxed">
-                    Profissionais dedicados, apaixonados pelo imobiliário e focados em realizar os seus sonhos com excelência.
+                    {{ __('about.hero_desc') }}
                 </p>
             </div>
         </div>
@@ -84,7 +84,7 @@
                     <p class="text-ht-accent font-bold uppercase tracking-widest text-sm">{{ $leader->role }}</p>
                     <span class="h-px w-8 bg-ht-accent/50"></span>
                 </div>
-                <p class="mt-4 text-sm text-slate-400 font-medium group-hover:text-ht-blue transition-colors">Ver Perfil Completo &rarr;</p>
+                <p class="mt-4 text-sm text-slate-400 font-medium group-hover:text-ht-blue transition-colors">{{ __('about.view_full_profile') }} &rarr;</p>
             </div>
         </div>
     </section>
@@ -95,7 +95,7 @@
         <div class="container mx-auto px-6 md:px-12">
             
             <div class="text-center mb-16">
-                <h3 class="text-2xl font-bold text-ht-navy">Nossos Consultores</h3>
+                <h3 class="text-2xl font-bold text-ht-navy">{{ __('about.team_title') }}</h3>
                 <div class="w-20 h-1 bg-ht-accent mx-auto mt-4 rounded-full"></div>
             </div>
 
@@ -124,7 +124,7 @@
 
                             {{-- Action --}}
                             <div class="inline-flex items-center gap-1 text-xs font-bold text-slate-400 group-hover:text-ht-navy transition-colors">
-                                <span>Ver Detalhes</span>
+                                <span>{{ __('about.view_details') }}</span>
                                 <svg class="w-3 h-3 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                             </div>
                         </div>
@@ -197,18 +197,18 @@
                         
                         {{-- Bio --}}
                         <div class="mb-10">
-                            <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-4">Sobre Profissional</h4>
+                            <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-4">{{ __('about.modal_bio_title') }}</h4>
                             <div x-show="activeMember.bio">
                                 <p class="text-slate-600 leading-relaxed text-base md:text-lg font-light" x-text="activeMember.bio"></p>
                             </div>
                             <div x-show="!activeMember.bio" class="p-6 bg-slate-50 rounded-xl border border-slate-100 text-center">
-                                <p class="text-slate-400 italic text-sm">Biografia indisponível no momento.</p>
+                                <p class="text-slate-400 italic text-sm">{{ __('about.modal_bio_empty') }}</p>
                             </div>
                         </div>
 
                         {{-- Contacts --}}
                         <div class="space-y-4">
-                            <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-2">Entrar em Contacto</h4>
+                            <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-2">{{ __('about.modal_contact_title') }}</h4>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <a x-show="activeMember.phone"
                                    :href="'https://wa.me/' + (activeMember.phone ? activeMember.phone.replace(/[^0-9]/g, '') : '')" 
@@ -222,19 +222,19 @@
                                    x-show="activeMember.email"
                                    class="group flex items-center justify-center gap-3 bg-ht-navy hover:bg-ht-blue text-white py-4 px-6 rounded-xl font-bold transition-all shadow-lg hover:shadow-blue-500/30 transform hover:-translate-y-0.5">
                                     <svg class="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                                    <span>Enviar Email</span>
+                                    <span>{{ __('about.btn_email') }}</span>
                                 </a>
                             </div>
                         </div>
 
-                        {{-- [NOVO] Social Media --}}
+                        {{-- Social Media --}}
                         <div class="mt-8 pt-8 border-t border-slate-100" 
                              x-show="activeMember.facebook || activeMember.instagram || activeMember.linkedin || activeMember.tiktok">
-                            <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-4">Redes Sociais</h4>
+                            <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-4">{{ __('about.modal_social_title') }}</h4>
                             <div class="flex gap-4">
                                 {{-- Instagram --}}
                                 <a x-show="activeMember.instagram" :href="getSocialLink('instagram', activeMember.instagram)" target="_blank" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-gradient-to-tr hover:from-yellow-400 hover:via-red-500 hover:to-purple-500 hover:text-white transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-1">
-                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.069-4.85.069-3.204 0-3.584-.012-4.849-.069-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
                                 </a>
                                 {{-- Facebook --}}
                                 <a x-show="activeMember.facebook" :href="getSocialLink('facebook', activeMember.facebook)" target="_blank" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-[#1877F2] hover:text-white transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-1">

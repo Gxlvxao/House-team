@@ -3,7 +3,8 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Request; // <--- Importante: Adicionada esta linha
+use Illuminate\Http\Request;
+use App\Http\Middleware\SetLocale; // <--- 1. Importámos o Middleware aqui
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,7 +13,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Configura o redirecionamento de usuários não logados
+        
+        // 2. Registamos o SetLocale para correr em todas as rotas Web
+        $middleware->web(append: [
+            SetLocale::class,
+        ]);
+
+        // 3. Mantivemos a tua configuração de redirecionamento de login
         $middleware->redirectGuestsTo(fn (Request $request) => route('admin.login'));
     })
     ->withExceptions(function (Exceptions $exceptions) {

@@ -1,80 +1,127 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
+    <title>Nova Lead - House Team</title>
     <style>
-        body { font-family: sans-serif; color: #333; line-height: 1.6; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px; background: #f9f9f9; }
-        .header { background: #0f172a; color: #fff; padding: 15px; border-radius: 8px 8px 0 0; text-align: center; }
-        .content { background: #fff; padding: 20px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; }
-        .label { font-weight: bold; color: #555; display: block; margin-top: 10px; font-size: 0.9em; text-transform: uppercase; }
-        .value { margin-bottom: 5px; color: #000; }
-        .highlight { color: #2563eb; font-weight: bold; }
-        .footer { font-size: 12px; color: #999; text-align: center; margin-top: 20px; }
-        .section-title { margin-top: 20px; padding-bottom: 5px; border-bottom: 2px solid #eee; color: #0f172a; font-size: 1.1em; font-weight: bold; }
-        ul { margin: 5px 0; padding-left: 20px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; line-height: 1.6; margin: 0; padding: 0; background-color: #f4f4f4; }
+        .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .header { background: #020617; color: #ffffff; padding: 20px; text-align: center; border-bottom: 4px solid #dc2626; }
+        .header h2 { margin: 0; font-size: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .content { padding: 30px; }
+        .label { font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 15px; display: block; }
+        .value { font-size: 15px; color: #0f172a; font-weight: 500; margin-bottom: 5px; }
+        .highlight { color: #dc2626; font-weight: 700; }
+        .section-title { margin-top: 25px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0; color: #020617; font-size: 16px; font-weight: 700; text-transform: uppercase; }
+        .footer { background: #f8fafc; padding: 15px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; }
+        ul { margin: 5px 0; padding-left: 20px; color: #0f172a; }
+        li { margin-bottom: 3px; }
+        .btn { display: inline-block; background: #25d366; color: #fff; text-decoration: none; padding: 8px 16px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-top: 5px; }
+        .property-ref { background: #eff6ff; color: #1e3a8a; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; display: inline-block; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h2>Nova Lead: {{ $data['subject'] ?? 'Contacto Geral' }}</h2>
+            <h2>Nova Lead</h2>
+            <div style="font-size: 12px; opacity: 0.8; margin-top: 5px;">{{ $data['subject'] ?? 'Contacto Geral' }}</div>
         </div>
+        
         <div class="content">
-            <p>Recebeu um novo pedido de contacto através do site.</p>
+            <p style="margin-top: 0;">Olá, recebeste um novo pedido de contacto através do website.</p>
 
+            {{-- DADOS DO CLIENTE --}}
             <div class="section-title">Dados do Cliente</div>
             
-            <span class="label">Nome:</span>
-            <div class="value highlight">{{ $data['name'] }}</div>
-
-            <span class="label">Email:</span>
-            <div class="value"><a href="mailto:{{ $data['email'] }}">{{ $data['email'] }}</a></div>
-
-            @if(!empty($data['phone']))
-                <span class="label">Telefone:</span>
-                <div class="value">{{ $data['phone'] }}</div>
-            @endif
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 50%; vertical-align: top;">
+                        <span class="label">Nome</span>
+                        <div class="value highlight">{{ $data['name'] }}</div>
+                    </td>
+                    <td style="width: 50%; vertical-align: top;">
+                        <span class="label">Email</span>
+                        <div class="value"><a href="mailto:{{ $data['email'] }}" style="color: #2563eb; text-decoration: none;">{{ $data['email'] }}</a></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width: 50%; vertical-align: top;">
+                        <span class="label">Telefone</span>
+                        @if(!empty($data['phone']))
+                            <div class="value">{{ $data['phone'] }}</div>
+                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $data['phone']) }}" class="btn">WhatsApp</a>
+                        @else
+                            <div class="value text-muted">-</div>
+                        @endif
+                    </td>
+                    <td style="width: 50%; vertical-align: top;">
+                        @if(!empty($data['property_code']))
+                            <span class="label">Ref. Imóvel</span>
+                            <div class="value"><span class="property-ref">{{ $data['property_code'] }}</span></div>
+                        @endif
+                    </td>
+                </tr>
+            </table>
 
             @if(!empty($data['address']) && !empty($data['property_type']))
-                <span class="label">Morada (Cliente/Imóvel):</span>
+                <span class="label">Morada (Imóvel/Cliente)</span>
                 <div class="value">{{ $data['address'] }}</div>
             @endif
 
-            {{-- SE FOR UMA MENSAGEM GERAL --}}
+            {{-- MENSAGEM GERAL --}}
             @if(!empty($data['message']))
                 <div class="section-title">Mensagem</div>
-                <div class="value" style="white-space: pre-wrap; background: #f0f4f8; padding: 15px; border-radius: 5px;">{{ $data['message'] }}</div>
+                <div class="value" style="white-space: pre-wrap; background: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 14px;">{{ $data['message'] }}</div>
             @endif
 
-            {{-- SE FOR UMA AVALIAÇÃO DE IMÓVEL --}}
+            {{-- DETALHES DE AVALIAÇÃO --}}
             @if(!empty($data['property_type']))
-                <div class="section-title">Detalhes da Propriedade</div>
+                <div class="section-title">Detalhes da Propriedade (Avaliação)</div>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <div><span class="label">Tipo:</span> <span class="value">{{ $data['property_type'] }}</span></div>
-                    <div><span class="label">Ano:</span> <span class="value">{{ $data['year'] ?? 'N/A' }}</span></div>
-                    <div><span class="label">Área:</span> <span class="value">{{ $data['area'] ?? '0' }} m²</span></div>
-                    <div><span class="label">Tipologia:</span> <span class="value">T{{ $data['bedrooms'] ?? '0' }}</span></div>
-                    <div><span class="label">WC:</span> <span class="value">{{ $data['bathrooms'] ?? '0' }}</span></div>
-                </div>
-
-                @if(!empty($data['parking_type']) || !empty($data['garages']))
-                    <span class="label">Estacionamento:</span>
-                    <div class="value">
-                        {{ $data['parking_type'] ?? 'Não especificado' }} 
-                        @if(!empty($data['garages']) && $data['garages'] > 0)
-                            ({{ $data['garages'] }} lugares)
-                        @endif
-                    </div>
-                @endif
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                    <tr>
+                        <td style="padding-bottom: 10px; width: 33%;">
+                            <span class="label">Tipo</span>
+                            <div class="value">{{ $data['property_type'] }}</div>
+                        </td>
+                        <td style="padding-bottom: 10px; width: 33%;">
+                            <span class="label">Ano</span>
+                            <div class="value">{{ $data['year'] ?? '-' }}</div>
+                        </td>
+                        <td style="padding-bottom: 10px; width: 33%;">
+                            <span class="label">Área</span>
+                            <div class="value">{{ $data['area'] ?? '0' }} m²</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding-bottom: 10px;">
+                            <span class="label">Tipologia</span>
+                            <div class="value">T{{ $data['bedrooms'] ?? '0' }}</div>
+                        </td>
+                        <td style="padding-bottom: 10px;">
+                            <span class="label">WC</span>
+                            <div class="value">{{ $data['bathrooms'] ?? '0' }}</div>
+                        </td>
+                        <td style="padding-bottom: 10px;">
+                            <span class="label">Garagem</span>
+                            <div class="value">
+                                @if(!empty($data['garages']) && $data['garages'] > 0)
+                                    {{ $data['garages'] }} lug. ({{ $data['parking_type'] ?? 'Box' }})
+                                @else
+                                    Não
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                </table>
 
                 @if(!empty($data['condition']))
-                    <span class="label">Condição:</span>
+                    <span class="label">Estado de Conservação</span>
                     <div class="value">{{ $data['condition'] }}</div>
                 @endif
 
                 @if(!empty($data['features']))
-                    <span class="label">Características:</span>
+                    <span class="label">Características</span>
                     <div class="value">
                         <ul>
                             @foreach($data['features'] as $feature)
@@ -84,20 +131,27 @@
                     </div>
                 @endif
 
-                <div class="section-title">Informação Adicional</div>
-                
-                <span class="label">É Proprietário?</span>
-                <div class="value">{{ $data['is_owner'] ?? 'Não especificado' }}</div>
-
-                @if(!empty($data['estimated_value']))
-                    <span class="label">Valor Estimado pelo Cliente:</span>
-                    <div class="value highlight">€ {{ number_format((float)$data['estimated_value'], 2, ',', '.') }}</div>
-                @endif
+                <div style="background: #f0fdf4; border: 1px solid #dcfce7; padding: 15px; border-radius: 6px; margin-top: 15px;">
+                    <span class="label" style="color: #166534; margin-top: 0;">Dados Proprietário</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                        <div>
+                            <span style="font-size: 12px; color: #166534;">É Proprietário?</span>
+                            <div class="value" style="font-weight: bold;">{{ $data['is_owner'] ?? '-' }}</div>
+                        </div>
+                        @if(!empty($data['estimated_value']))
+                            <div style="text-align: right;">
+                                <span style="font-size: 12px; color: #166534;">Valor Estimado</span>
+                                <div class="value highlight" style="color: #16a34a;">€ {{ number_format((float)$data['estimated_value'], 2, ',', '.') }}</div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
             @endif
 
         </div>
         <div class="footer">
-            Email enviado automaticamente pelo sistema House Team.
+            &copy; {{ date('Y') }} House Team - Sistema Automático de Leads.<br>
+            Não responda diretamente a este email automático.
         </div>
     </div>
 </body>

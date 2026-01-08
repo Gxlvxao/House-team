@@ -29,6 +29,19 @@ Route::get('/sobre', function () {
     return view('about', compact('leader', 'team'));
 })->name('about');
 
+Route::get('lang/{locale}', function ($locale) {
+    // Validação de segurança: só aceita 'pt' ou 'en'
+    if (! in_array($locale, ['pt', 'en'])) {
+        abort(400);
+    }
+
+    // Grava a preferência na sessão do utilizador
+    Session::put('locale', $locale);
+
+    // Volta para a página onde o utilizador estava
+    return redirect()->back();
+})->name('lang.switch');
+
 // --- IMÓVEIS ---
 Route::get('/imoveis', [PropertyController::class, 'publicIndex'])->name('portfolio');
 Route::get('/imoveis/{property:slug}', [PropertyController::class, 'show'])->name('properties.show');

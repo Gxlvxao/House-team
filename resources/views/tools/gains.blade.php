@@ -7,8 +7,8 @@
         
         {{-- Cabeçalho da Ferramenta --}}
         <div class="text-center mb-10">
-            <h1 class="text-4xl font-black text-ht-navy tracking-tight mb-4">Cálculo da Mais-Valia</h1>
-            <p class="text-slate-500 font-medium uppercase tracking-widest text-xs">Simule o valor a pagar de IRS sobre imóveis.</p>
+            <h1 class="text-4xl font-black text-ht-navy tracking-tight mb-4">{{ __('tools.gains.title') }}</h1>
+            <p class="text-slate-500 font-medium uppercase tracking-widest text-xs">{{ __('tools.gains.subtitle') }}</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -20,16 +20,16 @@
                 <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
                     <h3 class="text-lg font-bold text-ht-navy border-b border-slate-100 pb-4 mb-6 flex items-center gap-3">
                         <span class="bg-ht-accent text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span>
-                        Valor de Aquisição
+                        {{ __('tools.gains.section_acquisition') }}
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Valor (€)</label>
+                            <label class="block text-xs font-bold uppercase text-slate-500 mb-2">{{ __('tools.gains.label_value') }}</label>
                             <input type="number" step="0.01" x-model="form.acquisition_value" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary focus:border-transparent text-ht-navy placeholder-slate-400" placeholder="Ex: 150000,00">
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Ano</label>
+                                <label class="block text-xs font-bold uppercase text-slate-500 mb-2">{{ __('tools.gains.label_year') }}</label>
                                 <select x-model="form.acquisition_year" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary focus:border-transparent text-ht-navy">
                                     @foreach(range(2025, 1901) as $year)
                                         <option value="{{ $year }}">{{ $year }}</option>
@@ -37,7 +37,7 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Mês</label>
+                                <label class="block text-xs font-bold uppercase text-slate-500 mb-2">{{ __('tools.gains.label_month') }}</label>
                                 <select x-model="form.acquisition_month" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary focus:border-transparent text-ht-navy">
                                     @foreach(['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'] as $month)
                                         <option value="{{ $month }}">{{ $month }}</option>
@@ -47,12 +47,12 @@
                         </div>
                         {{-- CONSTRUÇÃO PRÓPRIA --}}
                         <div class="md:col-span-2 pt-2 border-t border-slate-100 mt-2">
-                             <label class="block text-sm font-bold text-ht-navy mb-3">A habitação foi construída por si?</label>
+                             <label class="block text-sm font-bold text-ht-navy mb-3">{{ __('tools.gains.question_self_built') }}</label>
                              <div class="flex gap-6">
-                                 <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.self_built" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Sim</span></label>
-                                 <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.self_built" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Não</span></label>
+                                 <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.self_built" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">{{ __('tools.gains.yes') }}</span></label>
+                                 <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.self_built" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">{{ __('tools.gains.no') }}</span></label>
                              </div>
-                             <p class="text-[10px] text-slate-400 mt-1">*Afeta a data considerada para efeitos de coeficientes.</p>
+                             <p class="text-[10px] text-slate-400 mt-1">{{ __('tools.gains.note_coefficients') }}</p>
                         </div>
                     </div>
                 </div>
@@ -61,16 +61,16 @@
                 <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
                     <h3 class="text-lg font-bold text-ht-navy border-b border-slate-100 pb-4 mb-6 flex items-center gap-3">
                         <span class="bg-ht-accent text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span>
-                        Valor de Venda (Realização)
+                        {{ __('tools.gains.section_sale') }}
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Valor (€)</label>
+                            <label class="block text-xs font-bold uppercase text-slate-500 mb-2">{{ __('tools.gains.label_value') }}</label>
                             <input type="number" step="0.01" x-model="form.sale_value" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary focus:border-transparent text-ht-navy placeholder-slate-400" placeholder="Ex: 300000,00">
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Ano</label>
+                                <label class="block text-xs font-bold uppercase text-slate-500 mb-2">{{ __('tools.gains.label_year') }}</label>
                                 <select x-model="form.sale_year" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary focus:border-transparent text-ht-navy">
                                     @foreach(range(2025, 1901) as $year)
                                         <option value="{{ $year }}">{{ $year }}</option>
@@ -78,7 +78,7 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Mês</label>
+                                <label class="block text-xs font-bold uppercase text-slate-500 mb-2">{{ __('tools.gains.label_month') }}</label>
                                 <select x-model="form.sale_month" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary focus:border-transparent text-ht-navy">
                                     @foreach(['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'] as $month)
                                         <option value="{{ $month }}">{{ $month }}</option>
@@ -93,39 +93,39 @@
                 <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
                     <h3 class="text-lg font-bold text-ht-navy border-b border-slate-100 pb-4 mb-6 flex items-center gap-3">
                         <span class="bg-ht-accent text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">3</span>
-                        Despesas e Encargos
+                        {{ __('tools.gains.section_expenses') }}
                     </h3>
                     
                     <div class="mb-6">
-                        <label class="block text-sm font-bold text-ht-navy mb-3">Teve despesas e encargos (obras, IMT, Imposto do selo, outros)?</label>
+                        <label class="block text-sm font-bold text-ht-navy mb-3">{{ __('tools.gains.question_expenses') }}</label>
                         <div class="flex gap-6">
                             <label class="inline-flex items-center cursor-pointer group">
                                 <input type="radio" value="Sim" x-model="form.has_expenses" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300">
-                                <span class="ml-2 text-sm font-medium text-slate-600 group-hover:text-ht-navy transition-colors">Sim</span>
+                                <span class="ml-2 text-sm font-medium text-slate-600 group-hover:text-ht-navy transition-colors">{{ __('tools.gains.yes') }}</span>
                             </label>
                             <label class="inline-flex items-center cursor-pointer group">
                                 <input type="radio" value="Não" x-model="form.has_expenses" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300">
-                                <span class="ml-2 text-sm font-medium text-slate-600 group-hover:text-ht-navy transition-colors">Não</span>
+                                <span class="ml-2 text-sm font-medium text-slate-600 group-hover:text-ht-navy transition-colors">{{ __('tools.gains.no') }}</span>
                             </label>
                         </div>
                     </div>
 
                     <div x-show="form.has_expenses === 'Sim'" x-transition class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-6 rounded-2xl border border-slate-200">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1">Obras e melhorias (€)</label>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">{{ __('tools.gains.label_works') }}</label>
                             <input type="number" step="0.01" x-model="form.expenses_works" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary">
-                            <p class="text-[10px] text-slate-400 mt-1">*Apenas obras realizadas nos últimos 12 anos.</p>
+                            <p class="text-[10px] text-slate-400 mt-1">{{ __('tools.gains.note_works') }}</p>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1">IMT (€)</label>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">{{ __('tools.gains.label_imt') }}</label>
                             <input type="number" step="0.01" x-model="form.expenses_imt" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1">Comissão Imobiliária (€)</label>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">{{ __('tools.gains.label_commission') }}</label>
                             <input type="number" step="0.01" x-model="form.expenses_commission" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1">Outros (€)</label>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">{{ __('tools.gains.label_other') }}</label>
                             <input type="number" step="0.01" x-model="form.expenses_other" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary">
                         </div>
                     </div>
@@ -135,26 +135,26 @@
                 <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 space-y-8">
                     <h3 class="text-lg font-bold text-ht-navy border-b border-slate-100 pb-4 mb-6 flex items-center gap-3">
                         <span class="bg-ht-accent text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">4</span>
-                        Cálculo do imposto a pagar em sede de IRS
+                        {{ __('tools.gains.section_tax') }}
                     </h3>
 
                     <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
                         <label class="block text-sm font-bold text-ht-navy mb-3 leading-relaxed">
-                            A venda deste imóvel para habitação foi feita ao Estado, às Regiões Autónomas ou autarquias locais?
+                            {{ __('tools.gains.question_state_sale') }}
                         </label>
                         <div class="flex gap-6 mt-3">
                             <label class="inline-flex items-center cursor-pointer group">
                                 <input type="radio" value="Sim" x-model="form.sold_to_state" @change="resetHPPFields" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300">
-                                <span class="ml-2 font-bold text-ht-navy group-hover:text-ht-accent transition-colors">Sim</span>
+                                <span class="ml-2 font-bold text-ht-navy group-hover:text-ht-accent transition-colors">{{ __('tools.gains.yes') }}</span>
                             </label>
                             <label class="inline-flex items-center cursor-pointer group">
                                 <input type="radio" value="Não" x-model="form.sold_to_state" @change="resetHPPFields" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300">
-                                <span class="ml-2 font-bold text-slate-600 group-hover:text-ht-navy transition-colors">Não</span>
+                                <span class="ml-2 font-bold text-slate-600 group-hover:text-ht-navy transition-colors">{{ __('tools.gains.no') }}</span>
                             </label>
                         </div>
                         <div x-show="form.sold_to_state === 'Sim'" x-transition class="mt-4 text-sm text-blue-700 font-medium flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            <span>Ao selecionar "Sim", a mais-valia estará isenta de tributação (IRS).</span>
+                            <span>{{ __('tools.gains.note_state_exempt') }}</span>
                         </div>
                     </div>
 
@@ -162,84 +162,84 @@
                         
                         {{-- HPP Status --}}
                         <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
-                            <label class="block text-sm font-bold text-ht-navy mb-3">O imóvel era a sua HPP há, pelo menos, 12 meses?</label>
+                            <label class="block text-sm font-bold text-ht-navy mb-3">{{ __('tools.gains.question_hpp') }}</label>
                             <div class="flex flex-col gap-3">
-                                <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.hpp_status" @change="resetReinvestmentFields" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Sim (Beneficia de isenção por reinvestimento)</span></label>
-                                <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Menos12Meses" x-model="form.hpp_status" @change="resetReinvestmentFields" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Não, era há menos de 12 meses</span></label>
-                                <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.hpp_status" @change="resetReinvestmentFields" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Não (Imóvel Secundário/Investimento)</span></label>
+                                <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.hpp_status" @change="resetReinvestmentFields" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">{{ __('tools.gains.option_hpp_yes') }}</span></label>
+                                <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Menos12Meses" x-model="form.hpp_status" @change="resetReinvestmentFields" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">{{ __('tools.gains.option_hpp_less12') }}</span></label>
+                                <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.hpp_status" @change="resetReinvestmentFields" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">{{ __('tools.gains.option_hpp_no') }}</span></label>
                             </div>
                         </div>
 
                         {{-- ISENÇÕES / REINVESTIMENTO / AMORTIZAÇÃO --}}
                         <div class="space-y-6 p-6 rounded-2xl border border-ht-accent/40 bg-ht-accent/10">
-                            <h4 class="text-base font-bold text-ht-navy border-b border-ht-accent/30 pb-3">Opções de Reinvestimento e Benefícios</h4>
+                            <h4 class="text-base font-bold text-ht-navy border-b border-ht-accent/30 pb-3">{{ __('tools.gains.section_reinvest') }}</h4>
 
                             {{-- 1. Reinvestimento em nova HPP (SÓ PARA HPP) --}}
                             <div class="pl-4 border-l-4 border-ht-accent/20" x-show="form.hpp_status === 'Sim'">
-                                <label class="block text-sm font-bold text-ht-navy mb-3">Pretende reinvestir o dinheiro noutra habitação própria permanente?</label>
+                                <label class="block text-sm font-bold text-ht-navy mb-3">{{ __('tools.gains.question_reinvest_new') }}</label>
                                 <div class="flex gap-6 mb-3">
-                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.reinvest_intention" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Sim</span></label>
-                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.reinvest_intention" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Não</span></label>
+                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.reinvest_intention" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">{{ __('tools.gains.yes') }}</span></label>
+                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.reinvest_intention" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">{{ __('tools.gains.no') }}</span></label>
                                 </div>
                                 <div x-show="form.reinvest_intention === 'Sim'" x-transition>
-                                    <label class="block text-xs font-bold text-slate-500 mb-1">Valor a Reinvestir (€)</label>
+                                    <label class="block text-xs font-bold text-slate-500 mb-1">{{ __('tools.gains.label_reinvest_amount') }}</label>
                                     <input type="number" step="0.01" x-model="form.reinvestment_amount" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary">
                                 </div>
                             </div>
 
-                            {{-- 2. Amortização de Crédito (VISÍVEL PARA TODOS devido à Norma Transitória 2022-2024) --}}
+                            {{-- 2. Amortização de Crédito --}}
                             <div class="pl-4 border-l-4 border-ht-primary/20">
-                                <label class="block text-sm font-bold text-ht-navy mb-1">Pretende amortizar crédito habitação (HPP) com o valor da venda?</label>
+                                <label class="block text-sm font-bold text-ht-navy mb-1">{{ __('tools.gains.question_amortize') }}</label>
                                 <p class="text-[10px] text-slate-500 mb-3 leading-tight" x-show="form.hpp_status !== 'Sim'">
-                                    *Válido para vendas de secundários/terrenos em 2023/2024 (Lei Mais Habitação).
+                                    {{ __('tools.gains.note_amortize') }}
                                 </p>
                                 <div class="flex gap-6 mb-3">
-                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.amortize_credit" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Sim</span></label>
-                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.amortize_credit" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Não</span></label>
+                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.amortize_credit" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">{{ __('tools.gains.yes') }}</span></label>
+                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.amortize_credit" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">{{ __('tools.gains.no') }}</span></label>
                                 </div>
                                 <div x-show="form.amortize_credit === 'Sim'" x-transition>
-                                    <label class="block text-xs font-bold text-slate-500 mb-1">Valor a Amortizar (€)</label>
+                                    <label class="block text-xs font-bold text-slate-500 mb-1">{{ __('tools.gains.label_amortize_amount') }}</label>
                                     <input type="number" step="0.01" x-model="form.amortization_amount" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary">
                                 </div>
                             </div>
                             
                             {{-- 3. Reformados (SÓ PARA HPP) --}}
                             <div class="pt-4 border-t border-ht-accent/30" x-show="form.hpp_status === 'Sim'">
-                                <label class="block text-sm font-bold text-ht-navy mb-3">Está reformado ou tem mais de 65 anos?</label>
+                                <label class="block text-sm font-bold text-ht-navy mb-3">{{ __('tools.gains.question_retired') }}</label>
                                 <div class="flex gap-6">
-                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.retired_status" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Sim</span></label>
-                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.retired_status" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Não</span></label>
+                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.retired_status" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">{{ __('tools.gains.yes') }}</span></label>
+                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.retired_status" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">{{ __('tools.gains.no') }}</span></label>
                                 </div>
                                 <p class="text-[10px] text-slate-400 mt-1" x-show="form.retired_status === 'Sim'">
-                                    *Permite isenção se reinvestir em PPR ou Seguros Vida.
+                                    {{ __('tools.gains.note_retired') }}
                                 </p>
                             </div>
                         </div>
 
-                        {{-- Perguntas de IRS Gerais (sempre visíveis) --}}
+                        {{-- Perguntas de IRS Gerais --}}
                         <div class="space-y-6 pt-6 border-t border-slate-100">
                             <div>
-                                <label class="block text-sm font-bold text-ht-navy mb-3">Tem declaração fiscal conjunta?</label>
+                                <label class="block text-sm font-bold text-ht-navy mb-3">{{ __('tools.gains.question_joint_tax') }}</label>
                                 <div class="flex gap-6">
-                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.joint_tax_return" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Sim</span></label>
-                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.joint_tax_return" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Não</span></label>
+                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.joint_tax_return" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">{{ __('tools.gains.yes') }}</span></label>
+                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.joint_tax_return" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">{{ __('tools.gains.no') }}</span></label>
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-sm font-bold text-ht-navy mb-2">Qual é o seu Rendimento Anual Coletável para IRS? (€)</label>
+                                <label class="block text-sm font-bold text-ht-navy mb-2">{{ __('tools.gains.label_annual_income') }}</label>
                                 <input type="number" step="0.01" x-model="form.annual_income" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary focus:border-transparent text-ht-navy placeholder-slate-400" placeholder="Ex: 25000,00">
-                                <p class="text-xs text-slate-400 mt-1">*Valor do Anexo A da sua declaração de IRS.</p>
+                                <p class="text-xs text-slate-400 mt-1">{{ __('tools.gains.note_income') }}</p>
                             </div>
 
                             <div class="pt-6 border-t border-slate-100">
-                                <label class="block text-sm font-bold text-ht-navy mb-3">Relativamente ao imóvel alienado, beneficiou de apoio não reembolsável (>30% VPT)?</label>
+                                <label class="block text-sm font-bold text-ht-navy mb-3">{{ __('tools.gains.question_support') }}</label>
                                 <div class="flex gap-6 mb-3">
-                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.public_support" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Sim</span></label>
-                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.public_support" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">Não</span></label>
+                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Sim" x-model="form.public_support" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">{{ __('tools.gains.yes') }}</span></label>
+                                    <label class="inline-flex items-center cursor-pointer group"><input type="radio" value="Não" x-model="form.public_support" class="text-ht-accent focus:ring-ht-accent w-5 h-5 border-slate-300"><span class="ml-2 text-sm text-slate-600 group-hover:text-ht-navy">{{ __('tools.gains.no') }}</span></label>
                                 </div>
                                 <div x-show="form.public_support === 'Sim'" x-transition class="grid grid-cols-2 gap-4 bg-slate-50 p-6 rounded-2xl border border-slate-200">
                                     <div>
-                                        <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Ano Apoio</label>
+                                        <label class="block text-xs font-bold uppercase text-slate-500 mb-2">{{ __('tools.gains.label_support_year') }}</label>
                                         <select x-model="form.public_support_year" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary text-ht-navy">
                                             @foreach(range(2025, 1980) as $year)
                                                 <option value="{{ $year }}">{{ $year }}</option>
@@ -247,7 +247,7 @@
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Mês Apoio</label>
+                                        <label class="block text-xs font-bold uppercase text-slate-500 mb-2">{{ __('tools.gains.label_support_month') }}</label>
                                         <select x-model="form.public_support_month" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary text-ht-navy">
                                             @foreach(['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'] as $month)
                                                 <option value="{{ $month }}">{{ $month }}</option>
@@ -263,7 +263,7 @@
 
                 <section class="border-t border-slate-200 pt-8">
                     <button type="button" @click="openModal" class="w-full bg-ht-navy text-white font-bold py-5 rounded-3xl shadow-xl hover:bg-ht-primary hover:shadow-2xl transition-all uppercase tracking-widest text-sm transform hover:-translate-y-1">
-                        Simular
+                        {{ __('tools.gains.btn_simulate') }}
                     </button>
                 </section>
             </div>
@@ -272,21 +272,21 @@
                 <div class="sticky top-24 space-y-6">
                     <div x-show="!hasCalculated" class="bg-white border border-slate-200 rounded-3xl p-10 text-center text-slate-400 shadow-sm">
                         <svg class="w-16 h-16 mx-auto mb-4 opacity-30 text-ht-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                        <p class="text-sm font-medium">Preencha o formulário e clique em "Simular" para ver o resultado detalhado.</p>
+                        <p class="text-sm font-medium">{{ __('tools.gains.placeholder_results') }}</p>
                     </div>
 
                     <div x-show="hasCalculated" x-transition class="space-y-6" style="display: none;">
                         <div class="bg-ht-navy rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden">
-                            <h3 class="text-xs font-bold text-slate-300 mb-2 uppercase tracking-widest">Imposto Estimado (IRS)</h3>
+                            <h3 class="text-xs font-bold text-slate-300 mb-2 uppercase tracking-widest">{{ __('tools.gains.result_tax_title') }}</h3>
                             <div class="text-5xl font-black mb-8 text-ht-accent tracking-tighter" x-text="results.estimated_tax_fmt + ' €'"></div>
                             
                             <div class="grid grid-cols-1 gap-4 border-t border-white/10 pt-6 text-sm">
                                 <div>
-                                    <div class="text-xs text-slate-400 font-medium mb-1">Mais-Valia Bruta (Lucro):</div>
+                                    <div class="text-xs text-slate-400 font-medium mb-1">{{ __('tools.gains.result_gross_gain') }}</div>
                                     <div class="text-xl font-bold text-white" x-text="results.gross_gain_fmt + ' €'"></div>
                                 </div>
                                 <div>
-                                    <div class="text-xs text-slate-400 font-medium mb-1">Parte Tributável (após 50%):</div>
+                                    <div class="text-xs text-slate-400 font-medium mb-1">{{ __('tools.gains.result_taxable_gain') }}</div>
                                     <div class="text-xl font-bold text-white" x-text="results.taxable_gain_fmt + ' €'"></div>
                                 </div>
                             </div>
@@ -294,46 +294,44 @@
 
                         <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden text-sm">
                             <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 font-bold text-ht-navy uppercase text-xs tracking-widest">
-                                Detalhes do Apuramento
+                                {{ __('tools.gains.details_title') }}
                             </div>
                             <div class="p-6 space-y-4">
                                 <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                                    <span class="text-slate-500">Valor de venda</span>
+                                    <span class="text-slate-500">{{ __('tools.gains.details_sale_value') }}</span>
                                     <span class="font-bold text-ht-navy" x-text="results.sale_fmt + ' €'"></span>
                                 </div>
                                 <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                                    <span class="text-slate-500">Coef. Desvalorização</span>
+                                    <span class="text-slate-500">{{ __('tools.gains.details_coefficient') }}</span>
                                     <span class="font-medium text-ht-navy" x-text="results.coefficient"></span>
                                 </div>
                                 <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                                    <span class="text-slate-500">Valor Aquisição (Corrigido)</span>
+                                    <span class="text-slate-500">{{ __('tools.gains.details_acquisition_corrected') }}</span>
                                     <span class="font-medium text-red-600" x-text="'- ' + results.acquisition_updated_fmt + ' €'"></span>
                                 </div>
                                 <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                                    <span class="text-slate-500">Despesas</span>
+                                    <span class="text-slate-500">{{ __('tools.gains.details_expenses') }}</span>
                                     <span class="font-medium text-red-600" x-text="'- ' + results.expenses_fmt + ' €'"></span>
                                 </div>
                                 
-                                {{-- RESULTADO INTERMÉDIO --}}
                                 <div class="flex justify-between items-center pt-2 bg-slate-50 -mx-6 px-6 py-3 border-y border-slate-100">
-                                    <span class="font-bold text-ht-navy">Mais-valia Bruta</span>
+                                    <span class="font-bold text-ht-navy">{{ __('tools.gains.details_gross_gain') }}</span>
                                     <span class="font-bold text-green-600" x-text="results.gross_gain_fmt + ' €'"></span>
                                 </div>
 
-                                {{-- BOTÃO DE DETALHES DA ISENÇÃO (O QUE VOCÊ PEDIU) --}}
                                 <div x-show="results.reinvestment_fmt !== '0,00'" class="pt-2">
                                     <button @click="showDetails = !showDetails" class="w-full flex justify-between items-center text-xs font-bold uppercase tracking-wide text-ht-accent hover:text-ht-navy transition-colors">
-                                        <span>Ver Detalhes da Isenção</span>
+                                        <span>{{ __('tools.gains.view_exemption_details') }}</span>
                                         <svg class="w-4 h-4 transform transition-transform" :class="showDetails ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                     </button>
                                     
                                     <div x-show="showDetails" x-collapse class="mt-3 bg-ht-accent/5 p-4 rounded-xl text-xs text-slate-600 space-y-2">
                                         <div class="flex justify-between">
-                                            <span>Valor Reinvestido/Amortizado:</span>
+                                            <span>{{ __('tools.gains.details_reinvested') }}</span>
                                             <span class="font-bold text-ht-navy" x-text="results.reinvestment_fmt + ' €'"></span>
                                         </div>
                                         <p class="italic text-[10px] text-slate-400 border-t border-slate-200 pt-2 mt-2">
-                                            A isenção é calculada proporcionalmente ao valor reinvestido face ao valor de venda.
+                                            {{ __('tools.gains.note_exemption_calc') }}
                                         </p>
                                     </div>
                                 </div>
@@ -341,8 +339,8 @@
                         </div>
 
                         <div class="bg-blue-50 border border-blue-100 rounded-2xl p-6 text-xs text-blue-800 leading-relaxed">
-                            <strong class="block mb-2 font-bold text-blue-900">Nota Legal</strong>
-                            Os ganhos provenientes da venda de imóveis para habitação ao Estado ou autarquias estão totalmente isentos de tributação. Se reinvestiu, o imposto é reduzido proporcionalmente.
+                            <strong class="block mb-2 font-bold text-blue-900">{{ __('tools.gains.legal_note_title') }}</strong>
+                            {{ __('tools.gains.legal_note_text') }}
                         </div>
                     </div>
                 </div>
@@ -363,18 +361,18 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
                             </div>
-                            <h3 class="text-2xl font-black text-ht-navy mb-2" id="modal-title">Receber Simulação Detalhada</h3>
+                            <h3 class="text-2xl font-black text-ht-navy mb-2" id="modal-title">{{ __('tools.gains.modal_title') }}</h3>
                             <div class="mt-2">
                                 <p class="text-sm text-slate-500 mb-8">
-                                    Para visualizar o resultado completo e receber o relatório oficial em PDF, por favor indique o seu contacto.
+                                    {{ __('tools.gains.modal_desc') }}
                                 </p>
                                 <div class="space-y-4 text-left">
                                     <div>
-                                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Nome Completo *</label>
+                                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">{{ __('tools.gains.input_name') }}</label>
                                         <input type="text" x-model="form.lead_name" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary">
                                     </div>
                                     <div>
-                                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">E-mail *</label>
+                                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">{{ __('tools.gains.input_email') }}</label>
                                         <input type="email" x-model="form.lead_email" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary">
                                     </div>
                                 </div>
@@ -383,10 +381,10 @@
                     </div>
                     <div class="bg-slate-50 px-8 py-6 sm:flex sm:flex-row-reverse gap-3">
                         <button type="button" @click="submit" class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-lg px-6 py-3 bg-ht-accent text-sm font-bold text-white uppercase tracking-widest hover:bg-red-700 focus:outline-none sm:w-auto transition-all">
-                            Ver Resultados e Receber PDF
+                            {{ __('tools.gains.btn_get_results') }}
                         </button>
                         <button type="button" @click="showLeadModal = false" class="mt-3 w-full inline-flex justify-center rounded-xl border border-slate-300 shadow-sm px-6 py-3 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 focus:outline-none sm:mt-0 sm:w-auto transition-all">
-                            Cancelar
+                            {{ __('tools.gains.btn_cancel') }}
                         </button>
                     </div>
                 </div>
@@ -401,7 +399,7 @@
         return {
             hasCalculated: false,
             showLeadModal: false,
-            showDetails: false, // NOVO ESTADO para o botão de isenção
+            showDetails: false, 
             form: {
                 acquisition_value: '',
                 acquisition_year: 2010,
@@ -459,7 +457,7 @@
             
             openModal() {
                 if(!this.form.acquisition_value || !this.form.sale_value) {
-                    alert("Por favor, preencha pelo menos os valores de aquisição e venda.");
+                    alert("{{ __('tools.gains.alert_fill_values') }}");
                     return;
                 }
                 this.showLeadModal = true;
@@ -467,7 +465,7 @@
 
             async submit() {
                 if(!this.form.lead_name || !this.form.lead_email) {
-                    alert("Por favor, preencha seu nome e e-mail para continuar.");
+                    alert("{{ __('tools.gains.alert_fill_contact') }}");
                     return;
                 }
 
@@ -486,7 +484,7 @@
                     });
                     
                     if (!response.ok) {
-                        alert('Verifique se preencheu todos os campos obrigatórios corretamente.');
+                        alert('{{ __('tools.gains.alert_error_check') }}');
                         return;
                     }
 

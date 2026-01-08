@@ -2,14 +2,15 @@
 
 @section('content')
 
+{{-- HERO HEADER --}}
 <div class="bg-ht-navy text-white pt-32 pb-20 text-center relative overflow-hidden">
     <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
     <div class="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-slate-50 to-transparent"></div>
     
     <div class="container mx-auto px-6 relative z-10">
-        <p class="text-ht-accent font-bold text-xs uppercase tracking-[0.3em] mb-4">O Nosso Portfólio</p>
-        <h1 class="text-4xl md:text-6xl font-black tracking-tight mb-4">Encontre a Sua Casa</h1>
-        <p class="text-slate-400 font-medium max-w-xl mx-auto">Explore a nossa seleção exclusiva de imóveis.</p>
+        <p class="text-ht-accent font-bold text-xs uppercase tracking-[0.3em] mb-4">{{ __('portfolio.hero_badge') }}</p>
+        <h1 class="text-4xl md:text-6xl font-black tracking-tight mb-4">{{ __('portfolio.hero_title') }}</h1>
+        <p class="text-slate-400 font-medium max-w-xl mx-auto">{{ __('portfolio.hero_desc') }}</p>
     </div>
 </div>
 
@@ -21,29 +22,31 @@
             <aside class="lg:col-span-1">
                 <div class="bg-white p-8 rounded-[2rem] shadow-xl border border-slate-100 sticky top-32">
                     <div class="flex justify-between items-center mb-8 pb-4 border-b border-slate-100">
-                        <h3 class="font-bold text-xl text-ht-navy">Filtros</h3>
-                        <a href="{{ route('portfolio') }}" class="text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-ht-accent transition-colors">Limpar</a>
+                        <h3 class="font-bold text-xl text-ht-navy">{{ __('portfolio.filter_title') }}</h3>
+                        <a href="{{ route('portfolio') }}" class="text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-ht-accent transition-colors">{{ __('portfolio.filter_clear') }}</a>
                     </div>
                     
                     <form action="{{ route('portfolio') }}" method="GET" class="space-y-6">
                         
+                        {{-- Localização --}}
                         <div>
-                            <label class="text-xs font-bold uppercase tracking-wide text-ht-navy ml-1 mb-2 block">Localização</label>
+                            <label class="text-xs font-bold uppercase tracking-wide text-ht-navy ml-1 mb-2 block">{{ __('portfolio.label_location') }}</label>
                             <div class="relative">
-                                <input type="text" name="location" value="{{ request('location') }}" placeholder="Ex: Lisboa, Cascais..." 
+                                <input type="text" name="location" value="{{ request('location') }}" placeholder="{{ __('portfolio.placeholder_location') }}" 
                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-ht-accent focus:ring-1 focus:ring-ht-accent transition-all placeholder-slate-400">
                                 <svg class="w-4 h-4 absolute right-4 top-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                             </div>
                         </div>
 
+                        {{-- Tipo de Imóvel --}}
                         <div>
-                            <label class="text-xs font-bold uppercase tracking-wide text-ht-navy ml-1 mb-2 block">Tipo de Imóvel</label>
+                            <label class="text-xs font-bold uppercase tracking-wide text-ht-navy ml-1 mb-2 block">{{ __('portfolio.label_type') }}</label>
                             <div class="relative">
                                 <select name="type" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 focus:outline-none focus:border-ht-accent focus:ring-1 focus:ring-ht-accent appearance-none transition-all cursor-pointer">
-                                    <option value="">Todos</option>
-                                    <option value="Apartamento" {{ request('type') == 'Apartamento' ? 'selected' : '' }}>Apartamento</option>
-                                    <option value="Moradia" {{ request('type') == 'Moradia' ? 'selected' : '' }}>Moradia / Villa</option>
-                                    <option value="Terreno" {{ request('type') == 'Terreno' ? 'selected' : '' }}>Terreno</option>
+                                    <option value="">{{ __('portfolio.option_all') }}</option>
+                                    <option value="Apartamento" {{ request('type') == 'Apartamento' ? 'selected' : '' }}>{{ __('portfolio.type_apartment') }}</option>
+                                    <option value="Moradia" {{ request('type') == 'Moradia' ? 'selected' : '' }}>{{ __('portfolio.type_villa') }}</option>
+                                    <option value="Terreno" {{ request('type') == 'Terreno' ? 'selected' : '' }}>{{ __('portfolio.type_land') }}</option>
                                 </select>
                                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -51,22 +54,24 @@
                             </div>
                         </div>
 
+                        {{-- Finalidade --}}
                         <div>
-                            <label class="text-xs font-bold uppercase tracking-wide text-ht-navy ml-1 mb-3 block">Finalidade</label>
+                            <label class="text-xs font-bold uppercase tracking-wide text-ht-navy ml-1 mb-3 block">{{ __('portfolio.label_status') }}</label>
                             <div class="flex bg-slate-50 p-1 rounded-xl border border-slate-200">
                                 <label class="flex-1 cursor-pointer">
                                     <input type="radio" name="status" value="Venda" {{ request('status') == 'Venda' ? 'checked' : '' }} class="peer sr-only">
-                                    <span class="block text-center py-2 rounded-lg text-xs font-bold text-slate-500 peer-checked:bg-white peer-checked:text-ht-accent peer-checked:shadow-sm transition-all">Venda</span>
+                                    <span class="block text-center py-2 rounded-lg text-xs font-bold text-slate-500 peer-checked:bg-white peer-checked:text-ht-accent peer-checked:shadow-sm transition-all">{{ __('portfolio.status_sale') }}</span>
                                 </label>
                                 <label class="flex-1 cursor-pointer">
                                     <input type="radio" name="status" value="Arrendamento" {{ request('status') == 'Arrendamento' ? 'checked' : '' }} class="peer sr-only">
-                                    <span class="block text-center py-2 rounded-lg text-xs font-bold text-slate-500 peer-checked:bg-white peer-checked:text-ht-accent peer-checked:shadow-sm transition-all">Alugar</span>
+                                    <span class="block text-center py-2 rounded-lg text-xs font-bold text-slate-500 peer-checked:bg-white peer-checked:text-ht-accent peer-checked:shadow-sm transition-all">{{ __('portfolio.status_rent') }}</span>
                                 </label>
                             </div>
                         </div>
 
+                        {{-- Preço --}}
                         <div>
-                            <label class="text-xs font-bold uppercase tracking-wide text-ht-navy ml-1 mb-2 block">Preço (€)</label>
+                            <label class="text-xs font-bold uppercase tracking-wide text-ht-navy ml-1 mb-2 block">{{ __('portfolio.label_price') }} (€)</label>
                             <div class="flex gap-2 items-center">
                                 <input type="number" name="price_min" value="{{ request('price_min') }}" placeholder="Min" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-3 text-sm font-medium focus:border-ht-accent outline-none transition-all">
                                 <span class="text-slate-300">-</span>
@@ -74,8 +79,9 @@
                             </div>
                         </div>
 
+                        {{-- Quartos --}}
                         <div>
-                            <label class="text-xs font-bold uppercase tracking-wide text-ht-navy ml-1 mb-2 block">Quartos</label>
+                            <label class="text-xs font-bold uppercase tracking-wide text-ht-navy ml-1 mb-2 block">{{ __('portfolio.label_bedrooms') }}</label>
                             <div class="flex gap-2">
                                 @foreach(['1', '2', '3', '4+'] as $bed)
                                     <label class="flex-1 cursor-pointer">
@@ -89,7 +95,7 @@
                         </div>
 
                         <button type="submit" class="w-full bg-ht-accent text-white font-black uppercase tracking-widest text-xs py-4 rounded-xl hover:bg-blue-600 transition-all shadow-lg hover:shadow-blue-500/30 transform active:scale-95">
-                            Filtrar Resultados
+                            {{ __('portfolio.btn_filter') }}
                         </button>
                     </form>
                 </div>
@@ -98,9 +104,9 @@
             {{-- GRID DE IMÓVEIS --}}
             <div class="lg:col-span-3">
                 <div class="flex justify-between items-center mb-8 px-2">
-                    <p class="text-slate-500 text-sm font-medium">Mostrando <span class="text-ht-navy font-bold">{{ $properties->total() }}</span> imóveis</p>
+                    <p class="text-slate-500 text-sm font-medium">{{ __('portfolio.showing') }} <span class="text-ht-navy font-bold">{{ $properties->total() }}</span> {{ __('portfolio.properties') }}</p>
                     <div class="hidden md:block text-xs font-bold uppercase tracking-widest text-slate-400">
-                        Ordenação: Recentes
+                        {{ __('portfolio.order_recent') }}
                     </div>
                 </div>
 
@@ -113,10 +119,11 @@
                                      alt="{{ $property->title }}" 
                                      class="w-full h-full object-cover transform group-hover:scale-110 transition duration-700">
                                 
-                                {{-- BADGE TIPO CORRIGIDO (FUNDO ESCURO SÓLIDO) --}}
+                                {{-- BADGE TIPO --}}
                                 <div class="absolute top-4 left-4 bg-slate-900 text-white px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider shadow-md">
                                     {{ $property->type }}
                                 </div>
+                                {{-- BADGE STATUS --}}
                                 <div class="absolute top-4 right-4 bg-white/95 backdrop-blur px-3 py-1 text-[10px] font-bold text-ht-navy rounded-full uppercase tracking-wider shadow-sm">
                                     {{ $property->status }}
                                 </div>
@@ -151,9 +158,9 @@
 
                                 <div class="flex justify-between items-end">
                                     <div>
-                                        <p class="text-[10px] uppercase font-bold text-slate-400">Preço</p>
+                                        <p class="text-[10px] uppercase font-bold text-slate-400">{{ __('portfolio.label_price_short') }}</p>
                                         <p class="text-xl font-black text-ht-accent">
-                                            {{ $property->price ? '€ ' . number_format($property->price, 0, ',', '.') : 'Sob Consulta' }}
+                                            {{ $property->price ? '€ ' . number_format($property->price, 0, ',', '.') : __('portfolio.price_on_request') }}
                                         </p>
                                     </div>
                                     <span class="w-8 h-8 rounded-full bg-slate-100 text-ht-navy flex items-center justify-center group-hover:bg-ht-navy group-hover:text-white transition-all">
@@ -165,8 +172,8 @@
                     @empty
                         <div class="col-span-3 text-center py-20 bg-white rounded-[2rem] border border-dashed border-slate-300">
                             <svg class="w-12 h-12 text-slate-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                            <p class="text-slate-500 font-medium">Nenhum imóvel encontrado com estes filtros.</p>
-                            <a href="{{ route('portfolio') }}" class="text-ht-accent font-bold text-sm hover:underline mt-2 inline-block">Limpar Filtros</a>
+                            <p class="text-slate-500 font-medium">{{ __('portfolio.no_results') }}</p>
+                            <a href="{{ route('portfolio') }}" class="text-ht-accent font-bold text-sm hover:underline mt-2 inline-block">{{ __('portfolio.filter_clear') }}</a>
                         </div>
                     @endforelse
                 </div>
