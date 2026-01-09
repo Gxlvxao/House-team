@@ -5,11 +5,14 @@
 
 @section('content')
 
+    {{-- 1. Carregar biblioteca de Drag & Drop (CDN rápido) --}}
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
     {{-- Header + Actions --}}
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
             <h2 class="text-3xl font-black text-ht-navy tracking-tight">Gerir Imóveis</h2>
-            <p class="text-slate-500 text-sm mt-1 font-medium">Controle total do seu portfólio imobiliário.</p>
+            <p class="text-slate-500 text-sm mt-1 font-medium">Controle total do seu portfólio imobiliário. Arraste para reordenar.</p>
         </div>
         <div class="flex items-center gap-3">
             {{-- Fake Search for UI --}}
@@ -31,6 +34,8 @@
             <table class="w-full text-left border-collapse">
                 <thead class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase text-slate-400 font-bold tracking-wider">
                     <tr>
+                        {{-- 2. Coluna Nova para o ícone de arrastar --}}
+                        <th class="pl-4 py-4 w-10"></th> 
                         <th class="px-6 py-4">Imóvel</th>
                         <th class="px-6 py-4">Preço</th>
                         <th class="px-6 py-4">Localização</th>
@@ -38,9 +43,20 @@
                         <th class="px-6 py-4 text-right">Ações</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                
+                {{-- 3. ID adicionado para o SortableJS encontrar a lista --}}
+                <tbody class="divide-y divide-slate-100" id="properties-list">
                     @foreach($properties as $property)
-                    <tr class="hover:bg-slate-50/80 transition-colors group">
+                    {{-- 4. data-id adicionado para sabermos o ID do imóvel ao arrastar --}}
+                    <tr data-id="{{ $property->id }}" class="hover:bg-slate-50/80 transition-colors group bg-white">
+                        
+                        {{-- Célula do Handle (Ícone de mover) --}}
+                        <td class="pl-4 py-4 cursor-move handle text-slate-300 hover:text-ht-blue transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path>
+                            </svg>
+                        </td>
+
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-4">
                                 <div class="w-16 h-16 rounded-xl bg-slate-100 overflow-hidden relative shadow-sm border border-slate-200 flex-shrink-0">
@@ -100,5 +116,40 @@
     <div class="mt-6 px-2">
         {{ $properties->links() }}
     </div>
+
+    {{-- 5. Script para activar o Drag & Drop e salvar --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var el = document.getElementById('properties-list');
+            var sortable = Sortable.create(el, {
+                handle: '.handle', // Só arrasta se clicar no ícone
+                animation: 150,
+                ghostClass: 'bg-blue-50', // Classe visual enquanto arrasta
+                onEnd: function () {
+                    // Pega a nova ordem dos IDs
+                    var order = sortable.toArray(); 
+                    
+                    // Envia para o backend
+                    fetch("{{ route('admin.properties.reorder') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({ ids: order })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Feedback visual opcional (podes adicionar um Toast aqui se tiveres biblioteca)
+                        console.log('Ordem salva com sucesso!');
+                    })
+                    .catch(error => {
+                        console.error('Erro ao salvar ordem:', error);
+                        alert('Ocorreu um erro ao salvar a ordem.');
+                    });
+                }
+            });
+        });
+    </script>
 
 @endsection

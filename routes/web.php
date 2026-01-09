@@ -7,10 +7,17 @@ use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\ToolsController;
 use App\Http\Controllers\ConsultantController;
+use Illuminate\Support\Facades\Session; // Importante para a rota de lang funcionar sem erros
 
 // --- HOME & PÁGINAS GERAIS ---
 Route::get('/', function () {
-    $properties = Property::where('is_visible', true)->latest()->take(3)->get(); 
+    // ALTERADO: De latest() para ordered()
+    // Assim respeita a ordem manual definida no admin
+    $properties = Property::where('is_visible', true)
+        ->ordered() 
+        ->take(3)
+        ->get(); 
+        
     return view('home', compact('properties'));
 })->name('home');
 
@@ -117,6 +124,9 @@ Route::prefix('admin')->group(function () {
 
         Route::resource('properties', PropertyController::class)->names('admin.properties');
         Route::resource('consultants', ConsultantController::class)->names('admin.consultants');
+        
+        // Rota de reordenação (Drag & Drop)
+        Route::post('/properties/reorder', [PropertyController::class, 'reorder'])->name('admin.properties.reorder');
     });
 });
 

@@ -8,13 +8,39 @@ use App\Models\Consultant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB; // <--- 1. Import necessário
 
 class PropertyController extends Controller
 {
     public function index()
     {
-        $properties = Property::latest()->paginate(10);
+        // <--- 2. Alterado para respeitar a ordenação manual no painel
+        $properties = Property::ordered()->paginate(10);
         return view('admin.properties.index', compact('properties'));
+    }
+
+    /**
+     * <--- 3. Método Novo: Recebe a nova ordem via AJAX e salva no banco
+     */
+    public function reorder(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:properties,id',
+        ]);
+
+        try {
+            DB::transaction(function () use ($request) {
+                foreach ($request->ids as $index => $id) {
+                    // O índice do array vira a ordem (1, 2, 3...)
+                    Property::where('id', $id)->update(['order' => $index + 1]);
+                }
+            });
+
+            return response()->json(['status' => 'success']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error'], 500);
+        }
     }
 
     public function create()
@@ -25,10 +51,9 @@ class PropertyController extends Controller
 
     public function store(Request $request)
     {
-        // ADICIONEI 'crm_code' AQUI NA VALIDAÇÃO
         $data = $request->validate([
             'title' => 'required|string|max:255',
-            'crm_code' => 'nullable|string|max:50', // <--- CAMPO NOVO
+            'crm_code' => 'nullable|string|max:50',
             'consultant_id' => 'nullable|exists:consultants,id',
             'price' => 'nullable|numeric',
             'type' => 'required|string',
@@ -98,10 +123,9 @@ class PropertyController extends Controller
 
     public function update(Request $request, Property $property)
     {
-        // ADICIONEI 'crm_code' AQUI TAMBÉM
         $data = $request->validate([
             'title' => 'required|string|max:255',
-            'crm_code' => 'nullable|string|max:50', // <--- CAMPO NOVO
+            'crm_code' => 'nullable|string|max:50',
             'consultant_id' => 'nullable|exists:consultants,id',
             'price' => 'nullable|numeric',
             'type' => 'required|string',
@@ -219,7 +243,8 @@ class PropertyController extends Controller
             }
         }
 
-        $properties = $query->latest()->paginate(9)->withQueryString();
+        // <--- 4. Alterado de latest() para ordered() para o site refletir a ordem
+        $properties = $query->ordered()->paginate(9)->withQueryString();
 
         return view('properties.index', compact('properties'));
     }
