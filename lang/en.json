@@ -502,6 +502,11 @@
     "property_status.sold": "Sold",
     "property_status.reserved": "Reserved",
     "property_status.active": "Active",
+    "portfolio.zoom_image": "Expand Photo",
+
+    "property_type.commercial": "Commercial",
+    "property_status.venda": "For Sale",
+    "property_status.arrendamento": "For Rent",
     "portfolio.zoom_image": "Expand Photo"
 }
 

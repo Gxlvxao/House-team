@@ -152,7 +152,8 @@
              @click="closeModal()"></div>
 
         {{-- Modal Content --}}
-        <div class="relative bg-white w-full max-w-5xl rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row transform transition-all duration-300 max-h-[90vh] md:max-h-auto"
+        {{-- CORREÇÃO AQUI: max-h-[90vh] em todas as telas para forçar o limite --}}
+        <div class="relative bg-white w-full max-w-5xl rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row transform transition-all duration-300 max-h-[90vh]"
              x-show="openModal"
              x-transition:enter="ease-out duration-500"
              x-transition:enter-start="opacity-0 scale-95 translate-y-8"
@@ -183,7 +184,8 @@
             </div>
 
             {{-- Right Side: Info --}}
-            <div class="md:w-7/12 p-8 md:p-12 flex flex-col justify-center bg-white overflow-y-auto">
+            {{-- CORREÇÃO AQUI: removido justify-center para o texto não ficar estranho quando longo, e overflow-y-auto garantido --}}
+            <div class="md:w-7/12 p-8 md:p-12 flex flex-col bg-white overflow-y-auto">
                 <template x-if="activeMember">
                     <div>
                         {{-- Header (Desktop) --}}

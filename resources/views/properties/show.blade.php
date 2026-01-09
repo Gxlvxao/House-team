@@ -3,7 +3,35 @@
 @section('content')
 
 {{-- CONTAINER PRINCIPAL COM ESTADO DO MODAL --}}
-<div class="pt-32 pb-12 bg-slate-50" x-data="{ isModalOpen: false, modalImage: '' }">
+{{-- Adicionei listeners de teclado para navegar quando o modal estiver aberto --}}
+<div class="pt-32 pb-12 bg-slate-50" 
+     x-data="{ 
+        isModalOpen: false, 
+        activeImage: '{{ $property->cover_image ? asset('storage/' . $property->cover_image) : asset('img/porto.jpg') }}',
+        images: [
+            '{{ $property->cover_image ? asset('storage/' . $property->cover_image) : asset('img/porto.jpg') }}',
+            @foreach($property->images as $img)
+                '{{ asset('storage/' . $img->path) }}',
+            @endforeach
+        ],
+        currentIndex: 0,
+        next() {
+            this.currentIndex = (this.currentIndex + 1) % this.images.length;
+            this.activeImage = this.images[this.currentIndex];
+        },
+        prev() {
+            this.currentIndex = (this.currentIndex - 1 + this.images.length) % this.images.length;
+            this.activeImage = this.images[this.currentIndex];
+        },
+        setImage(index) {
+            this.currentIndex = index;
+            this.activeImage = this.images[index];
+        }
+    }"
+    @keydown.escape.window="isModalOpen = false"
+    @keydown.arrow-right.window="if(isModalOpen) next()"
+    @keydown.arrow-left.window="if(isModalOpen) prev()"
+>
     <div class="container mx-auto px-6 md:px-12">
         
         {{-- CABEÇALHO --}}
@@ -38,32 +66,11 @@
         </div>
 
         {{-- GALERIA (Alpine.js) --}}
-        <div x-data="{ 
-            activeImage: '{{ $property->cover_image ? asset('storage/' . $property->cover_image) : asset('img/porto.jpg') }}',
-            images: [
-                '{{ $property->cover_image ? asset('storage/' . $property->cover_image) : asset('img/porto.jpg') }}',
-                @foreach($property->images as $img)
-                    '{{ asset('storage/' . $img->path) }}',
-                @endforeach
-            ],
-            currentIndex: 0,
-            next() {
-                this.currentIndex = (this.currentIndex + 1) % this.images.length;
-                this.activeImage = this.images[this.currentIndex];
-            },
-            prev() {
-                this.currentIndex = (this.currentIndex - 1 + this.images.length) % this.images.length;
-                this.activeImage = this.images[this.currentIndex];
-            },
-            setImage(index) {
-                this.currentIndex = index;
-                this.activeImage = this.images[index];
-            }
-        }" class="relative rounded-[2.5rem] overflow-hidden shadow-2xl bg-slate-900 group mb-16 h-[50vh] md:h-[70vh]" data-aos="zoom-in">
+        <div class="relative rounded-[2.5rem] overflow-hidden shadow-2xl bg-slate-900 group mb-16 h-[50vh] md:h-[70vh]" data-aos="zoom-in">
             
             {{-- Imagem Principal com Clique para Expandir --}}
             <div class="absolute inset-0 transition-all duration-700 ease-in-out cursor-zoom-in" 
-                 @click="modalImage = activeImage; isModalOpen = true">
+                 @click="isModalOpen = true">
                 <img :src="activeImage" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-500" alt="{{ $property->title }}">
                 <div class="absolute inset-0 bg-gradient-to-t from-ht-navy/80 via-transparent to-transparent"></div>
                 
@@ -75,17 +82,17 @@
             </div>
 
             {{-- Setas Navegação --}}
-            <button @click="prev()" class="absolute left-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/30 backdrop-blur-md text-white p-4 rounded-full transition-all opacity-0 group-hover:opacity-100 transform -translate-x-4 group-hover:translate-x-0 z-20">
+            <button @click.stop="prev()" class="absolute left-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/30 backdrop-blur-md text-white p-4 rounded-full transition-all opacity-0 group-hover:opacity-100 transform -translate-x-4 group-hover:translate-x-0 z-20">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             </button>
-            <button @click="next()" class="absolute right-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/30 backdrop-blur-md text-white p-4 rounded-full transition-all opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 z-20">
+            <button @click.stop="next()" class="absolute right-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/30 backdrop-blur-md text-white p-4 rounded-full transition-all opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 z-20">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </button>
 
             {{-- Miniaturas --}}
             <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 overflow-x-auto max-w-[90%] p-2 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/10 z-20">
                 <template x-for="(img, index) in images" :key="index">
-                    <button @click="setImage(index)" 
+                    <button @click.stop="setImage(index)" 
                             class="relative w-16 h-12 md:w-20 md:h-14 rounded-xl overflow-hidden transition-all duration-300 transform hover:scale-105"
                             :class="currentIndex === index ? 'ring-2 ring-ht-accent opacity-100 scale-105' : 'opacity-60 hover:opacity-100'">
                         <img :src="img" class="w-full h-full object-cover">
@@ -235,7 +242,7 @@
         </div>
     </div>
 
-    {{-- MODAL LIGHTBOX --}}
+    {{-- MODAL LIGHTBOX COM SETAS --}}
     <div x-show="isModalOpen" 
          x-transition:enter="transition ease-out duration-300"
          x-transition:enter-start="opacity-0"
@@ -244,17 +251,29 @@
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0"
          class="fixed inset-0 z-[200] flex items-center justify-center bg-black/95 p-4 md:p-10"
-         x-cloak
-         @keydown.escape.window="isModalOpen = false">
+         x-cloak>
         
+        {{-- Botão Fechar --}}
         <button @click="isModalOpen = false" class="absolute top-6 right-6 text-white hover:text-ht-accent transition-colors z-[210]">
             <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
 
-        <img :src="modalImage" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl" @click.away="isModalOpen = false">
+        {{-- Seta ANTERIOR no Modal --}}
+        <button @click.stop="prev()" class="absolute left-4 md:left-10 top-1/2 -translate-y-1/2 text-white hover:text-ht-accent p-4 z-[210] transition-transform hover:-translate-x-1">
+            <svg class="w-10 h-10 md:w-16 md:h-16 drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+
+        {{-- Seta PRÓXIMO no Modal --}}
+        <button @click.stop="next()" class="absolute right-4 md:right-10 top-1/2 -translate-y-1/2 text-white hover:text-ht-accent p-4 z-[210] transition-transform hover:translate-x-1">
+            <svg class="w-10 h-10 md:w-16 md:h-16 drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"/></svg>
+        </button>
+
+        {{-- Imagem do Modal (Ligada ao activeImage para sincronia) --}}
+        <img :src="activeImage" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl" @click.away="isModalOpen = false">
         
-        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/50 text-xs font-bold uppercase tracking-widest">
-            {{ $property->title }}
+        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/50 text-xs font-bold uppercase tracking-widest text-center">
+            {{ $property->title }} <br>
+            <span class="text-[10px] opacity-70" x-text="(currentIndex + 1) + ' / ' + images.length"></span>
         </div>
     </div>
 </div>
