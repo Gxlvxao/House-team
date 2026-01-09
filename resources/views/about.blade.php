@@ -2,19 +2,56 @@
 
 @section('content')
 
+{{-- 
+    ATUALIZAÇÃO NO X-DATA:
+    1. Adicionado 'baseUrl' para forçar imagens a carregar da raiz (corrige erro 403).
+    2. Adicionado 'getImageUrl' para tratar caminhos.
+--}}
 <div x-data="{ 
     activeMember: null, 
     openModal: false,
+    previewModal: false, 
+    previewSrc: '',
+    previewName: '',
+    baseUrl: '{{ url('/') }}', {{-- Pega a URL raiz do Laravel (ex: http://127.0.0.1:8000) --}}
+    
     showMember(member) {
         this.activeMember = member;
         this.openModal = true;
         document.body.style.overflow = 'hidden';
     },
+    
     closeModal() {
         this.openModal = false;
         setTimeout(() => this.activeMember = null, 300);
         document.body.style.overflow = 'auto';
     },
+
+    openPreview(id, name) {
+        this.previewSrc = this.baseUrl + '/consultor/preview/' + id;
+        this.previewName = name;
+        this.openModal = false;
+        setTimeout(() => {
+            this.previewModal = true;
+            document.body.style.overflow = 'hidden';
+        }, 300);
+    },
+
+    closePreview() {
+        this.previewModal = false;
+        this.previewSrc = '';
+        document.body.style.overflow = 'auto';
+    },
+
+    // CORREÇÃO IMAGENS: Garante que a imagem carrega do domínio principal
+    getImageUrl(path) {
+        if (!path) return '';
+        if (path.startsWith('http')) return path;
+        // Remove a barra inicial se houver para não duplicar
+        const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+        return this.baseUrl + '/' + cleanPath;
+    },
+
     getSocialLink(platform, value) {
         if (!value) return '';
         if (value.startsWith('http')) return value;
@@ -31,7 +68,6 @@
 
     {{-- HERO SECTION --}}
     <section class="bg-ht-navy pt-40 pb-24 text-center relative overflow-hidden">
-        {{-- Background Pattern & Gradient --}}
         <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay"></div>
         <div class="absolute inset-0 bg-gradient-to-b from-ht-navy via-slate-900 to-ht-navy opacity-80"></div>
         
@@ -53,25 +89,28 @@
     {{-- LEADER SECTION --}}
     @if($leader)
     <section class="py-24 bg-white relative overflow-hidden">
-        {{-- Decorative Elements --}}
         <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-full bg-slate-50/50 -skew-y-3 z-0"></div>
 
         <div class="container mx-auto px-6 text-center relative z-10">
             <div class="inline-block group cursor-pointer" data-aos="zoom-in" @click="showMember({{ json_encode($leader) }})">
                 <div class="relative">
-                    {{-- Glow Effect --}}
                     <div class="absolute -inset-6 bg-gradient-to-tr from-ht-navy via-ht-accent to-blue-500 rounded-full opacity-20 blur-2xl group-hover:opacity-40 transition duration-700"></div>
                     
-                    {{-- Image Container --}}
                     <div class="relative w-56 h-56 md:w-72 md:h-72 mx-auto rounded-full p-2 bg-white shadow-2xl ring-1 ring-slate-100">
                         <div class="w-full h-full rounded-full overflow-hidden border-4 border-slate-50 relative">
-                            <img src="{{ $leader->image_url }}" 
+                            {{-- CORREÇÃO PHP: url() força caminho absoluto --}}
+                            <img src="{{ url($leader->image_url) }}" 
                                  alt="{{ $leader->name }}" 
                                  class="w-full h-full object-cover transform group-hover:scale-110 transition duration-700 ease-out">
-                             {{-- Overlay on Hover --}}
                              <div class="absolute inset-0 bg-ht-navy/20 opacity-0 group-hover:opacity-100 transition duration-500"></div>
                         </div>
-                         {{-- Badge Icon --}}
+                         
+                         @if($leader->has_lp && $leader->is_active)
+                         <div class="absolute top-4 right-4 bg-amber-500 text-white p-2 rounded-full shadow-lg z-20 animate-bounce">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                         </div>
+                         @endif
+
                          <div class="absolute bottom-4 right-4 bg-ht-navy text-white p-3 rounded-full shadow-lg transform translate-y-2 group-hover:translate-y-0 transition duration-500 border-4 border-white">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
                          </div>
@@ -102,27 +141,27 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
                 @foreach($team as $member)
                     <div class="group relative" data-aos="fade-up" @click="showMember({{ json_encode($member) }})">
-                        
-                        {{-- Card Background --}}
                         <div class="absolute inset-0 bg-white rounded-3xl shadow-sm border border-slate-100 transform transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-xl group-hover:border-ht-blue/20"></div>
 
                         <div class="relative p-8 text-center cursor-pointer">
-                            {{-- Top Gradient Line --}}
                             <div class="absolute top-0 left-8 right-8 h-1 bg-gradient-to-r from-transparent via-ht-accent to-transparent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
 
-                            {{-- Image --}}
-                            <div class="w-32 h-32 mx-auto rounded-full p-1 border border-slate-200 group-hover:border-ht-accent transition-colors duration-300 mb-6 bg-white">
+                            <div class="w-32 h-32 mx-auto rounded-full p-1 border border-slate-200 group-hover:border-ht-accent transition-colors duration-300 mb-6 bg-white relative">
                                 <div class="w-full h-full rounded-full overflow-hidden relative">
-                                    <img src="{{ $member->image_url }}" 
+                                    {{-- CORREÇÃO PHP: url() aqui também --}}
+                                    <img src="{{ url($member->image_url) }}" 
                                          class="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transform group-hover:scale-110 transition duration-500">
                                 </div>
+                                @if($member->has_lp && $member->is_active)
+                                <div class="absolute -top-1 -right-1 bg-amber-500 text-white rounded-full p-1.5 shadow-sm border-2 border-white" title="Website Próprio">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+                                </div>
+                                @endif
                             </div>
 
-                            {{-- Info --}}
                             <h3 class="text-lg font-bold text-ht-navy mb-1 group-hover:text-ht-blue transition-colors">{{ $member->name }}</h3>
                             <p class="text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-6">{{ $member->role }}</p>
 
-                            {{-- Action --}}
                             <div class="inline-flex items-center gap-1 text-xs font-bold text-slate-400 group-hover:text-ht-navy transition-colors">
                                 <span>{{ __('about.view_details') }}</span>
                                 <svg class="w-3 h-3 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
@@ -135,12 +174,11 @@
         </div>
     </section>
 
-    {{-- MODAL --}}
+    {{-- MODAL DE PERFIL --}}
     <div x-show="openModal" 
          class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6"
          style="display: none;">
         
-        {{-- Backdrop --}}
         <div class="absolute inset-0 bg-ht-navy/90 backdrop-blur-sm transition-opacity duration-300"
              x-show="openModal"
              x-transition:enter="ease-out duration-300"
@@ -151,8 +189,6 @@
              x-transition:leave-end="opacity-0"
              @click="closeModal()"></div>
 
-        {{-- Modal Content --}}
-        {{-- CORREÇÃO AQUI: max-h-[90vh] em todas as telas para forçar o limite --}}
         <div class="relative bg-white w-full max-w-5xl rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row transform transition-all duration-300 max-h-[90vh]"
              x-show="openModal"
              x-transition:enter="ease-out duration-500"
@@ -162,33 +198,40 @@
              x-transition:leave-start="opacity-100 scale-100 translate-y-0"
              x-transition:leave-end="opacity-0 scale-95 translate-y-8">
             
-            {{-- Close Button --}}
-            <button @click="closeModal()" class="absolute top-4 right-4 z-50 p-2 bg-white/10 backdrop-blur-md rounded-full text-white/80 hover:bg-white hover:text-ht-navy transition-all border border-white/20 shadow-lg">
+            <button @click="closeModal()" class="absolute top-4 right-4 z-50 p-2 bg-white/10 backdrop-blur-md rounded-full text-slate-400 hover:bg-slate-100 hover:text-ht-navy transition-all border border-slate-200 shadow-lg">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
 
             {{-- Left Side: Image --}}
             <div class="md:w-5/12 bg-slate-100 relative h-72 md:h-auto shrink-0">
                 <template x-if="activeMember">
-                    <img :src="activeMember.image_url" 
+                    {{-- CORREÇÃO JS: Usa a função getImageUrl --}}
+                    <img :src="getImageUrl(activeMember.image_url)" 
                          class="w-full h-full object-cover absolute inset-0">
                 </template>
-                {{-- Gradient Overlay for text readability on mobile --}}
                 <div class="absolute inset-0 bg-gradient-to-t from-ht-navy/90 via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-white/10"></div>
-                
-                {{-- Name on Image (Mobile Only) --}}
                 <div class="absolute bottom-6 left-6 md:hidden text-white">
-                    <h2 class="text-3xl font-black" x-text="activeMember.name"></h2>
-                    <p class="text-sm font-bold opacity-80" x-text="activeMember.role"></p>
+                    <h2 class="text-3xl font-black" x-text="activeMember ? activeMember.name : ''"></h2>
+                    <p class="text-sm font-bold opacity-80" x-text="activeMember ? activeMember.role : ''"></p>
                 </div>
             </div>
 
             {{-- Right Side: Info --}}
-            {{-- CORREÇÃO AQUI: removido justify-center para o texto não ficar estranho quando longo, e overflow-y-auto garantido --}}
             <div class="md:w-7/12 p-8 md:p-12 flex flex-col bg-white overflow-y-auto">
                 <template x-if="activeMember">
                     <div>
-                        {{-- Header (Desktop) --}}
+                        <template x-if="activeMember.has_lp == 1 && activeMember.is_active == 1">
+                            <div class="mb-8 p-6 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100 text-center">
+                                <h4 class="text-amber-800 font-bold text-lg mb-2">Este consultor tem um Website Exclusivo</h4>
+                                <p class="text-amber-600/80 text-sm mb-4">Veja o portfólio completo e biografia detalhada.</p>
+                                <button @click="openPreview(activeMember.id, activeMember.name)" 
+                                        class="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 text-white font-bold rounded-xl shadow-lg hover:bg-amber-600 hover:shadow-amber-500/30 hover:-translate-y-1 transition-all">
+                                    <span>Ver Website Oficial</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                </button>
+                            </div>
+                        </template>
+
                         <div class="hidden md:block mb-8">
                             <span class="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-ht-blue text-[10px] font-bold uppercase tracking-widest rounded-full mb-3 border border-blue-100">
                                 <span class="w-1.5 h-1.5 rounded-full bg-ht-blue"></span>
@@ -197,7 +240,6 @@
                             <h2 class="text-4xl md:text-5xl font-black text-ht-navy tracking-tight" x-text="activeMember.name"></h2>
                         </div>
                         
-                        {{-- Bio --}}
                         <div class="mb-10">
                             <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-4">{{ __('about.modal_bio_title') }}</h4>
                             <div x-show="activeMember.bio">
@@ -208,7 +250,6 @@
                             </div>
                         </div>
 
-                        {{-- Contacts --}}
                         <div class="space-y-4">
                             <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-2">{{ __('about.modal_contact_title') }}</h4>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -229,32 +270,91 @@
                             </div>
                         </div>
 
-                        {{-- Social Media --}}
                         <div class="mt-8 pt-8 border-t border-slate-100" 
                              x-show="activeMember.facebook || activeMember.instagram || activeMember.linkedin || activeMember.tiktok">
                             <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-4">{{ __('about.modal_social_title') }}</h4>
                             <div class="flex gap-4">
-                                {{-- Instagram --}}
                                 <a x-show="activeMember.instagram" :href="getSocialLink('instagram', activeMember.instagram)" target="_blank" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-gradient-to-tr hover:from-yellow-400 hover:via-red-500 hover:to-purple-500 hover:text-white transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-1">
                                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
                                 </a>
-                                {{-- Facebook --}}
                                 <a x-show="activeMember.facebook" :href="getSocialLink('facebook', activeMember.facebook)" target="_blank" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-[#1877F2] hover:text-white transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-1">
                                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
                                 </a>
-                                {{-- LinkedIn --}}
                                 <a x-show="activeMember.linkedin" :href="getSocialLink('linkedin', activeMember.linkedin)" target="_blank" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-[#0A66C2] hover:text-white transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-1">
                                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
                                 </a>
-                                {{-- TikTok --}}
                                 <a x-show="activeMember.tiktok" :href="getSocialLink('tiktok', activeMember.tiktok)" target="_blank" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-black hover:text-white transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-1">
                                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.49-3.35-3.98-5.6-1.11-5.5 3.04-10.83 8.45-10.83 2.5 0 4.01 1.11 4.01 1.11v4.21c-1.72-.93-3.8-.75-5.33.45-1.53 1.2-2.3 3.19-1.95 5.11.29 1.61 1.37 3.03 2.87 3.73 1.5.7 3.26.56 4.67-.36 1.05-.68 1.7-1.83 1.75-3.08.03-.76.01-1.53.01-2.29V.02z"/></svg>
                                 </a>
                             </div>
                         </div>
-
                     </div>
                 </template>
+            </div>
+        </div>
+    </div>
+
+    {{-- MODAL DE PREVIEW DO SITE --}}
+    <div x-show="previewModal" 
+         class="fixed inset-0 z-[110] flex items-center justify-center"
+         style="display: none;">
+        
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-md transition-opacity"
+             x-show="previewModal"
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             @click="closePreview()"></div>
+
+        <div class="relative bg-white w-full h-full md:w-[95%] md:h-[95%] md:rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+             x-show="previewModal"
+             x-transition:enter="ease-out duration-500"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100"
+             x-transition:leave="ease-in duration-300"
+             x-transition:leave-start="opacity-100 scale-100"
+             x-transition:leave-end="opacity-0 scale-95">
+            
+            <div class="bg-ht-navy text-white px-4 py-3 flex justify-between items-center shrink-0 border-b border-white/10">
+                <div class="flex items-center gap-3">
+                    <button @click="closePreview()" class="md:hidden p-2 -ml-2 text-white/70 hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <h3 class="font-bold text-sm md:text-lg truncate">
+                        Website de <span x-text="previewName"></span>
+                    </h3>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    {{-- CORREÇÃO AQUI: Proteção contra null domain --}}
+                    <a x-show="activeMember && activeMember.domain" 
+                       :href="activeMember ? 'http://' + activeMember.domain : '#'" 
+                       target="_blank" 
+                       class="hidden md:flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-ht-accent hover:text-white transition">
+                        Abrir em nova aba <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    </a>
+
+                    <button @click="closePreview()" class="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex-1 relative bg-slate-100 w-full h-full">
+                <div class="absolute inset-0 flex items-center justify-center z-0">
+                    <svg class="animate-spin h-10 w-10 text-ht-navy" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+                
+                <iframe :src="previewSrc" 
+                        class="w-full h-full relative z-10 bg-white" 
+                        frameborder="0"
+                        allowfullscreen></iframe>
             </div>
         </div>
     </div>

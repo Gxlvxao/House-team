@@ -1,18 +1,39 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Session;
 use App\Models\Property;
 use App\Models\Consultant;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\ToolsController;
 use App\Http\Controllers\ConsultantController;
-use Illuminate\Support\Facades\Session; // Importante para a rota de lang funcionar sem erros
+use App\Http\Controllers\ConsultantPageController; // Importante estar aqui
 
-// --- HOME & PÁGINAS GERAIS ---
+// ==============================================================================
+// 1. ROTAS DE DOMÍNIO (CONSULTORES - ACESSO EXTERNO)
+// 🚨 ESTE BLOCO DEVE VIR ANTES DE TODAS AS OUTRAS ROTAS
+// ==============================================================================
+
+// Esta regra diz: "Capture qualquer domínio, EXCETO o localhost/127.0.0.1/house-team..."
+Route::domain('{domain}')
+    ->where(['domain' => '^(?!127\.0\.0\.1|localhost|house-team\.127\.0\.0\.1\.nip\.io|assets|img|css|js|storage).*$'])
+    ->group(function () {
+        Route::get('/', [ConsultantPageController::class, 'index'])->name('consultant.home');
+        Route::get('/imovel/{property:slug}', [ConsultantPageController::class, 'showProperty'])->name('consultant.property');
+        
+        // Se precisar das ferramentas na página do consultor, adicione aqui apontando para o ToolsController
+        // Ex: Route::get('/simulador-credito', function() { return view('tools.credit'); });
+    });
+
+
+// ==============================================================================
+// 2. APLICAÇÃO PRINCIPAL (HOUSE TEAM)
+// ==============================================================================
+
+// --- HOME ---
 Route::get('/', function () {
-    // ALTERADO: De latest() para ordered()
-    // Assim respeita a ordem manual definida no admin
+    // Busca imóveis visíveis, respeitando a ordem definida no admin
     $properties = Property::where('is_visible', true)
         ->ordered() 
         ->take(3)
@@ -21,7 +42,7 @@ Route::get('/', function () {
     return view('home', compact('properties'));
 })->name('home');
 
-// Rota /sobre
+// --- SOBRE ---
 Route::get('/sobre', function () {
     $consultants = Consultant::where('is_active', true)
         ->orderBy('order', 'asc')
@@ -36,16 +57,18 @@ Route::get('/sobre', function () {
     return view('about', compact('leader', 'team'));
 })->name('about');
 
+// --- NOVA ROTA: PREVIEW INTERNO (MODAL) ---
+// Esta rota permite carregar a LP dentro de um iframe no site principal
+Route::get('/consultor/preview/{consultant}', [ConsultantPageController::class, 'preview'])
+    ->name('consultant.preview');
+
+
+// --- IDIOMA ---
 Route::get('lang/{locale}', function ($locale) {
-    // Validação de segurança: só aceita 'pt' ou 'en'
     if (! in_array($locale, ['pt', 'en'])) {
         abort(400);
     }
-
-    // Grava a preferência na sessão do utilizador
     Session::put('locale', $locale);
-
-    // Volta para a página onde o utilizador estava
     return redirect()->back();
 })->name('lang.switch');
 
@@ -60,20 +83,16 @@ Route::get('/ferramentas/simulador-credito', function () {
     return view('tools.credit');
 })->name('tools.credit');
 
-// Rota para processar o envio da Lead de Crédito
 Route::post('/ferramentas/simulador-credito/enviar', [ToolsController::class, 'sendCreditSimulation'])
     ->name('tools.credit.send');
-
 
 // 2. Simulador de IMT
 Route::get('/ferramentas/imt', function () {
     return view('tools.imt');
 })->name('tools.imt');
 
-// Rota para processar o envio da Lead de IMT
 Route::post('/ferramentas/imt/enviar', [ToolsController::class, 'sendImtSimulation'])
     ->name('tools.imt.send');
-
 
 // 3. Simulador de Mais-Valias
 Route::get('/ferramentas/mais-valias', function () {
@@ -131,6 +150,7 @@ Route::prefix('admin')->group(function () {
 });
 
 
+// --- LEGAIS ---
 Route::prefix('legal')->name('legal.')->group(function () {
     Route::view('/termos', 'legal.terms')->name('terms');
     Route::view('/privacidade', 'legal.privacy')->name('privacy');
