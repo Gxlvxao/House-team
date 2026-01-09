@@ -507,6 +507,10 @@
     "property_type.commercial": "Commercial",
     "property_status.venda": "For Sale",
     "property_status.arrendamento": "For Rent",
-    "portfolio.zoom_image": "Expand Photo"
+    "portfolio.zoom_image": "Expand Photo", 
+
+    "property_type.apartamento": "Apartment",
+    "property_type.casa": "Villa",
+    "property_status.arrendamento": "For Rent"
 }
 

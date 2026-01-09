@@ -511,5 +511,9 @@
     "property_type.commercial": "Comercial",
     "property_status.venda": "Venda",
     "property_status.arrendamento": "Arrendamento",
-    "portfolio.zoom_image": "Ampliar Foto"
+    "portfolio.zoom_image": "Ampliar Foto", 
+
+    "property_type.apartamento": "Apartamento",
+    "property_type.casa": "Moradia",
+    "property_status.arrendamento": "Arrendamento"
 }

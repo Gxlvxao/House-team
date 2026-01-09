@@ -38,15 +38,18 @@
                             </div>
                         </div>
 
-                        {{-- Tipo de Imóvel --}}
+                        {{-- Tipo de Imóvel (CORRIGIDO PARA INGLÊS + COMERCIAL) --}}
                         <div>
                             <label class="text-xs font-bold uppercase tracking-wide text-ht-navy ml-1 mb-2 block">{{ __('portfolio.label_type') }}</label>
                             <div class="relative">
                                 <select name="type" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 focus:outline-none focus:border-ht-accent focus:ring-1 focus:ring-ht-accent appearance-none transition-all cursor-pointer">
                                     <option value="">{{ __('portfolio.option_all') }}</option>
-                                    <option value="Apartamento" {{ request('type') == 'Apartamento' ? 'selected' : '' }}>{{ __('portfolio.type_apartment') }}</option>
-                                    <option value="Moradia" {{ request('type') == 'Moradia' ? 'selected' : '' }}>{{ __('portfolio.type_villa') }}</option>
-                                    <option value="Terreno" {{ request('type') == 'Terreno' ? 'selected' : '' }}>{{ __('portfolio.type_land') }}</option>
+                                    
+                                    {{-- Value em INGLÊS para bater com o banco --}}
+                                    <option value="flat" {{ request('type') == 'flat' ? 'selected' : '' }}>{{ __('portfolio.type_apartment') }}</option>
+                                    <option value="house" {{ request('type') == 'house' ? 'selected' : '' }}>{{ __('portfolio.type_villa') }}</option>
+                                    <option value="land" {{ request('type') == 'land' ? 'selected' : '' }}>{{ __('portfolio.type_land') }}</option>
+                                    <option value="commercial" {{ request('type') == 'commercial' ? 'selected' : '' }}>{{ __('property_type.commercial') }}</option>
                                 </select>
                                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -54,7 +57,7 @@
                             </div>
                         </div>
 
-                        {{-- Finalidade --}}
+                        {{-- Finalidade (MANTIDO EM PORTUGUÊS POIS CORRIGIMOS O BANCO) --}}
                         <div>
                             <label class="text-xs font-bold uppercase tracking-wide text-ht-navy ml-1 mb-3 block">{{ __('portfolio.label_status') }}</label>
                             <div class="flex bg-slate-50 p-1 rounded-xl border border-slate-200">
@@ -119,11 +122,11 @@
                                      alt="{{ $property->title }}" 
                                      class="w-full h-full object-cover transform group-hover:scale-110 transition duration-700">
                                 
-                                {{-- [CORREÇÃO] BADGE TIPO TRADUZIDO --}}
+                                {{-- BADGE TIPO TRADUZIDO --}}
                                 <div class="absolute top-4 left-4 bg-slate-900 text-white px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider shadow-md">
                                     {{ __('property_type.' . \Illuminate\Support\Str::slug($property->type)) }}
                                 </div>
-                                {{-- [CORREÇÃO] BADGE STATUS TRADUZIDO --}}
+                                {{-- BADGE STATUS TRADUZIDO --}}
                                 <div class="absolute top-4 right-4 bg-white/95 backdrop-blur px-3 py-1 text-[10px] font-bold text-ht-navy rounded-full uppercase tracking-wider shadow-sm">
                                     {{ __('property_status.' . \Illuminate\Support\Str::slug($property->status)) }}
                                 </div>
