@@ -515,5 +515,18 @@
 
     "property_type.apartamento": "Apartamento",
     "property_type.casa": "Moradia",
-    "property_status.arrendamento": "Arrendamento"
+    "property_status.arrendamento": "Arrendamento",
+
+    
+  "consultant_lp": {
+    "hero_subtitle": "Consultoria Imobiliária Premium",
+    "hero_desc": "Não vendo apenas casas, negoceio futuros. Um serviço assente na discrição, no rigor e num conhecimento profundo do mercado de prestígio.",
+    "btn_collection": "Ver Coleção Exclusiva",
+    "btn_contact": "Agendar Reunião Privada",
+    "why_title": "Porquê trabalhar comigo?",
+    "why_text": "Num mercado saturado, a distinção faz-se pelos detalhes. Acompanho um número restrito de clientes para garantir um serviço de 'concierge imobiliário', onde cada visita é qualificada e cada proposta é defendida com estratégia.",
+    "feedback_title": "A voz de quem confiou",
+    "properties_subtitle": "Uma seleção curada",
+    "properties_title": "Destaques House Team"
+  }
 }

@@ -511,6 +511,18 @@
 
     "property_type.apartamento": "Apartment",
     "property_type.casa": "Villa",
-    "property_status.arrendamento": "For Rent"
+    "property_status.arrendamento": "For Rent",
+
+    "consultant_lp": {
+    "hero_subtitle": "Premium Real Estate Consulting",
+    "hero_desc": "I don't just sell homes, I negotiate futures. A service built on discretion, rigor, and deep knowledge of the prestige market.",
+    "btn_collection": "View Exclusive Collection",
+    "btn_contact": "Schedule Private Meeting",
+    "why_title": "Why work with me?",
+    "why_text": "In a saturated market, distinction lies in the details. I work with a limited number of clients to ensure a 'real estate concierge' service, where every visit is qualified and every proposal is strategically defended.",
+    "feedback_title": "Trusted Reviews",
+    "properties_subtitle": "A curated selection",
+    "properties_title": "House Team Highlights"
+  }
 }
 

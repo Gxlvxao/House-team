@@ -9,66 +9,57 @@ use Illuminate\Http\Request;
 class ConsultantPageController extends Controller
 {
     /**
-     * Carrega a LP via URL: houseteam.pt/{slug}
+     * Carrega a Homepage baseada no DOMÍNIO (ex: casaacasa.pt)
      */
-    public function index($slug)
+    public function index($domain)
     {
-        // Procura pelo lp_slug (ex: 'margarida') OU pelo domain (caso uses esse campo provisoriamente)
-        $consultant = Consultant::where(function($query) use ($slug) {
-                            $query->where('lp_slug', $slug)
-                                  ->orWhere('domain', $slug);
-                        })
+        // 1. Limpeza do domínio (remove www. se existir para bater com o banco)
+        $domain = preg_replace('/^www\./', '', $domain);
+
+        // 2. Busca o consultor pelo domínio exato
+        $consultant = Consultant::where('domain', $domain)
                         ->where('has_lp', true)
                         ->where('is_active', true)
                         ->first();
+
+        // Fallback: Se não achar pelo domínio, tenta pelo slug (caso uses aliases no futuro)
+        if (!$consultant) {
+             $consultant = Consultant::where('lp_slug', $domain)
+                        ->where('has_lp', true)
+                        ->where('is_active', true)
+                        ->first();
+        }
 
         if (!$consultant) {
             abort(404); 
         }
 
-        $properties = $this->getAllProperties();
+        // 3. Carrega os imóveis (Top 6 ordenados)
+        $properties = $this->getAvailableProperties();
 
         return view('consultants.landing-page', compact('consultant', 'properties'));
     }
 
     /**
-     * Preview Interno (Modal). Mantém-se igual.
+     * Preview Interno (Modal) - Mantém igual
      */
     public function preview(Consultant $consultant)
     {
         if (!$consultant->has_lp || !$consultant->is_active) {
             abort(404);
         }
-        $properties = $this->getAllProperties();
+        $properties = $this->getAvailableProperties();
         return view('consultants.landing-page', compact('consultant', 'properties'));
     }
 
     /**
-     * Detalhe do Imóvel dentro da LP do Consultor
-     * URL: houseteam.pt/{slug}/imovel/{imovel-slug}
+     * Helper privado
      */
-    public function showProperty($slug, $propertySlug)
-    {
-        // Valida se o consultor existe
-        $consultant = Consultant::where(function($query) use ($slug) {
-                            $query->where('lp_slug', $slug)
-                                  ->orWhere('domain', $slug);
-                        })
-                        ->where('has_lp', true)
-                        ->firstOrFail();
-        
-        // Busca o imóvel
-        $property = Property::where('slug', $propertySlug)
-                        ->where('is_visible', true)
-                        ->firstOrFail();
-
-        return view('consultants.property-show', compact('consultant', 'property'));
-    }
-
-    private function getAllProperties()
+    private function getAvailableProperties()
     {
         return Property::where('is_visible', true)
             ->ordered()
+            ->take(6) // Mantém o limite de 6 que pediste
             ->get();
     }
 }

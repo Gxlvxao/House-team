@@ -11,7 +11,23 @@ use App\Http\Controllers\ConsultantController;
 use App\Http\Controllers\ConsultantPageController;
 
 // ==============================================================================
-// 1. ROTAS GLOBAIS / SISTEMA (PRIORIDADE ALTA)
+// 1. ROTAS DE DOMÍNIO EXTERNO (CASA A CASA) - PRIORIDADE MÁXIMA
+// ==============================================================================
+// Captura 'casaacasa.pt' ou qualquer outro domínio que não seja o principal
+Route::domain('{domain}')
+    ->where(['domain' => '^(?!houseteamconsultores\.pt|www\.houseteamconsultores\.pt|localhost|127\.0\.0\.1).*$'])
+    ->group(function () {
+        // A Landing Page da Consultora (Root do domínio dela)
+        Route::get('/', [ConsultantPageController::class, 'index'])->name('consultant.home');
+        
+        // Rota de Preview (caso precises, mas o index já resolve)
+        // Nota: Como pediste para os imóveis abrirem no site da House Team,
+        // não precisamos de rotas internas de imóvel aqui!
+    });
+
+
+// ==============================================================================
+// 2. APLICAÇÃO PRINCIPAL (HOUSE TEAM)
 // ==============================================================================
 
 // --- HOME ---
@@ -34,7 +50,7 @@ Route::get('lang/{locale}', function ($locale) {
     return back();
 })->name('lang.switch');
 
-// --- IMÓVEIS (LISTAGEM GERAL) ---
+// --- IMÓVEIS ---
 Route::get('/imoveis', [PropertyController::class, 'publicIndex'])->name('portfolio');
 Route::get('/imoveis/{property:slug}', [PropertyController::class, 'show'])->name('properties.show');
 
@@ -50,7 +66,6 @@ Route::post('/ferramentas/mais-valias/calcular', [ToolsController::class, 'calcu
 
 // --- BLOG ---
 Route::get('/blog', function () { return view('blog.index'); })->name('blog');
-// (Adicionei as rotas individuais do blog aqui simplificadas para o exemplo)
 Route::view('/blog/novo-perfil-investidor-luxo', 'blog.show')->name('blog.show');
 Route::view('/blog/inteligencia-mercado-redefine-investimento', 'blog.show-intelligence')->name('blog.show-intelligence');
 Route::view('/blog/lisboa-cascais-algarve-eixos-valor', 'blog.show-locations')->name('blog.show-locations');
@@ -59,7 +74,7 @@ Route::view('/blog/lisboa-cascais-algarve-eixos-valor', 'blog.show-locations')->
 Route::get('/contato', function () { return view('contact'); })->name('contact');
 Route::post('/contato', [ToolsController::class, 'sendContact'])->name('contact.submit');
 
-// --- PREVIEW INTERNO (MODAL) ---
+// --- PREVIEW INTERNO (MODAL NO SITE PRINCIPAL) ---
 Route::get('/consultor/preview/{consultant}', [ConsultantPageController::class, 'preview'])->name('consultant.preview');
 
 // --- LEGAIS ---
@@ -85,16 +100,3 @@ Route::prefix('admin')->group(function () {
         Route::post('/properties/{property}/move-to-top', [PropertyController::class, 'moveToTop'])->name('admin.properties.moveToTop');
     });
 });
-
-// ==============================================================================
-// 2. ROTAS DE CONSULTOR POR URL (SLUG) - (PRIORIDADE BAIXA)
-// 🚨 OBRIGATÓRIO SEREM AS ÚLTIMAS!
-// Ex: houseteamconsultores.pt/margarida
-// ==============================================================================
-
-Route::get('/{slug}', [ConsultantPageController::class, 'index'])
-    ->where('slug', '[a-zA-Z0-9\-]+') // Validação básica regex
-    ->name('consultant.home');
-
-Route::get('/{slug}/imovel/{property:slug}', [ConsultantPageController::class, 'showProperty'])
-    ->name('consultant.property');
