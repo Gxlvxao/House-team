@@ -6,34 +6,30 @@ use Illuminate\Http\Request;
 use App\Models\Consultant;
 use App\Models\Property;
 
-// Mantenha o nome da classe igual ao nome do arquivo
 class ConsultantController extends Controller
 {
     /**
-     * Busca a consultora pelo Domínio ou Subdomínio (lp_slug)
+     * Busca a consultora pelo Domínio ou Slug.
      */
     private function getConsultantByDomain($domain)
     {
-        // 1. Limpa o protocolo e www
+        // 1. Limpeza do protocolo
         $host = strtolower(str_replace(['http://', 'https://', 'www.'], '', $domain));
         
-        // 2. Tenta extrair o slug (ex: 'margarida' de 'margarida.casaacasa.pt')
+        // 2. Extrai o possível slug (ex: 'margarida' de 'margarida.casaacasa.pt')
         $slugPart = explode('.', $host)[0];
 
-        // --- CORREÇÃO DO ERRO 500 ---
-        // Trocamos 'slug' por 'lp_slug' que é o nome correto na sua tabela
-        $consultant = Consultant::where('lp_slug', $slugPart)
+        // --- CORREÇÃO 1: Usando o nome da coluna que você me mandou (ip_slug) ---
+        $consultant = Consultant::where('ip_slug', $slugPart)
             ->where('is_active', true)
             ->first();
 
-        // 3. Se não achou pelo slug, busca pelo Domínio Exato (ex: casaacasa.pt)
+        // 3. Se não achou pelo slug, busca pelo Domínio Exato
         if (! $consultant) {
-            $consultant = Consultant::where(function($query) use ($host) {
-                    $query->where('domain', $host)       // Nome padrão
-                          ->orWhere('custom_domain', $host); // Nome alternativo (segurança)
-                })
+            // --- CORREÇÃO 2: Removido 'custom_domain', busca só em 'domain' ---
+            $consultant = Consultant::where('domain', $host)
                 ->where('is_active', true)
-                ->firstOrFail(); // Se não achar aqui, lança 404
+                ->firstOrFail(); 
         }
 
         return $consultant;
@@ -58,7 +54,7 @@ class ConsultantController extends Controller
     {
         $consultant = $this->getConsultantByDomain($domain);
 
-        // Nota: Na tabela 'properties' a coluna geralmente é 'slug' mesmo.
+        // Imóvel continua buscando por 'slug' (coluna da tabela properties)
         $property = Property::where('slug', $slug)
             ->where('is_visible', true)
             ->firstOrFail();
@@ -84,7 +80,6 @@ class ConsultantController extends Controller
         return view('tools.imt', compact('consultant'));
     }
 
-    // Preview interno (Admin)
     public function preview(Consultant $consultant)
     {
         $properties = Property::where('consultant_id', $consultant->id)
