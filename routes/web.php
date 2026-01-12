@@ -4,11 +4,11 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use App\Models\Property;
 use App\Models\Consultant;
+// Controllers
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\ToolsController;
-use App\Http\Controllers\ConsultantController;
-use App\Http\Controllers\ConsultantPageController;
+use App\Http\Controllers\ConsultantController; // <--- O NOME CORRETO É ESSE
 
 // ==============================================================================
 // 1. ROTAS DE DOMÍNIO EXTERNO (CONSULTORAS) - PRIORIDADE MÁXIMA
@@ -19,20 +19,19 @@ Route::domain('{domain}')
     ->group(function () {
         
         // 1.1 Home da Consultora (Landing Page)
-        Route::get('/', [ConsultantPageController::class, 'index'])->name('consultant.home');
+        // CORRIGIDO: ConsultantController
+        Route::get('/', [ConsultantController::class, 'index'])->name('consultant.home');
         
         // 1.2 Detalhe do Imóvel (Com design da consultora)
-        Route::get('/imoveis/{property:slug}', [ConsultantPageController::class, 'showProperty'])->name('consultant.property.show');
+        Route::get('/imoveis/{property:slug}', [ConsultantController::class, 'showProperty'])->name('consultant.property.show');
 
         // 1.3 FERRAMENTAS (Views personalizadas)
-        // Estas rotas chamam o ConsultantPageController para injetar a variável $consultant e ativar o modo Navy & Gold
-        Route::get('/ferramentas/mais-valias', [ConsultantPageController::class, 'showGains'])->name('consultant.tools.gains');
-        Route::get('/ferramentas/simulador-credito', [ConsultantPageController::class, 'showCredit'])->name('consultant.tools.credit');
-        Route::get('/ferramentas/imt', [ConsultantPageController::class, 'showImt'])->name('consultant.tools.imt');
+        // CORRIGIDO: ConsultantController
+        Route::get('/ferramentas/mais-valias', [ConsultantController::class, 'showGains'])->name('consultant.tools.gains');
+        Route::get('/ferramentas/simulador-credito', [ConsultantController::class, 'showCredit'])->name('consultant.tools.credit');
+        Route::get('/ferramentas/imt', [ConsultantController::class, 'showImt'])->name('consultant.tools.imt');
 
-        // 1.4 AÇÕES (POST) - Cálculos e Envios
-        // Necessário estar aqui para que o formulário submeta para o PRÓPRIO domínio da consultora
-        // O Laravel injeta o ToolsController, que processa a lógica independentemente do domínio
+        // 1.4 AÇÕES (POST)
         Route::post('/ferramentas/mais-valias/calcular', [ToolsController::class, 'calculateGains']);
         Route::post('/ferramentas/simulador-credito/enviar', [ToolsController::class, 'sendCreditSimulation']);
         Route::post('/ferramentas/imt/enviar', [ToolsController::class, 'sendImtSimulation']);
@@ -89,7 +88,8 @@ Route::get('/contato', function () { return view('contact'); })->name('contact')
 Route::post('/contato', [ToolsController::class, 'sendContact'])->name('contact.submit');
 
 // --- PREVIEW INTERNO (MODAL NO SITE PRINCIPAL) ---
-Route::get('/consultor/preview/{consultant}', [ConsultantPageController::class, 'preview'])->name('consultant.preview');
+// CORRIGIDO: ConsultantController
+Route::get('/consultor/preview/{consultant}', [ConsultantController::class, 'preview'])->name('consultant.preview');
 
 // --- LEGAIS ---
 Route::prefix('legal')->name('legal.')->group(function () {
@@ -109,7 +109,13 @@ Route::prefix('admin')->group(function () {
         Route::view('/dashboard', 'admin.dashboard')->name('admin.dashboard');
         
         Route::resource('properties', PropertyController::class)->names('admin.properties');
+        
+        // ⚠️ ATENÇÃO SÊNIOR: 
+        // Se o arquivo ConsultantController agora só tem a lógica da Landing Page (index, showProperty),
+        // esta rota resource abaixo VAI QUEBRAR o admin, pois faltam os métodos store, update, destroy.
+        // Mantenha comentado se não tiver esses métodos, ou crie um AdminConsultantController separado.
         Route::resource('consultants', ConsultantController::class)->names('admin.consultants');
+        
         Route::post('/properties/reorder', [PropertyController::class, 'reorder'])->name('admin.properties.reorder');
         Route::post('/properties/{property}/move-to-top', [PropertyController::class, 'moveToTop'])->name('admin.properties.moveToTop');
     });
