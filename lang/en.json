@@ -513,21 +513,31 @@
     "property_type.casa": "Villa",
     "property_status.arrendamento": "For Rent",
 
-    "consultant_lp.hero_subtitle": "Premium Real Estate Consulting",
-    "consultant_lp.hero_desc": "I don't just sell homes, I negotiate futures. A service built on discretion, rigor, and deep knowledge of the prestige market.",
-    "consultant_lp.btn_collection": "View Exclusive Collection",
-    "consultant_lp.btn_contact": "Schedule Private Meeting",
-    "consultant_lp.why_title": "Why work with me?",
-    "consultant_lp.why_text": "In a saturated market, distinction lies in the details. I work with a limited number of clients to ensure a 'real estate concierge' service, where every visit is qualified and every proposal is strategically defended.",
-    "consultant_lp.feedback_title": "Trusted Reviews",
-    "consultant_lp.properties_subtitle": "A curated selection",
+    "consultant_lp.hero_subtitle": "Real Estate Consultant",
+    "consultant_lp.hero_desc": "With a personalized approach and deep knowledge of the real estate market, I help you achieve your dreams — whether buying, selling, or investing. My commitment is to offer a safe, transparent, and hassle-free experience.",
+    "consultant_lp.btn_collection": "View Collection",
+    "consultant_lp.btn_contact": "Talk to Me",
+    "consultant_lp.stats_years": "Years of Experience",
+    "consultant_lp.stats_dreams": "Dreams Fulfilled",
+    "consultant_lp.stats_producer": "National Producer",
+    "consultant_lp.stats_dedication": "Dedication",
+    "consultant_lp.why_title_label": "Why me?",
+    "consultant_lp.why_title": "Experience that makes a difference",
+    "consultant_lp.why_text": "I believe trust is the foundation of any business. With open communication, constant follow-up, and years of experience in the national market, I offer solutions tailored to your profile and concrete results.",
+    "consultant_lp.properties_subtitle": "Exclusive Portfolio",
     "consultant_lp.properties_title": "House Team Highlights",
+    "consultant_lp.view_inventory": "View House Team Inventory",
+    "consultant_lp.portfolio_empty": "Portfolio currently updating.",
+    "consultant_lp.feedback_title": "What clients say",
+    "consultant_lp.contact_title": "Start Your Story",
+    "consultant_lp.contact_subtitle": "Schedule a strategic meeting.",
+    "consultant_lp.footer_note": "House Team Associate",
 
     "consultant_lp.menu_home": "Home",
     "consultant_lp.menu_about": "About",
     "consultant_lp.menu_feedback": "Reviews",
     "consultant_lp.menu_portfolio": "Portfolio",
-    "consultant_lp.menu_contact": "Contact"
+    "consultant_lp.menu_contact": "Contact Me"
   
 }
 

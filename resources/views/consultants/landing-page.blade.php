@@ -1,14 +1,10 @@
 @extends('layouts.app')
 
-@section('title', $consultant->name . ' - Consultora Imobiliária')
+@section('title', $consultant->name . ' - ' . __('consultant_lp.hero_subtitle'))
 
 @section('content')
 
-{{-- 
-    ============================================================================
-    DESIGN SYSTEM: NAVY & GOLD (LAYOUT PREMIUM NOVO)
-    ============================================================================
---}}
+{{-- DESIGN SYSTEM: NAVY & GOLD --}}
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
 
@@ -24,13 +20,11 @@
     body { font-family: var(--font-sans); color: var(--color-navy); }
     h1, h2, h3, h4, .font-serif { font-family: var(--font-serif); }
 
-    /* Utilitários de Cor */
     .text-gold { color: var(--color-gold) !important; }
     .bg-gold { background-color: var(--color-gold) !important; }
     .bg-navy { background-color: var(--color-navy) !important; }
     .border-gold { border-color: var(--color-gold) !important; }
 
-    /* Botões Personalizados */
     .btn-gold {
         background-color: var(--color-gold);
         color: white;
@@ -65,7 +59,6 @@
         transform: translateY(-2px);
     }
 
-    /* Elementos Decorativos */
     .decor-line {
         height: 2px;
         width: 60px;
@@ -73,30 +66,22 @@
         margin: 20px 0;
     }
 
-    /* Cards de Imóveis */
-    .property-card {
-        transition: transform 0.4s ease, box-shadow 0.4s ease;
-    }
-    .property-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 20px 40px rgba(30, 41, 59, 0.1);
-    }
+    .property-card { transition: transform 0.4s ease, box-shadow 0.4s ease; }
+    .property-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(30, 41, 59, 0.1); }
 </style>
 
 <div class="overflow-x-hidden">
 
     {{-- 1. HERO SECTION --}}
     <section id="home" class="relative min-h-screen flex items-center pt-28 pb-20 bg-slate-50">
-        {{-- Background Shape --}}
         <div class="absolute top-0 right-0 w-1/3 h-full bg-navy hidden lg:block" style="clip-path: polygon(20% 0%, 100% 0, 100% 100%, 0% 100%);"></div>
 
         <div class="container mx-auto px-6 relative z-10">
             <div class="grid lg:grid-cols-2 gap-16 items-center">
                 
-                {{-- Texto --}}
                 <div class="order-2 lg:order-1" data-aos="fade-right" data-aos-duration="1000">
                     <span class="text-gold font-bold tracking-[0.2em] text-xs uppercase mb-4 block">
-                        Consultora Imobiliária
+                        {{ __('consultant_lp.hero_subtitle') }}
                     </span>
                     
                     <h1 class="text-6xl lg:text-7xl font-bold text-navy leading-tight mb-6">
@@ -111,15 +96,14 @@
 
                     <div class="flex gap-4">
                         <a href="#portfolio" class="btn-gold shadow-lg">
-                            Ver Coleção
+                            {{ __('consultant_lp.btn_collection') }}
                         </a>
                         <a href="#contact" class="btn-navy-outline">
-                            Fale Comigo
+                            {{ __('consultant_lp.btn_contact') }}
                         </a>
                     </div>
                 </div>
 
-                {{-- Imagem --}}
                 <div class="order-1 lg:order-2 relative" data-aos="fade-left" data-aos-duration="1000">
                     <div class="relative z-10">
                         <img src="{{ $consultant->image_url ?? asset('img/team/' . $consultant->photo) }}" 
@@ -133,25 +117,25 @@
         </div>
     </section>
 
-    {{-- 2. ESTATÍSTICAS (Barra Premium) --}}
+    {{-- 2. ESTATÍSTICAS --}}
     <section class="bg-navy py-16 text-white relative">
         <div class="container mx-auto px-6">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-white/10">
                 <div data-aos="fade-up" data-aos-delay="0">
                     <p class="text-4xl font-serif text-gold font-bold mb-2">15+</p>
-                    <p class="text-xs uppercase tracking-widest text-slate-400">Anos de Experiência</p>
+                    <p class="text-xs uppercase tracking-widest text-slate-400">{{ __('consultant_lp.stats_years') }}</p>
                 </div>
                 <div data-aos="fade-up" data-aos-delay="100">
                     <p class="text-4xl font-serif text-gold font-bold mb-2">700+</p>
-                    <p class="text-xs uppercase tracking-widest text-slate-400">Sonhos Realizados</p>
+                    <p class="text-xs uppercase tracking-widest text-slate-400">{{ __('consultant_lp.stats_dreams') }}</p>
                 </div>
                 <div data-aos="fade-up" data-aos-delay="200">
                     <p class="text-4xl font-serif text-gold font-bold mb-2">Top</p>
-                    <p class="text-xs uppercase tracking-widest text-slate-400">Producer Nacional</p>
+                    <p class="text-xs uppercase tracking-widest text-slate-400">{{ __('consultant_lp.stats_producer') }}</p>
                 </div>
                 <div data-aos="fade-up" data-aos-delay="300">
                     <p class="text-4xl font-serif text-gold font-bold mb-2">100%</p>
-                    <p class="text-xs uppercase tracking-widest text-slate-400">Dedicação</p>
+                    <p class="text-xs uppercase tracking-widest text-slate-400">{{ __('consultant_lp.stats_dedication') }}</p>
                 </div>
             </div>
         </div>
@@ -160,8 +144,8 @@
     {{-- 3. SOBRE --}}
     <section id="about" class="py-24 bg-white">
         <div class="container mx-auto px-6 max-w-4xl text-center" data-aos="fade-up">
-            <span class="text-slate-400 text-xs font-bold uppercase tracking-widest block mb-3">{{ __('consultant_lp.why_title') }}</span>
-            <h2 class="text-4xl text-navy mb-8">A experiência que faz a diferença</h2>
+            <span class="text-slate-400 text-xs font-bold uppercase tracking-widest block mb-3">{{ __('consultant_lp.why_title_label') }}</span>
+            <h2 class="text-4xl text-navy mb-8">{{ __('consultant_lp.why_title') }}</h2>
             <div class="w-20 h-[1px] bg-gold mx-auto mb-10"></div>
             
             <div class="prose prose-lg mx-auto text-slate-600 font-light leading-loose">
@@ -180,11 +164,11 @@
         <div class="container mx-auto px-6 max-w-7xl">
             <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6" data-aos="fade-up">
                 <div>
-                    <span class="text-gold font-bold tracking-widest text-xs uppercase mb-2 block">Portfólio Exclusivo</span>
+                    <span class="text-gold font-bold tracking-widest text-xs uppercase mb-2 block">{{ __('consultant_lp.properties_subtitle') }}</span>
                     <h2 class="text-4xl text-navy font-serif">{{ __('consultant_lp.properties_title') }}</h2>
                 </div>
                 <a href="https://houseteamconsultores.pt/imoveis" target="_blank" class="text-navy border-b border-navy pb-1 text-xs font-bold uppercase hover:text-gold hover:border-gold transition">
-                    Ver Inventário House Team
+                    {{ __('consultant_lp.view_inventory') }}
                 </a>
             </div>
 
@@ -224,43 +208,34 @@
                 </div>
             @else
                 <div class="py-24 text-center">
-                    <p class="text-slate-400 font-serif italic text-xl">Portfólio em atualização.</p>
+                    <p class="text-slate-400 font-serif italic text-xl">{{ __('consultant_lp.portfolio_empty') }}</p>
                 </div>
             @endif
         </div>
     </section>
 
-    {{-- 
-        5. TESTEMUNHOS (WIDGET ATUALIZADO)
-        Substituímos o código antigo pelo novo fornecido.
-    --}}
+    {{-- 5. TESTEMUNHOS --}}
     <section id="testimonials" class="py-24 bg-white border-t border-slate-100">
         <div class="container mx-auto px-6 text-center">
             <span class="text-slate-400 font-bold tracking-widest text-xs uppercase mb-10 block">{{ __('consultant_lp.feedback_title') }}</span>
             <div class="max-w-5xl mx-auto min-h-[400px]" data-aos="fade-up">
-                
-                {{-- WIDGET DA REPUTATION HUB (ATUALIZADO) --}}
                 <script type='text/javascript' src='https://reputationhub.site/reputation/assets/review-widget.js'></script>
                 <iframe class='lc_reviews_widget' 
                         src='https://reputationhub.site/reputation/widgets/review_widget/pNqZN0PDS8KBp1b3Uk13?widgetId=69176d9fcf2958bcfa34b132' 
-                        frameborder='0' 
-                        scrolling='no' 
-                        style='min-width: 100%; width: 100%; min-height: 400px; border: none;'>
+                        frameborder='0' scrolling='no' style='min-width: 100%; width: 100%; min-height: 400px; border: none;'>
                 </iframe>
-                
             </div>
         </div>
     </section>
 
-    {{-- 6. CONTACTO (Design com Fundo Navy) --}}
+    {{-- 6. CONTACTO --}}
     <section id="contact" class="relative py-24 bg-navy overflow-hidden">
-        {{-- Elemento Decorativo --}}
         <div class="absolute top-0 right-0 w-96 h-96 bg-gold opacity-10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
 
         <div class="container mx-auto px-6 max-w-4xl relative z-10" data-aos="fade-up">
             <div class="text-center mb-16">
-                <h2 class="text-4xl text-white font-serif mb-6">Comece a sua História</h2>
-                <p class="text-slate-400 text-lg font-light">Agende uma reunião estratégica.</p>
+                <h2 class="text-4xl text-white font-serif mb-6">{{ __('consultant_lp.contact_title') }}</h2>
+                <p class="text-slate-400 text-lg font-light">{{ __('consultant_lp.contact_subtitle') }}</p>
             </div>
 
             <div class="bg-white p-8 md:p-12 shadow-2xl relative">
@@ -272,28 +247,28 @@
                     
                     <div class="grid md:grid-cols-2 gap-8">
                         <div>
-                            <label class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 block">Nome</label>
-                            <input type="text" name="name" class="w-full border-b border-slate-200 py-3 text-navy focus:outline-none focus:border-gold transition-colors bg-transparent" required placeholder="Seu nome completo">
+                            <label class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 block">{{ __('contact.form_name') }}</label>
+                            <input type="text" name="name" class="w-full border-b border-slate-200 py-3 text-navy focus:outline-none focus:border-gold transition-colors bg-transparent" required placeholder="{{ __('contact.placeholder_name') }}">
                         </div>
                         <div>
-                            <label class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 block">Telemóvel</label>
+                            <label class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 block">{{ __('contact.form_phone') }}</label>
                             <input type="tel" name="phone" class="w-full border-b border-slate-200 py-3 text-navy focus:outline-none focus:border-gold transition-colors bg-transparent" placeholder="+351 ...">
                         </div>
                     </div>
 
                     <div>
-                        <label class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 block">Email</label>
-                        <input type="email" name="email" class="w-full border-b border-slate-200 py-3 text-navy focus:outline-none focus:border-gold transition-colors bg-transparent" required placeholder="seu@email.com">
+                        <label class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 block">{{ __('contact.form_email') }}</label>
+                        <input type="email" name="email" class="w-full border-b border-slate-200 py-3 text-navy focus:outline-none focus:border-gold transition-colors bg-transparent" required placeholder="{{ __('contact.placeholder_email') }}">
                     </div>
 
                     <div>
-                        <label class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 block">Mensagem</label>
-                        <textarea name="message" rows="3" class="w-full border-b border-slate-200 py-3 text-navy focus:outline-none focus:border-gold transition-colors resize-none bg-transparent" required placeholder="Como posso ajudar?"></textarea>
+                        <label class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 block">{{ __('contact.form_message') }}</label>
+                        <textarea name="message" rows="3" class="w-full border-b border-slate-200 py-3 text-navy focus:outline-none focus:border-gold transition-colors resize-none bg-transparent" required placeholder="{{ __('contact.placeholder_message') }}"></textarea>
                     </div>
 
                     <div class="text-center pt-8">
                         <button type="submit" class="btn-gold w-full md:w-auto shadow-xl">
-                            Enviar Pedido de Reunião
+                            {{ __('contact.btn_send') }}
                         </button>
                     </div>
                 </form>
@@ -306,7 +281,7 @@
         <div class="container mx-auto px-6">
             <img src="{{ asset('img/logo/casaacasa.png') }}" alt="Logo" class="h-16 mx-auto mb-6 brightness-0 invert opacity-50" onerror="this.style.display='none';">
             <p class="font-serif font-bold text-xl mb-2">{{ $consultant->name }}</p>
-            <p class="text-xs text-slate-500 uppercase tracking-widest">&copy; {{ date('Y') }} • Associada House Team</p>
+            <p class="text-xs text-slate-500 uppercase tracking-widest">&copy; {{ date('Y') }} • {{ __('consultant_lp.footer_note') }}</p>
         </div>
     </footer>
 

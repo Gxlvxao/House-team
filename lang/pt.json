@@ -517,20 +517,31 @@
     "property_type.casa": "Moradia",
     "property_status.arrendamento": "Arrendamento",
 
-   "consultant_lp.hero_subtitle": "Consultoria Imobiliária Premium",
-    "consultant_lp.hero_desc": "Não vendo apenas casas, negoceio futuros. Um serviço assente na discrição, no rigor e num conhecimento profundo do mercado de prestígio.",
-    "consultant_lp.btn_collection": "Ver Coleção Exclusiva",
-    "consultant_lp.btn_contact": "Agendar Reunião Privada",
-    "consultant_lp.why_title": "Porquê trabalhar comigo?",
-    "consultant_lp.why_text": "Num mercado saturado, a distinção faz-se pelos detalhes. Acompanho um número restrito de clientes para garantir um serviço de 'concierge imobiliário', onde cada visita é qualificada e cada proposta é defendida com estratégia.",
-    "consultant_lp.feedback_title": "A voz de quem confiou",
-    "consultant_lp.properties_subtitle": "Uma seleção curada",
+    
+"consultant_lp.hero_subtitle": "Consultora Imobiliária",
+    "consultant_lp.hero_desc": "Com uma abordagem personalizada e um profundo conhecimento do mercado imobiliário, ajudo-o a concretizar os seus sonhos — seja comprar, vender ou investir. O meu compromisso é oferecer uma experiência segura, transparente e sem complicações.",
+    "consultant_lp.btn_collection": "Ver Coleção",
+    "consultant_lp.btn_contact": "Fale Comigo",
+    "consultant_lp.stats_years": "Anos de Experiência",
+    "consultant_lp.stats_dreams": "Sonhos Realizados",
+    "consultant_lp.stats_producer": "Producer Nacional",
+    "consultant_lp.stats_dedication": "Dedicação",
+    "consultant_lp.why_title_label": "Porquê eu?",
+    "consultant_lp.why_title": "A experiência que faz a diferença",
+    "consultant_lp.why_text": "Acredito que a base de qualquer negócio é a confiança. Com comunicação aberta, acompanhamento constante e anos de experiência no mercado nacional, ofereço soluções adequadas ao seu perfil e resultados concretos.",
+    "consultant_lp.properties_subtitle": "Portfólio Exclusivo",
     "consultant_lp.properties_title": "Destaques House Team",
-
+    "consultant_lp.view_inventory": "Ver Inventário House Team",
+    "consultant_lp.portfolio_empty": "Portfólio em atualização.",
+    "consultant_lp.feedback_title": "O que dizem os clientes",
+    "consultant_lp.contact_title": "Comece a sua História",
+    "consultant_lp.contact_subtitle": "Agende uma reunião estratégica.",
+    "consultant_lp.footer_note": "Associada House Team",
+    
     "consultant_lp.menu_home": "Início",
     "consultant_lp.menu_about": "Sobre",
     "consultant_lp.menu_feedback": "Feedback",
-    "consultant_lp.menu_portfolio": "Portfólio",
-    "consultant_lp.menu_contact": "Contactar"
+    "consultant_lp.menu_portfolio": "Imóveis",
+    "consultant_lp.menu_contact": "Fale Comigo"
   
 }
