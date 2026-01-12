@@ -2,25 +2,45 @@
 
 @section('content')
 
-{{-- 1. OVERRIDE DE CORES: Se tiver consultora, muda o vermelho para DOURADO --}}
+{{-- 
+    1. OVERRIDE DE DESIGN SYSTEM (SE TIVER CONSULTORA)
+    Transforma a página de "House Team" para "Navy & Gold" automaticamente.
+--}}
 @if(isset($consultant))
     <style>
-        /* Força a cor Dourada (Gold) nos elementos principais */
-        .bg-ht-accent { background-color: #D4AF37 !important; }
-        .text-ht-accent { color: #D4AF37 !important; }
-        .border-ht-accent { border-color: #D4AF37 !important; }
-        .ring-ht-accent { --tw-ring-color: #D4AF37 !important; }
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap');
         
-        /* Ajuste do Hover */
-        .hover\:bg-ht-accent:hover { background-color: #bfa34b !important; }
+        :root {
+            --font-serif: 'Playfair Display', serif;
+            --font-sans: 'Inter', sans-serif;
+            --color-gold: #c5a059;
+            --color-navy: #1e293b;
+        }
+
+        /* Override de Fontes */
+        body { font-family: var(--font-sans) !important; }
+        h1, h2, h3, h4 { font-family: var(--font-serif) !important; }
+
+        /* Override de Cores (Substitui o vermelho/azul padrão) */
+        .bg-ht-accent { background-color: var(--color-gold) !important; }
+        .text-ht-accent { color: var(--color-gold) !important; }
+        .border-ht-accent { border-color: var(--color-gold) !important; }
+        .ring-ht-accent { --tw-ring-color: var(--color-gold) !important; }
         
-        /* Ajuste da sombra do badge */
-        .shadow-blue-500\/30 { --tw-shadow-color: rgba(212, 175, 55, 0.4) !important; }
+        .bg-ht-navy { background-color: var(--color-navy) !important; }
+        .text-ht-navy { color: var(--color-navy) !important; }
+
+        /* Ajustes Específicos */
+        .hover\:bg-ht-accent:hover { background-color: #b08d4b !important; }
+        .shadow-blue-500\/30 { --tw-shadow-color: rgba(197, 160, 89, 0.4) !important; }
+        
+        /* Botões mais elegantes */
+        button, a.block { border-radius: 4px !important; text-transform: uppercase; letter-spacing: 1px; font-size: 11px; font-weight: 700; }
     </style>
 @endif
 
 {{-- CONTAINER PRINCIPAL --}}
-<div class="pt-32 pb-12 bg-slate-50" 
+<div class="pt-32 pb-12 bg-slate-50 relative" 
      x-data="{ 
         isModalOpen: false, 
         activeImage: '{{ $property->cover_image ? asset('storage/' . $property->cover_image) : asset('img/porto.jpg') }}',
@@ -48,7 +68,13 @@
     @keydown.arrow-right.window="if(isModalOpen) next()"
     @keydown.arrow-left.window="if(isModalOpen) prev()"
 >
-    <div class="container mx-auto px-6 md:px-12">
+    
+    {{-- Decoração de Fundo (Apenas se tiver consultor) --}}
+    @if(isset($consultant))
+        <div class="absolute top-0 right-0 w-1/3 h-96 bg-ht-navy opacity-5 -z-10" style="clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 100%);"></div>
+    @endif
+
+    <div class="container mx-auto px-6 md:px-12 relative z-10">
         
         {{-- CABEÇALHO --}}
         <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-10" data-aos="fade-up">
@@ -78,8 +104,8 @@
             </div>
         </div>
 
-        {{-- GALERIA --}}
-        <div class="relative rounded-[2.5rem] overflow-hidden shadow-2xl bg-slate-900 group mb-16 h-[50vh] md:h-[70vh]" data-aos="zoom-in">
+        {{-- GALERIA DE IMAGENS --}}
+        <div class="relative rounded-[2rem] overflow-hidden shadow-2xl bg-slate-900 group mb-16 h-[50vh] md:h-[70vh]" data-aos="zoom-in">
             <div class="absolute inset-0 transition-all duration-700 ease-in-out cursor-zoom-in" @click="isModalOpen = true">
                 <img :src="activeImage" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-500" alt="{{ $property->title }}">
                 <div class="absolute inset-0 bg-gradient-to-t from-ht-navy/80 via-transparent to-transparent"></div>
@@ -88,18 +114,18 @@
                     <span class="text-xs font-bold uppercase tracking-widest">{{ __('portfolio.zoom_image') }}</span>
                 </div>
             </div>
-            {{-- Setas --}}
+            {{-- Setas de Navegação --}}
             <button @click.stop="prev()" class="absolute left-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/30 backdrop-blur-md text-white p-4 rounded-full transition-all opacity-0 group-hover:opacity-100 transform -translate-x-4 group-hover:translate-x-0 z-20">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             </button>
             <button @click.stop="next()" class="absolute right-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/30 backdrop-blur-md text-white p-4 rounded-full transition-all opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 z-20">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </button>
-            {{-- Thumbs --}}
-            <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 overflow-x-auto max-w-[90%] p-2 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/10 z-20">
+            {{-- Miniaturas --}}
+            <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 overflow-x-auto max-w-[90%] p-2 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/10 z-20 scrollbar-hide">
                 <template x-for="(img, index) in images" :key="index">
                     <button @click.stop="setImage(index)" 
-                            class="relative w-16 h-12 md:w-20 md:h-14 rounded-xl overflow-hidden transition-all duration-300 transform hover:scale-105"
+                            class="relative w-16 h-12 md:w-20 md:h-14 rounded-xl overflow-hidden transition-all duration-300 transform hover:scale-105 flex-shrink-0"
                             :class="currentIndex === index ? 'ring-2 ring-ht-accent opacity-100 scale-105' : 'opacity-60 hover:opacity-100'">
                         <img :src="img" class="w-full h-full object-cover">
                     </button>
@@ -109,35 +135,32 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 relative">
             
+            {{-- COLUNA ESQUERDA (Info Principal) --}}
             <div class="lg:col-span-8 space-y-12">
-                {{-- STATS --}}
+                {{-- STATS GRID --}}
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {{-- Quartos --}}
-                    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center group hover:border-ht-accent/30 transition-colors">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm text-center group hover:border-ht-accent/30 transition-colors">
                         <div class="text-ht-accent mb-2 transform group-hover:scale-110 transition-transform flex justify-center">
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 01-1 1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                         </div>
                         <span class="block text-2xl font-black text-ht-navy">{{ $property->bedrooms ?? '-' }}</span>
                         <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">{{ __('portfolio.label_bedrooms') }}</span>
                     </div>
-                    {{-- WC --}}
-                    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center group hover:border-ht-accent/30 transition-colors">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm text-center group hover:border-ht-accent/30 transition-colors">
                         <div class="text-ht-accent mb-2 transform group-hover:scale-110 transition-transform flex justify-center">
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                         </div>
                         <span class="block text-2xl font-black text-ht-navy">{{ $property->bathrooms ?? '-' }}</span>
                         <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">{{ __('portfolio.label_bathrooms') }}</span>
                     </div>
-                    {{-- Área --}}
-                    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center group hover:border-ht-accent/30 transition-colors">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm text-center group hover:border-ht-accent/30 transition-colors">
                         <div class="text-ht-accent mb-2 transform group-hover:scale-110 transition-transform flex justify-center">
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
                         </div>
                         <span class="block text-2xl font-black text-ht-navy">{{ number_format($property->area_gross ?? 0, 0) }}</span>
                         <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">m² {{ __('portfolio.label_area') }}</span>
                     </div>
-                    {{-- Garagem --}}
-                    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center group hover:border-ht-accent/30 transition-colors">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm text-center group hover:border-ht-accent/30 transition-colors">
                         <div class="text-ht-accent mb-2 transform group-hover:scale-110 transition-transform flex justify-center">
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/></svg>
                         </div>
@@ -146,7 +169,8 @@
                     </div>
                 </div>
 
-                <div class="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
+                {{-- DESCRIÇÃO --}}
+                <div class="bg-white p-8 md:p-12 rounded-[2rem] shadow-sm border border-slate-100">
                     <h3 class="text-2xl font-black text-ht-navy mb-6">{{ __('portfolio.about_property') }}</h3>
                     <div class="prose prose-lg prose-slate text-slate-500 font-medium leading-relaxed text-justify max-w-none">
                         {!! $property->description !!}
@@ -154,7 +178,7 @@
                 </div>
 
                 {{-- COMODIDADES --}}
-                <div class="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
+                <div class="bg-white p-8 md:p-12 rounded-[2rem] shadow-sm border border-slate-100">
                     <h3 class="text-2xl font-black text-ht-navy mb-8">{{ __('portfolio.features_title') }}</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         @if($property->has_pool) <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl"><span class="text-slate-600 font-bold text-sm">{{ __('portfolio.feat_pool') }}</span><div class="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs">✓</div></div> @endif
@@ -170,8 +194,9 @@
                     </div>
                 </div>
 
+                {{-- VÍDEO --}}
                 @if($property->video_url)
-                    <div class="bg-ht-navy p-8 md:p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
+                    <div class="bg-ht-navy p-8 md:p-10 rounded-[2rem] shadow-2xl relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-64 h-64 bg-ht-accent/20 rounded-full blur-3xl"></div>
                         <h3 class="text-2xl font-black text-white mb-8 relative z-10">{{ __('portfolio.video_title') }}</h3>
                         @php
@@ -192,28 +217,18 @@
                 @endif
             </div>
 
-            {{-- SIDEBAR --}}
+            {{-- COLUNA DIREITA (Sidebar Sticky) --}}
             <div class="lg:col-span-4">
                 <div class="sticky top-32 space-y-6">
                     
-                    {{-- [LÓGICA: DEFINE O CONSULTOR ATUAL] --}}
-                    {{-- Se estivermos na página da consultora (ex: margarida.site.pt), $consultant existirá. --}}
-                    {{-- Caso contrário, usamos o consultor associado ao imóvel ($property->consultant). --}}
+                    {{-- 
+                        LÓGICA CONSULTOR ATUAL
+                        Se houver um consultor na URL (Landing Page mode), usamos ele.
+                        Senão, usamos o consultor dono do imóvel.
+                    --}}
                     @php
                         $currentConsultant = isset($consultant) ? $consultant : $property->consultant;
                     @endphp
-
-                    {{-- [LOGO DA CONSULTORA NA PÁGINA] --}}
-                    @if(isset($consultant))
-                        <div class="flex flex-col items-center mb-6">
-                            {{-- Usa o slug da consultora ou fallback para casaacasa.png se for ela --}}
-                            <img src="{{ asset('img/logo/casaacasa.png') }}" 
-                                 alt="{{ $consultant->name }}" 
-                                 class="h-20 w-auto object-contain mb-3 drop-shadow-md"
-                                 onerror="this.style.display='none'">
-                            <span class="text-[10px] uppercase tracking-widest text-slate-400">Consultora Oficial</span>
-                        </div>
-                    @endif
 
                     <div class="bg-ht-navy text-white p-8 rounded-[2rem] shadow-2xl border border-white/10 relative overflow-hidden">
                         <div class="absolute -top-10 -right-10 w-40 h-40 bg-ht-accent/30 rounded-full blur-3xl"></div>
@@ -222,31 +237,31 @@
                             {{ $property->price ? '€ ' . number_format($property->price, 0, ',', '.') : __('portfolio.price_on_request') }}
                         </p>
 
-                        {{-- [CARTÃO DO CONSULTOR - DINÂMICO] --}}
                         @if($currentConsultant)
-                            <div class="relative z-10 bg-white/5 p-6 rounded-2xl border border-white/10 mb-6">
+                            <div class="relative z-10 bg-white/5 p-6 rounded-2xl border border-white/10 mb-6 backdrop-blur-sm">
                                 <div class="flex items-center gap-4 mb-4">
                                     <img src="{{ $currentConsultant->image_url ?? asset('img/team/' . $currentConsultant->photo) }}" 
-                                         class="w-16 h-16 rounded-full object-cover border-2 border-ht-accent"
+                                         class="w-14 h-14 rounded-full object-cover border-2 border-ht-accent shadow-md"
                                          onerror="this.src='{{ asset('img/logo.png') }}'">
                                     <div>
-                                        <p class="text-xs text-ht-accent font-bold uppercase tracking-wider">{{ __('portfolio.consultant_label') }}</p>
+                                        <p class="text-[10px] text-ht-accent font-bold uppercase tracking-wider">{{ __('portfolio.consultant_label') }}</p>
                                         <p class="font-bold text-lg leading-tight">{{ $currentConsultant->name }}</p>
-                                        <p class="text-xs text-slate-400">{{ $currentConsultant->role }}</p>
                                     </div>
                                 </div>
                                 <div class="space-y-3">
-                                    <a href="{{ route('contact', ['property_code' => $property->crm_code ?? $property->id, 'consultant_id' => $currentConsultant->id]) }}" class="block w-full bg-white text-ht-navy font-black uppercase tracking-widest py-3 text-xs rounded-xl hover:bg-ht-accent hover:text-white transition-all text-center shadow-lg">
+                                    <a href="{{ route('contact', ['property_code' => $property->crm_code ?? $property->id, 'consultant_id' => $currentConsultant->id]) }}" class="block w-full bg-white text-ht-navy font-black uppercase tracking-widest py-3 text-xs rounded-lg hover:bg-ht-accent hover:text-white transition-all text-center shadow-lg">
                                         {{ __('portfolio.btn_schedule') }}
                                     </a>
                                     @if($currentConsultant->phone)
-                                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $currentConsultant->phone) }}?text=Olá {{ $currentConsultant->name }}, estou no seu site e vi o imóvel {{ $property->title }} ({{ $property->crm_code ?? '#' . $property->id }})." target="_blank" class="flex items-center justify-center gap-2 w-full border border-green-500 text-green-400 font-bold uppercase tracking-widest py-3 text-xs rounded-xl hover:bg-green-500 hover:text-white transition-all">WhatsApp</a>
+                                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $currentConsultant->phone) }}?text=Olá {{ $currentConsultant->name }}, estou no seu site e vi o imóvel {{ $property->title }}." target="_blank" class="flex items-center justify-center gap-2 w-full border border-green-500 text-green-400 font-bold uppercase tracking-widest py-3 text-xs rounded-lg hover:bg-green-500 hover:text-white transition-all">
+                                            WhatsApp
+                                        </a>
                                     @endif
                                 </div>
                             </div>
                         @else
                             <div class="space-y-4 relative z-10">
-                                <a href="{{ route('contact', ['property_code' => $property->crm_code ?? $property->id]) }}" class="block w-full bg-white text-ht-navy font-black uppercase tracking-widest py-4 text-xs rounded-xl hover:bg-ht-accent hover:text-white transition-all text-center shadow-lg transform active:scale-95">
+                                <a href="{{ route('contact', ['property_code' => $property->crm_code ?? $property->id]) }}" class="block w-full bg-white text-ht-navy font-black uppercase tracking-widest py-4 text-xs rounded-lg hover:bg-ht-accent hover:text-white transition-all text-center shadow-lg">
                                     {{ __('portfolio.btn_schedule') }}
                                 </a>
                             </div>
@@ -255,9 +270,8 @@
                         <div class="mt-8 pt-8 border-t border-white/10 text-center">
                             <p class="text-xs text-slate-400 mb-2">{{ __('portfolio.share_text') }}</p>
                             <div class="flex justify-center gap-4">
-                                <a href="#" class="text-slate-300 hover:text-white transition">Facebook</a>
-                                <a href="#" class="text-slate-300 hover:text-white transition">LinkedIn</a>
-                                <a href="#" class="text-slate-300 hover:text-white transition">Email</a>
+                                <a href="#" class="text-slate-300 hover:text-white transition transform hover:scale-110"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg></a>
+                                <a href="#" class="text-slate-300 hover:text-white transition transform hover:scale-110"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></a>
                             </div>
                         </div>
                     </div>

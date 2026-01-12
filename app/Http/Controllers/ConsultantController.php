@@ -2,96 +2,90 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Consultant;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use App\Models\Consultant;
+use App\Models\Property;
 
-class ConsultantController extends Controller
+class ConsultantPageController extends Controller
 {
-    public function index()
+    // Método auxiliar para identificar a consultora pelo domínio
+    private function getConsultantByDomain($domain)
     {
-        $consultants = Consultant::orderBy('order', 'asc')->get();
-        return view('admin.consultants.index', compact('consultants'));
+        // Se o domínio for "margarida.houseteam.pt", pega "margarida"
+        // Se for "casaacasa.pt", você precisará de uma lógica para mapear domínios personalizados no banco
+        // Por enquanto, assumimos subdomínio = slug
+        
+        $parts = explode('.', $domain);
+        $slug = $parts[0]; 
+        
+        // Tenta buscar pelo slug, se não achar, falha 404
+        return Consultant::where('slug', $slug)->where('is_active', true)->firstOrFail();
     }
 
-    public function create()
+    public function index(Request $request)
     {
-        return view('admin.consultants.create');
+        $host = $request->getHost();
+        $consultant = $this->getConsultantByDomain($host);
+
+        // Busca imóveis associados a esta consultora
+        $properties = Property::where('consultant_id', $consultant->id)
+            ->where('is_visible', true)
+            ->latest()
+            ->take(6)
+            ->get();
+
+        return view('consultants.landing-page', compact('consultant', 'properties'));
     }
 
-    public function store(Request $request)
+    public function showProperty(Request $request, $slug)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'role' => 'nullable|string|max:255',
-            'email' => 'nullable|email|max:255',
-            'phone' => 'nullable|string|max:20',
-            'photo' => 'nullable|image|max:2048',
-            'bio' => 'nullable|string',
-            'order' => 'integer',
-            'is_active' => 'boolean',
-            'facebook' => 'nullable|string|max:255',
-            'instagram' => 'nullable|string|max:255',
-            'linkedin' => 'nullable|string|max:255',
-            'tiktok' => 'nullable|string|max:255',
-        ]);
+        $host = $request->getHost();
+        $consultant = $this->getConsultantByDomain($host);
 
-        if ($request->hasFile('photo')) {
-            $validated['photo'] = $request->file('photo')->store('team', 'public');
-        }
+        $property = Property::where('slug', $slug)
+            ->where('is_visible', true)
+            ->firstOrFail();
 
-        Consultant::create($validated);
-
-        return redirect()->route('admin.consultants.index')
-            ->with('success', 'Consultor adicionado com sucesso!');
+        // Injetamos $consultant para que a view "show.blade.php" saiba que deve ativar o modo Navy & Gold
+        return view('properties.show', compact('property', 'consultant'));
     }
 
-    public function edit(Consultant $consultant)
+    // --- NOVOS MÉTODOS PARA AS FERRAMENTAS ---
+
+    public function showCredit(Request $request)
     {
-        return view('admin.consultants.edit', compact('consultant'));
+        $host = $request->getHost();
+        $consultant = $this->getConsultantByDomain($host);
+        
+        // Retorna a view da ferramenta injetando a consultora (ativa o design personalizado)
+        return view('tools.credit', compact('consultant'));
     }
 
-    public function update(Request $request, Consultant $consultant)
+    public function showGains(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'role' => 'nullable|string|max:255',
-            'email' => 'nullable|email|max:255',
-            'phone' => 'nullable|string|max:20',
-            'photo' => 'nullable|image|max:2048',
-            'bio' => 'nullable|string',
-            'order' => 'integer',
-            'is_active' => 'boolean',
-            'facebook' => 'nullable|string|max:255',
-            'instagram' => 'nullable|string|max:255',
-            'linkedin' => 'nullable|string|max:255',
-            'tiktok' => 'nullable|string|max:255',
-        ]);
-
-        if ($request->hasFile('photo')) {
-            if ($consultant->photo && Storage::disk('public')->exists($consultant->photo)) {
-                Storage::disk('public')->delete($consultant->photo);
-            }
-            $validated['photo'] = $request->file('photo')->store('team', 'public');
-        }
-
-        $validated['is_active'] = $request->has('is_active');
-
-        $consultant->update($validated);
-
-        return redirect()->route('admin.consultants.index')
-            ->with('success', 'Consultor atualizado com sucesso!');
+        $host = $request->getHost();
+        $consultant = $this->getConsultantByDomain($host);
+        
+        return view('tools.gains', compact('consultant'));
     }
 
-    public function destroy(Consultant $consultant)
+    public function showImt(Request $request)
     {
-        if ($consultant->photo && Storage::disk('public')->exists($consultant->photo)) {
-            Storage::disk('public')->delete($consultant->photo);
-        }
+        $host = $request->getHost();
+        $consultant = $this->getConsultantByDomain($host);
+        
+        return view('tools.imt', compact('consultant'));
+    }
 
-        $consultant->delete();
+    // Pré-visualização interna (Admin)
+    public function preview(Consultant $consultant)
+    {
+        $properties = Property::where('consultant_id', $consultant->id)
+            ->where('is_visible', true)
+            ->latest()
+            ->take(6)
+            ->get();
 
-        return redirect()->route('admin.consultants.index')
-            ->with('success', 'Consultor removido com sucesso!');
+        return view('consultants.landing-page', compact('consultant', 'properties'));
     }
 }

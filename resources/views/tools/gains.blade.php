@@ -1,12 +1,79 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="bg-slate-50 min-h-screen pt-24 pb-12">
+
+{{-- 
+    1. OVERRIDE DE DESIGN SYSTEM (SE TIVER CONSULTORA)
+    Transforma a ferramenta em "Navy & Gold" automaticamente.
+--}}
+@if(isset($consultant))
+    <style>
+        /* Fontes Premium */
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap');
+        
+        :root {
+            --font-serif: 'Playfair Display', serif;
+            --font-sans: 'Inter', sans-serif;
+            --color-gold: #c5a059;
+            --color-navy: #1e293b;
+        }
+
+        /* Override de Fontes */
+        body { font-family: var(--font-sans) !important; }
+        h1, h2, h3, h4 { font-family: var(--font-serif) !important; }
+
+        /* Override de Cores */
+        .bg-ht-accent { background-color: var(--color-gold) !important; }
+        .text-ht-accent { color: var(--color-gold) !important; }
+        .border-ht-accent { border-color: var(--color-gold) !important; }
+        .ring-ht-accent { --tw-ring-color: var(--color-gold) !important; }
+        .focus\:ring-ht-accent:focus { --tw-ring-color: var(--color-gold) !important; }
+        
+        .bg-ht-navy { background-color: var(--color-navy) !important; }
+        .text-ht-navy { color: var(--color-navy) !important; }
+        
+        /* Ajustes de Hover */
+        .hover\:bg-ht-accent:hover { background-color: #b08d4b !important; }
+        
+        /* Ajuste visual dos inputs (mais elegantes) */
+        input[type="number"], select {
+            border-radius: 4px !important;
+            border-color: #e2e8f0;
+        }
+        input[type="number"]:focus, select:focus {
+            border-color: var(--color-gold) !important;
+            box-shadow: 0 0 0 1px var(--color-gold) !important;
+        }
+        
+        /* Ajuste do botão principal */
+        button.bg-ht-navy {
+            background-color: var(--color-navy) !important;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 11px;
+            border-radius: 4px !important;
+        }
+        button.bg-ht-navy:hover {
+            background-color: var(--color-gold) !important;
+            transform: translateY(-2px);
+        }
+    </style>
+@endif
+
+<div class="bg-slate-50 min-h-screen pt-24 pb-12 relative overflow-hidden">
     
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" x-data="gainsForm()">
+    {{-- Fundo Decorativo (Só aparece na versão Consultora) --}}
+    @if(isset($consultant))
+        <div class="absolute top-0 right-0 w-1/3 h-96 bg-ht-navy opacity-5 -z-10" style="clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 100%);"></div>
+    @endif
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10" x-data="gainsForm()">
         
         {{-- Cabeçalho da Ferramenta --}}
-        <div class="text-center mb-10">
+        <div class="text-center mb-10" data-aos="fade-down">
+            @if(isset($consultant))
+                <span class="text-ht-accent font-bold tracking-widest text-xs uppercase mb-2 block">{{ __('menu.tools') }}</span>
+            @endif
             <h1 class="text-4xl font-black text-ht-navy tracking-tight mb-4">{{ __('tools.gains.title') }}</h1>
             <p class="text-slate-500 font-medium uppercase tracking-widest text-xs">{{ __('tools.gains.subtitle') }}</p>
         </div>
@@ -14,7 +81,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             {{-- ÁREA DO FORMULÁRIO --}}
-            <div class="lg:col-span-8 space-y-6">
+            <div class="lg:col-span-8 space-y-6" data-aos="fade-up">
                 
                 {{-- 1. Valor de Aquisição --}}
                 <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
@@ -25,12 +92,12 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-xs font-bold uppercase text-slate-500 mb-2">{{ __('tools.gains.label_value') }}</label>
-                            <input type="number" step="0.01" x-model="form.acquisition_value" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary focus:border-transparent text-ht-navy placeholder-slate-400" placeholder="Ex: 150000,00">
+                            <input type="number" step="0.01" x-model="form.acquisition_value" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-accent focus:border-transparent text-ht-navy placeholder-slate-400 font-bold" placeholder="Ex: 150000,00">
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-bold uppercase text-slate-500 mb-2">{{ __('tools.gains.label_year') }}</label>
-                                <select x-model="form.acquisition_year" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary focus:border-transparent text-ht-navy">
+                                <select x-model="form.acquisition_year" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-accent focus:border-transparent text-ht-navy">
                                     @foreach(range(2025, 1901) as $year)
                                         <option value="{{ $year }}">{{ $year }}</option>
                                     @endforeach
@@ -38,7 +105,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold uppercase text-slate-500 mb-2">{{ __('tools.gains.label_month') }}</label>
-                                <select x-model="form.acquisition_month" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary focus:border-transparent text-ht-navy">
+                                <select x-model="form.acquisition_month" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-accent focus:border-transparent text-ht-navy">
                                     @foreach(['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'] as $month)
                                         <option value="{{ $month }}">{{ $month }}</option>
                                     @endforeach
@@ -66,12 +133,12 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-xs font-bold uppercase text-slate-500 mb-2">{{ __('tools.gains.label_value') }}</label>
-                            <input type="number" step="0.01" x-model="form.sale_value" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary focus:border-transparent text-ht-navy placeholder-slate-400" placeholder="Ex: 300000,00">
+                            <input type="number" step="0.01" x-model="form.sale_value" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-accent focus:border-transparent text-ht-navy placeholder-slate-400 font-bold" placeholder="Ex: 300000,00">
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-bold uppercase text-slate-500 mb-2">{{ __('tools.gains.label_year') }}</label>
-                                <select x-model="form.sale_year" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary focus:border-transparent text-ht-navy">
+                                <select x-model="form.sale_year" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-accent focus:border-transparent text-ht-navy">
                                     @foreach(range(2025, 1901) as $year)
                                         <option value="{{ $year }}">{{ $year }}</option>
                                     @endforeach
@@ -79,7 +146,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold uppercase text-slate-500 mb-2">{{ __('tools.gains.label_month') }}</label>
-                                <select x-model="form.sale_month" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary focus:border-transparent text-ht-navy">
+                                <select x-model="form.sale_month" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-accent focus:border-transparent text-ht-navy">
                                     @foreach(['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'] as $month)
                                         <option value="{{ $month }}">{{ $month }}</option>
                                     @endforeach
@@ -113,20 +180,20 @@
                     <div x-show="form.has_expenses === 'Sim'" x-transition class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-6 rounded-2xl border border-slate-200">
                         <div>
                             <label class="block text-xs font-bold text-slate-500 mb-1">{{ __('tools.gains.label_works') }}</label>
-                            <input type="number" step="0.01" x-model="form.expenses_works" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary">
+                            <input type="number" step="0.01" x-model="form.expenses_works" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ht-accent">
                             <p class="text-[10px] text-slate-400 mt-1">{{ __('tools.gains.note_works') }}</p>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 mb-1">{{ __('tools.gains.label_imt') }}</label>
-                            <input type="number" step="0.01" x-model="form.expenses_imt" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary">
+                            <input type="number" step="0.01" x-model="form.expenses_imt" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ht-accent">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 mb-1">{{ __('tools.gains.label_commission') }}</label>
-                            <input type="number" step="0.01" x-model="form.expenses_commission" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary">
+                            <input type="number" step="0.01" x-model="form.expenses_commission" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ht-accent">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 mb-1">{{ __('tools.gains.label_other') }}</label>
-                            <input type="number" step="0.01" x-model="form.expenses_other" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary">
+                            <input type="number" step="0.01" x-model="form.expenses_other" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ht-accent">
                         </div>
                     </div>
                 </div>
@@ -171,7 +238,7 @@
                         </div>
 
                         {{-- ISENÇÕES / REINVESTIMENTO / AMORTIZAÇÃO --}}
-                        <div class="space-y-6 p-6 rounded-2xl border border-ht-accent/40 bg-ht-accent/10">
+                        <div class="space-y-6 p-6 rounded-2xl border border-ht-accent/40 bg-ht-accent/5">
                             <h4 class="text-base font-bold text-ht-navy border-b border-ht-accent/30 pb-3">{{ __('tools.gains.section_reinvest') }}</h4>
 
                             {{-- 1. Reinvestimento em nova HPP (SÓ PARA HPP) --}}
@@ -183,7 +250,7 @@
                                 </div>
                                 <div x-show="form.reinvest_intention === 'Sim'" x-transition>
                                     <label class="block text-xs font-bold text-slate-500 mb-1">{{ __('tools.gains.label_reinvest_amount') }}</label>
-                                    <input type="number" step="0.01" x-model="form.reinvestment_amount" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary">
+                                    <input type="number" step="0.01" x-model="form.reinvestment_amount" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-accent">
                                 </div>
                             </div>
 
@@ -199,7 +266,7 @@
                                 </div>
                                 <div x-show="form.amortize_credit === 'Sim'" x-transition>
                                     <label class="block text-xs font-bold text-slate-500 mb-1">{{ __('tools.gains.label_amortize_amount') }}</label>
-                                    <input type="number" step="0.01" x-model="form.amortization_amount" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary">
+                                    <input type="number" step="0.01" x-model="form.amortization_amount" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-accent">
                                 </div>
                             </div>
                             
@@ -227,7 +294,7 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-ht-navy mb-2">{{ __('tools.gains.label_annual_income') }}</label>
-                                <input type="number" step="0.01" x-model="form.annual_income" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary focus:border-transparent text-ht-navy placeholder-slate-400" placeholder="Ex: 25000,00">
+                                <input type="number" step="0.01" x-model="form.annual_income" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-accent focus:border-transparent text-ht-navy placeholder-slate-400" placeholder="Ex: 25000,00">
                                 <p class="text-xs text-slate-400 mt-1">{{ __('tools.gains.note_income') }}</p>
                             </div>
 
@@ -240,7 +307,7 @@
                                 <div x-show="form.public_support === 'Sim'" x-transition class="grid grid-cols-2 gap-4 bg-slate-50 p-6 rounded-2xl border border-slate-200">
                                     <div>
                                         <label class="block text-xs font-bold uppercase text-slate-500 mb-2">{{ __('tools.gains.label_support_year') }}</label>
-                                        <select x-model="form.public_support_year" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary text-ht-navy">
+                                        <select x-model="form.public_support_year" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-accent text-ht-navy">
                                             @foreach(range(2025, 1980) as $year)
                                                 <option value="{{ $year }}">{{ $year }}</option>
                                             @endforeach
@@ -248,7 +315,7 @@
                                     </div>
                                     <div>
                                         <label class="block text-xs font-bold uppercase text-slate-500 mb-2">{{ __('tools.gains.label_support_month') }}</label>
-                                        <select x-model="form.public_support_month" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary text-ht-navy">
+                                        <select x-model="form.public_support_month" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-accent text-ht-navy">
                                             @foreach(['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'] as $month)
                                                 <option value="{{ $month }}">{{ $month }}</option>
                                             @endforeach
@@ -268,7 +335,8 @@
                 </section>
             </div>
 
-            <div class="lg:col-span-4">
+            {{-- COLUNA DIREITA (RESULTADOS) --}}
+            <div class="lg:col-span-4" data-aos="fade-left">
                 <div class="sticky top-24 space-y-6">
                     <div x-show="!hasCalculated" class="bg-white border border-slate-200 rounded-3xl p-10 text-center text-slate-400 shadow-sm">
                         <svg class="w-16 h-16 mx-auto mb-4 opacity-30 text-ht-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
@@ -277,10 +345,13 @@
 
                     <div x-show="hasCalculated" x-transition class="space-y-6" style="display: none;">
                         <div class="bg-ht-navy rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden">
+                            {{-- Efeito visual de fundo --}}
+                            <div class="absolute -top-10 -right-10 w-32 h-32 bg-ht-accent opacity-20 rounded-full blur-2xl"></div>
+                            
                             <h3 class="text-xs font-bold text-slate-300 mb-2 uppercase tracking-widest">{{ __('tools.gains.result_tax_title') }}</h3>
                             <div class="text-5xl font-black mb-8 text-ht-accent tracking-tighter" x-text="results.estimated_tax_fmt + ' €'"></div>
                             
-                            <div class="grid grid-cols-1 gap-4 border-t border-white/10 pt-6 text-sm">
+                            <div class="grid grid-cols-1 gap-4 border-t border-white/10 pt-6 text-sm relative z-10">
                                 <div>
                                     <div class="text-xs text-slate-400 font-medium mb-1">{{ __('tools.gains.result_gross_gain') }}</div>
                                     <div class="text-xl font-bold text-white" x-text="results.gross_gain_fmt + ' €'"></div>
@@ -345,52 +416,47 @@
                     </div>
                 </div>
             </div>
-
         </div>
 
-        {{-- Modal de Lead --}}
-        <div x-show="showLeadModal" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div x-show="showLeadModal" x-transition.opacity class="fixed inset-0 bg-ht-navy/80 backdrop-blur-sm transition-opacity" aria-hidden="true" @click="showLeadModal = false"></div>
-                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                <div x-show="showLeadModal" x-transition.scale class="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
-                    <div class="px-8 pt-8 pb-6">
-                        <div class="text-center">
-                            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-ht-accent/10 mb-6">
-                                <svg class="h-8 w-8 text-ht-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                            </div>
-                            <h3 class="text-2xl font-black text-ht-navy mb-2" id="modal-title">{{ __('tools.gains.modal_title') }}</h3>
-                            <div class="mt-2">
-                                <p class="text-sm text-slate-500 mb-8">
-                                    {{ __('tools.gains.modal_desc') }}
-                                </p>
-                                <div class="space-y-4 text-left">
-                                    <div>
-                                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">{{ __('tools.gains.input_name') }}</label>
-                                        <input type="text" x-model="form.lead_name" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">{{ __('tools.gains.input_email') }}</label>
-                                        <input type="email" x-model="form.lead_email" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+    </div>
+</div>
+
+{{-- MODAL DE LEAD --}}
+<div x-data="{ open: false }" x-show="showLeadModal" @keydown.escape.window="showLeadModal = false" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-ht-navy/80 backdrop-blur-sm transition-opacity" @click="showLeadModal = false"></div>
+        <div class="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+            <div class="px-8 pt-8 pb-6">
+                <div class="text-center">
+                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-ht-accent/10 mb-6">
+                        <svg class="h-8 w-8 text-ht-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
                     </div>
-                    <div class="bg-slate-50 px-8 py-6 sm:flex sm:flex-row-reverse gap-3">
-                        <button type="button" @click="submit" class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-lg px-6 py-3 bg-ht-accent text-sm font-bold text-white uppercase tracking-widest hover:bg-red-700 focus:outline-none sm:w-auto transition-all">
-                            {{ __('tools.gains.btn_get_results') }}
-                        </button>
-                        <button type="button" @click="showLeadModal = false" class="mt-3 w-full inline-flex justify-center rounded-xl border border-slate-300 shadow-sm px-6 py-3 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 focus:outline-none sm:mt-0 sm:w-auto transition-all">
-                            {{ __('tools.gains.btn_cancel') }}
-                        </button>
+                    <h3 class="text-2xl font-black text-ht-navy mb-2">{{ __('tools.gains.modal_title') }}</h3>
+                    <p class="text-sm text-slate-500 mb-8">{{ __('tools.gains.modal_desc') }}</p>
+                    
+                    <div class="space-y-4 text-left">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">{{ __('tools.gains.input_name') }}</label>
+                            <input type="text" x-model="form.lead_name" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-accent">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">{{ __('tools.gains.input_email') }}</label>
+                            <input type="email" x-model="form.lead_email" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-accent">
+                        </div>
                     </div>
                 </div>
             </div>
+            <div class="bg-slate-50 px-8 py-6 sm:flex sm:flex-row-reverse gap-3">
+                <button type="button" @click="submit" class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-lg px-6 py-3 bg-ht-accent text-sm font-bold text-white uppercase tracking-widest hover:bg-opacity-90 focus:outline-none sm:w-auto transition-all">
+                    {{ __('tools.gains.btn_get_results') }}
+                </button>
+                <button type="button" @click="showLeadModal = false" class="mt-3 w-full inline-flex justify-center rounded-xl border border-slate-300 shadow-sm px-6 py-3 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 focus:outline-none sm:mt-0 sm:w-auto transition-all">
+                    {{ __('tools.gains.btn_cancel') }}
+                </button>
+            </div>
         </div>
-
     </div>
 </div>
 
@@ -474,7 +540,10 @@
                         this.form.annual_income = 0; 
                     }
 
-                    const response = await fetch('{{ route('tools.gains.calculate') }}', {
+                    // CORREÇÃO CRÍTICA AQUI: Usar url() relativa para evitar CORS
+                    // Isso garante que o fetch vá para o domínio atual (margarida.site.com)
+                    // e não para o domínio original, se o usuário estiver lá.
+                    const response = await fetch('{{ url("/ferramentas/mais-valias/calcular") }}', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -493,7 +562,10 @@
                     this.showLeadModal = false; 
                     
                     this.$nextTick(() => {
-                        this.$el.querySelector('.bg-ht-navy').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        const resultDiv = this.$el.querySelector('.bg-ht-navy');
+                        if(resultDiv) {
+                            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
                     });
 
                 } catch (e) {
@@ -503,4 +575,5 @@
         }
     }
 </script>
+
 @endsection

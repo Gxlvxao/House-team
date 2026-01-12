@@ -13,7 +13,7 @@ use App\Http\Controllers\ConsultantPageController;
 // ==============================================================================
 // 1. ROTAS DE DOMÍNIO EXTERNO (CONSULTORAS) - PRIORIDADE MÁXIMA
 // ==============================================================================
-// Captura domínios personalizados (ex: casaacasa.pt)
+// Captura domínios personalizados (ex: casaacasa.pt ou margarida.houseteam.pt)
 Route::domain('{domain}')
     ->where(['domain' => '^(?!houseteamconsultores\.pt|www\.houseteamconsultores\.pt|localhost|127\.0\.0\.1).*$'])
     ->group(function () {
@@ -21,9 +21,21 @@ Route::domain('{domain}')
         // 1.1 Landing Page da Consultora (Home)
         Route::get('/', [ConsultantPageController::class, 'index'])->name('consultant.home');
         
-        // 1.2 [NOVO] Detalhe do Imóvel no domínio da Consultora
-        // Isso permite abrir o imóvel mantendo a URL da consultora e ativando a personalização
+        // 1.2 Detalhe do Imóvel no domínio da Consultora
         Route::get('/imoveis/{property:slug}', [ConsultantPageController::class, 'showProperty'])->name('consultant.property.show');
+
+        // 1.3 FERRAMENTAS (Com design herdado)
+        // Estas rotas chamam o ConsultantPageController para injetar a variável $consultant na view
+        Route::get('/ferramentas/mais-valias', [ConsultantPageController::class, 'showGains'])->name('consultant.tools.gains');
+        Route::get('/ferramentas/simulador-credito', [ConsultantPageController::class, 'showCredit'])->name('consultant.tools.credit');
+        Route::get('/ferramentas/imt', [ConsultantPageController::class, 'showImt'])->name('consultant.tools.imt');
+
+        // 1.4 POSTS (Cálculos e Envios)
+        // Necessário definir aqui para evitar erros de Cross-Origin (CORS) ao submeter formulários do domínio da consultora
+        Route::post('/ferramentas/mais-valias/calcular', [ToolsController::class, 'calculateGains']);
+        Route::post('/ferramentas/simulador-credito/enviar', [ToolsController::class, 'sendCreditSimulation']);
+        Route::post('/ferramentas/imt/enviar', [ToolsController::class, 'sendImtSimulation']);
+        Route::post('/contato', [ToolsController::class, 'sendContact']);
     });
 
 

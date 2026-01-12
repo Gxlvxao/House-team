@@ -61,14 +61,28 @@
         <div class="glass-nav rounded-full px-6 py-3 shadow-glass flex justify-center items-center md:gap-6 transition-all duration-300"
              :class="isScrolled ? 'py-3' : 'py-4'">
             
+            {{-- DESKTOP MENU --}}
             <div class="hidden md:flex items-center gap-1">
                 @if(Str::startsWith(Route::currentRouteName(), 'consultant.'))
                     {{-- MENU DA CONSULTORA --}}
-                    {{-- AQUI ESTAVA O PROBLEMA: Substituí "Início" por {{ __('consultant_lp.menu_home') }} --}}
                     <a href="#home" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">{{ __('consultant_lp.menu_home') }}</a>
                     <a href="#about" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">{{ __('consultant_lp.menu_about') }}</a>
                     <a href="#testimonials" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">{{ __('consultant_lp.menu_feedback') }}</a>
                     <a href="#portfolio" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">{{ __('consultant_lp.menu_portfolio') }}</a>
+
+                    {{-- NOVO: FERRAMENTAS NO MENU DA CONSULTORA --}}
+                    <div class="relative group">
+                        <button class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all flex items-center gap-1">
+                            {{ __('menu.tools') }}
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                        </button>
+                        <div class="absolute left-1/2 -translate-x-1/2 top-full mt-4 w-48 bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top overflow-hidden">
+                            <a href="{{ route('tools.credit') }}" class="block px-4 py-2 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-ht-accent transition text-center">{{ __('menu.credit') }}</a>
+                            <a href="{{ route('tools.gains') }}" class="block px-4 py-2 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-ht-accent transition text-center">{{ __('menu.gains') }}</a>
+                            <a href="{{ route('tools.imt') }}" class="block px-4 py-2 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-ht-accent transition text-center">{{ __('menu.imt') }}</a>
+                        </div>
+                    </div>
+
                 @else
                     {{-- MENU DA HOUSE TEAM --}}
                     <a href="{{ route('home') }}" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">{{ __('menu.home') }}</a>
@@ -118,12 +132,13 @@
                 @endif
             </div>
 
+            {{-- MENU HAMBURGUER (MOBILE) --}}
             <div class="md:hidden flex w-full justify-between items-center">
                  <span class="text-white text-xs font-bold uppercase tracking-widest">
-                    @if(Str::startsWith(Route::currentRouteName(), 'consultant.')) 
-                        MENU 
-                    @else 
-                        {{ __('menu.label_menu') }} 
+                    @if(Str::startsWith(Route::currentRouteName(), 'consultant.'))
+                        MENU
+                    @else
+                        {{ __('menu.label_menu') }}
                     @endif
                  </span>
                  
@@ -135,7 +150,7 @@
             </div>
         </div>
 
-        {{-- MOBILE MENU --}}
+        {{-- MOBILE MENU CONTENT --}}
         <div x-show="isOpen" x-collapse class="md:hidden mt-2 mx-auto w-[95%]">
             <div class="glass-nav rounded-2xl p-4 shadow-2xl flex flex-col gap-2">
                 @if(Str::startsWith(Route::currentRouteName(), 'consultant.'))
@@ -144,6 +159,14 @@
                     <a href="#about" @click="isOpen=false" class="block px-4 py-3 rounded-xl hover:bg-white/5 text-white text-sm font-bold text-center transition">{{ __('consultant_lp.menu_about') }}</a>
                     <a href="#testimonials" @click="isOpen=false" class="block px-4 py-3 rounded-xl hover:bg-white/5 text-white text-sm font-bold text-center transition">{{ __('consultant_lp.menu_feedback') }}</a>
                     <a href="#portfolio" @click="isOpen=false" class="block px-4 py-3 rounded-xl hover:bg-white/5 text-white text-sm font-bold text-center transition">{{ __('consultant_lp.menu_portfolio') }}</a>
+                    
+                    {{-- NOVO: FERRAMENTAS (MÓVEL CONSULTORA) --}}
+                    <div class="grid grid-cols-3 gap-2 border-t border-white/10 pt-2 mt-2">
+                        <a href="{{ route('tools.credit') }}" class="bg-white/5 rounded-lg p-2 text-center text-[10px] font-bold text-slate-300 hover:bg-white/10 hover:text-white">{{ __('menu.credit') }}</a>
+                        <a href="{{ route('tools.gains') }}" class="bg-white/5 rounded-lg p-2 text-center text-[10px] font-bold text-slate-300 hover:bg-white/10 hover:text-white">{{ __('menu.gains') }}</a>
+                        <a href="{{ route('tools.imt') }}" class="bg-white/5 rounded-lg p-2 text-center text-[10px] font-bold text-slate-300 hover:bg-white/10 hover:text-white">{{ __('menu.imt') }}</a>
+                    </div>
+
                     <a href="#contact" @click="isOpen=false" class="block px-4 py-3 rounded-xl bg-ht-gold text-white text-sm font-bold text-center mt-2 shadow-lg hover:bg-yellow-600 transition">{{ __('consultant_lp.menu_contact') }}</a>
                     
                     {{-- SELETOR MOBILE (SÓ NA CONSULTORA) --}}
@@ -170,7 +193,6 @@
                         <a href="{{ route('tools.imt') }}" class="bg-white/5 rounded-lg p-2 text-center text-[10px] font-bold text-slate-300 hover:bg-white/10 hover:text-white">{{ __('menu.imt') }}</a>
                     </div>
                     <a href="{{ route('contact') }}" class="block px-4 py-3 rounded-xl bg-ht-accent text-white text-sm font-bold text-center mt-2 shadow-lg">{{ __('menu.contact_us') }}</a>
-                    {{-- SEM SELETOR AQUI --}}
                 @endif
             </div>
         </div>

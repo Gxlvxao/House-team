@@ -2,22 +2,52 @@
 
 @section('content')
 
+@if(isset($consultant))
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap');
+        :root { --font-serif: 'Playfair Display', serif; --font-sans: 'Inter', sans-serif; --color-gold: #c5a059; --color-navy: #1e293b; }
+        body { font-family: var(--font-sans) !important; }
+        h1, h2, h3, h4 { font-family: var(--font-serif) !important; }
+        .bg-ht-accent { background-color: var(--color-gold) !important; }
+        .text-ht-accent { color: var(--color-gold) !important; }
+        .border-ht-accent { border-color: var(--color-gold) !important; }
+        .bg-ht-navy { background-color: var(--color-navy) !important; }
+        .text-ht-navy { color: var(--color-navy) !important; }
+        button.bg-ht-accent:hover { background-color: #b08d4b !important; }
+        input, select { border-radius: 4px !important; }
+        input:focus, select:focus { border-color: var(--color-gold) !important; box-shadow: none !important; outline: 1px solid var(--color-gold); }
+    </style>
+@endif
+
 {{-- HEADER --}}
 <div class="bg-ht-navy text-white py-20 text-center relative overflow-hidden">
-    <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-    <div class="container mx-auto px-6 relative z-10">
+    @if(isset($consultant))
+        <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+        <div class="absolute top-0 right-0 w-1/3 h-full bg-ht-accent opacity-10" style="clip-path: polygon(20% 0%, 100% 0, 100% 100%, 0% 100%);"></div>
+    @else
+        <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+    @endif
+
+    <div class="container mx-auto px-6 relative z-10" data-aos="fade-down">
+        @if(isset($consultant))
+             <span class="text-ht-accent font-bold tracking-widest text-xs uppercase mb-2 block">{{ __('menu.tools') }}</span>
+        @endif
         <h1 class="text-4xl md:text-5xl font-black tracking-tight text-white mb-2">{{ __('tools.credit.title') }}</h1>
         <p class="text-slate-400 text-sm font-medium uppercase tracking-widest">{{ __('tools.credit.subtitle') }}</p>
     </div>
 </div>
 
-<section class="py-16 bg-slate-50" x-data="creditCalculator()" x-init="calculate()">
-    <div class="container mx-auto px-4 md:px-8 max-w-6xl">
-        
+<section class="py-16 bg-slate-50 relative overflow-hidden" x-data="creditCalculator()" x-init="calculate()">
+    
+    @if(isset($consultant))
+        <div class="absolute top-0 left-0 w-1/3 h-96 bg-ht-navy opacity-5 -z-10" style="clip-path: polygon(0 0, 50% 0, 100% 100%, 0% 100%);"></div>
+    @endif
+
+    <div class="container mx-auto px-4 md:px-8 max-w-6xl relative z-10">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
             
             {{-- ÁREA DO FORMULÁRIO --}}
-            <div class="lg:col-span-7 space-y-8">
+            <div class="lg:col-span-7 space-y-8" data-aos="fade-right">
                 
                 {{-- 1. Valores e Prazos --}}
                 <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
@@ -28,20 +58,16 @@
                     
                     <div class="space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {{-- Valor do Imóvel --}}
                             <div>
                                 <label class="block text-xs font-bold uppercase text-slate-500 mb-2">{{ __('tools.credit.label_property_value') }}</label>
                                 <input type="number" x-model.number="propertyValue" @input="updateLoanAmount()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary text-ht-navy font-bold">
                             </div>
-
-                            {{-- Entrada Inicial --}}
                             <div>
                                 <label class="block text-xs font-bold uppercase text-slate-500 mb-2">{{ __('tools.credit.label_down_payment') }}</label>
                                 <input type="number" x-model.number="downPayment" @input="updateLoanAmount()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary text-ht-navy font-bold">
                             </div>
                         </div>
 
-                        {{-- Montante de Empréstimo (Auto-calculado) --}}
                         <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100 flex justify-between items-center">
                             <div>
                                 <span class="block text-xs font-bold text-ht-navy uppercase tracking-wide">{{ __('tools.credit.label_loan_amount') }}</span>
@@ -57,7 +83,6 @@
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {{-- Prazo --}}
                             <div>
                                 <label class="block text-xs font-bold uppercase text-slate-500 mb-2">{{ __('tools.credit.label_term') }}</label>
                                 <select x-model.number="years" @change="calculate()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary text-ht-navy">
@@ -66,18 +91,14 @@
                                     @endforeach
                                 </select>
                             </div>
-                            
-                            {{-- Idade do Titular Mais Velho --}}
                             <div>
                                 <label class="block text-xs font-bold uppercase text-slate-500 mb-2">{{ __('tools.credit.label_age') }}</label>
                                 <input type="number" x-model.number="age" @input="checkMaxTerm()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary text-ht-navy" placeholder="Ex: 35">
                             </div>
                         </div>
                         <div x-show="ageWarning" class="p-3 bg-orange-50 border border-orange-100 rounded-lg text-orange-700 text-xs font-bold flex items-start gap-2">
-                            <svg class="w-4 h-4 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             <span x-text="ageWarning"></span>
                         </div>
-
                     </div>
                 </div>
 
@@ -89,8 +110,6 @@
                     </h3>
 
                     <div class="space-y-6">
-                        
-                        {{-- Tipo de Taxa --}}
                         <div>
                             <label class="block text-xs font-bold uppercase text-slate-500 mb-3">{{ __('tools.credit.label_rate_type') }}</label>
                             <div class="flex gap-4">
@@ -109,7 +128,6 @@
                             </div>
                         </div>
 
-                        {{-- Seleção Euribor (Se Variável) --}}
                         <div x-show="rateType === 'variable'" x-transition>
                             <label class="block text-xs font-bold uppercase text-slate-500 mb-2">{{ __('tools.credit.label_index') }}</label>
                             <select x-model.number="euriborRate" @change="calculate()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary text-ht-navy">
@@ -117,16 +135,13 @@
                                 <option value="2.17">Euribor 6 {{ __('tools.credit.label_months_short') }} (2.17%)</option>
                                 <option value="2.07">Euribor 3 {{ __('tools.credit.label_months_short') }} (2.07%)</option>
                             </select>
-                            <p class="text-[10px] text-slate-400 mt-2 font-medium">{{ __('tools.credit.note_ref_values') }}</p>
                         </div>
 
-                        {{-- Taxa Fixa Manual (Se Fixa) --}}
                         <div x-show="rateType === 'fixed'" x-transition>
                             <label class="block text-xs font-bold uppercase text-slate-500 mb-2">{{ __('tools.credit.label_fixed_rate') }}</label>
                             <input type="number" step="0.01" x-model.number="fixedRate" @input="calculate()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary text-ht-navy" placeholder="Ex: 4.0">
                         </div>
 
-                        {{-- Spread --}}
                         <div>
                             <label class="block text-xs font-bold uppercase text-slate-500 mb-2">{{ __('tools.credit.label_spread') }}</label>
                             <div class="relative">
@@ -135,22 +150,17 @@
                             </div>
                         </div>
 
-                        {{-- TAN Total --}}
                         <div class="flex justify-between items-center border-t border-slate-100 pt-4">
                             <span class="text-sm font-bold text-slate-600">{{ __('tools.credit.label_tan') }}</span>
                             <span class="text-xl font-black text-ht-navy" x-text="tan.toFixed(3) + '%'"></span>
                         </div>
-
                     </div>
                 </div>
-
             </div>
 
             {{-- ÁREA DE RESULTADOS --}}
-            <div class="lg:col-span-5">
+            <div class="lg:col-span-5" data-aos="fade-left">
                 <div class="sticky top-32 space-y-6">
-                    
-                    {{-- Cartão Principal --}}
                     <div class="bg-ht-navy rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden">
                         <div class="absolute top-0 right-0 p-6 opacity-10">
                             <svg class="w-32 h-32 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -173,7 +183,6 @@
                         </div>
                     </div>
 
-                    {{-- Cartão Secundário --}}
                     <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
                         <h4 class="text-xs font-bold text-ht-navy uppercase tracking-widest mb-6 border-b border-slate-100 pb-2">{{ __('tools.credit.section_initial_costs') }}</h4>
                         <div class="space-y-4 text-sm mb-8">
@@ -194,10 +203,6 @@
                         <h4 class="text-xs font-bold text-ht-navy uppercase tracking-widest mb-6 border-b border-slate-100 pb-2">{{ __('tools.credit.section_analysis') }}</h4>
                         <div class="space-y-4 text-sm">
                             <div class="flex justify-between text-slate-600">
-                                <span>{{ __('tools.credit.label_capital_repaid') }}</span>
-                                <span class="font-bold text-ht-navy">€ <span x-text="formatMoney(loanAmount)"></span></span>
-                            </div>
-                            <div class="flex justify-between text-slate-600">
                                 <span>{{ __('tools.credit.label_total_interest') }}</span>
                                 <span class="font-bold text-ht-accent">€ <span x-text="formatMoney(totalInterest)"></span></span>
                             </div>
@@ -208,17 +213,14 @@
                         </div>
                     </div>
 
-                    {{-- CTA --}}
                     <div class="text-center">
                         <button @click="showLeadModal = true" class="block w-full bg-ht-accent text-white font-black uppercase tracking-widest py-5 rounded-3xl shadow-lg hover:bg-red-700 hover:shadow-xl transition-all transform hover:-translate-y-1 text-xs">
                             {{ __('tools.credit.btn_report') }}
                         </button>
                         <p class="text-[10px] text-slate-400 mt-3 font-medium">{{ __('tools.credit.disclaimer') }}</p>
                     </div>
-
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -231,8 +233,8 @@
                     <h3 class="text-2xl font-black text-ht-navy mb-2 text-center">{{ __('tools.credit.modal_title') }}</h3>
                     <p class="text-sm text-slate-500 mb-6 text-center">{{ __('tools.credit.modal_subtitle') }}</p>
                     <div class="space-y-4">
-                        <input type="text" x-model="lead_name" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm" placeholder="{{ __('tools.credit.input_name') }}">
-                        <input type="email" x-model="lead_email" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm" placeholder="{{ __('tools.credit.input_email') }}">
+                        <input type="text" x-model="lead_name" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary" placeholder="{{ __('tools.credit.input_name') }}">
+                        <input type="email" x-model="lead_email" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-primary" placeholder="{{ __('tools.credit.input_email') }}">
                     </div>
                 </div>
                 <div class="bg-slate-50 px-8 py-6 flex flex-col gap-3">
@@ -261,31 +263,21 @@
             fixedRate: 4.0,
             spread: 0.85,
             tan: 0,
-            
             monthlyPayment: 0,
             monthlyStampDuty: 0,
             monthlyTotal: 0,
-            
             openingStampDuty: 0,
-            bankFees: 0,
             upfrontTotal: 0,
-            
             totalInterest: 0,
             mtic: 0,
-            
             ltv: 0,
             ageWarning: '',
-
-            // Variáveis do Modal
             showLeadModal: false,
             loading: false,
             lead_name: '',
             lead_email: '',
 
-            formatMoney(value) {
-                // Mantemos o formato PT-PT para consistência do Euro
-                return new Intl.NumberFormat('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
-            },
+            formatMoney(value) { return new Intl.NumberFormat('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value); },
 
             updateLoanAmount() {
                 if (this.downPayment > this.propertyValue) this.downPayment = this.propertyValue;
@@ -294,102 +286,62 @@
             },
 
             checkMaxTerm() {
-                if (!this.age) {
-                    this.ageWarning = '';
-                    return;
-                }
+                if (!this.age) { this.ageWarning = ''; return; }
                 const maxAge = 75;
                 const projectedAge = this.age + this.years;
-                
                 let maxTermAllowed = 40;
                 if (this.age > 30 && this.age <= 35) maxTermAllowed = 37;
                 if (this.age > 35) maxTermAllowed = 35;
-
                 if (this.years > maxTermAllowed) {
-                    // Tradução injetada via Blade
                     this.ageWarning = `{{ __('tools.credit.warning_age_limit_1') }} ${this.age} {{ __('tools.credit.warning_age_limit_2') }} ${maxTermAllowed} {{ __('tools.credit.label_years') }}.`;
                 } else if (projectedAge > maxAge) {
                     this.ageWarning = `{{ __('tools.credit.warning_age_max_1') }} ${maxAge - this.age} {{ __('tools.credit.label_years') }}.`;
-                } else {
-                    this.ageWarning = '';
-                }
+                } else { this.ageWarning = ''; }
             },
 
             calculate() {
-                // 1. Validar LTV
-                if(this.propertyValue > 0) {
-                    this.ltv = (this.loanAmount / this.propertyValue) * 100;
-                } else {
-                    this.ltv = 0;
-                }
-
+                if(this.propertyValue > 0) { this.ltv = (this.loanAmount / this.propertyValue) * 100; } else { this.ltv = 0; }
                 this.checkMaxTerm();
-
-                // 2. Definir Taxa Anual Nominal (TAN)
-                if (this.rateType === 'variable') {
-                    this.tan = this.euriborRate + this.spread;
-                } else {
-                    this.tan = this.fixedRate; 
-                }
-
-                // 3. Cálculo da Prestação (PMT)
+                if (this.rateType === 'variable') { this.tan = this.euriborRate + this.spread; } else { this.tan = this.fixedRate; }
                 let i = (this.tan / 100) / 12;
                 let n = this.years * 12;
-
-                if (i === 0) {
-                    this.monthlyPayment = this.loanAmount / n;
-                } else {
-                    this.monthlyPayment = (this.loanAmount * i) / (1 - Math.pow(1 + i, -n));
-                }
-
-                // 4. Imposto de Selo Mensal sobre Juros (4%)
+                if (i === 0) { this.monthlyPayment = this.loanAmount / n; } else { this.monthlyPayment = (this.loanAmount * i) / (1 - Math.pow(1 + i, -n)); }
                 let firstMonthInterest = this.loanAmount * i;
                 this.monthlyStampDuty = firstMonthInterest * 0.04;
-
-                // 6. Total Mensal
                 this.monthlyTotal = this.monthlyPayment + this.monthlyStampDuty;
-
-                // 7. Custos Iniciais
                 this.openingStampDuty = this.loanAmount * 0.006;
                 this.upfrontTotal = this.downPayment + this.openingStampDuty;
-
-                // 8. Totais Finais
                 let totalPayments = this.monthlyPayment * n;
                 this.totalInterest = totalPayments - this.loanAmount;
-                
                 let totalStampOnInterest = this.totalInterest * 0.04;
                 this.mtic = totalPayments + totalStampOnInterest + this.openingStampDuty;
             },
 
             async submitLead() {
-                if(!this.lead_name || !this.lead_email) { 
-                    alert('{{ __('tools.credit.alert_fill') }}'); 
-                    return; 
-                }
+                if(!this.lead_name || !this.lead_email) { alert('{{ __('tools.credit.alert_fill') }}'); return; }
                 this.loading = true;
                 
                 try {
-                    const response = await fetch('{{ route('tools.credit.send') }}', {
+                    // CORREÇÃO: URL relativa para evitar CORS
+                    const response = await fetch('{{ url("/ferramentas/simulador-credito/enviar") }}', {
                         method: 'POST',
                         headers: { 
                             'Content-Type': 'application/json', 
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json'
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}', 
+                            'Accept': 'application/json' 
                         },
-                        body: JSON.stringify({
-                            propertyValue: this.propertyValue,
-                            loanAmount: this.loanAmount,
-                            years: this.years,
-                            tan: this.tan,
-                            monthlyPayment: this.monthlyPayment,
-                            mtic: this.mtic,
-                            lead_name: this.lead_name,
-                            lead_email: this.lead_email
+                        body: JSON.stringify({ 
+                            propertyValue: this.propertyValue, 
+                            loanAmount: this.loanAmount, 
+                            years: this.years, 
+                            tan: this.tan, 
+                            monthlyPayment: this.monthlyPayment, 
+                            mtic: this.mtic, 
+                            lead_name: this.lead_name, 
+                            lead_email: this.lead_email 
                         })
                     });
-
                     if (!response.ok) throw new Error('Falha no envio');
-
                     alert('{{ __('tools.credit.alert_success') }}');
                     this.showLeadModal = false;
                     this.lead_name = '';
