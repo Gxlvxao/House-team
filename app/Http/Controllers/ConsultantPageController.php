@@ -2,97 +2,86 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Models\Consultant;
 use App\Models\Property;
-use Illuminate\Http\Request;
 
 class ConsultantPageController extends Controller
 {
     /**
-     * Carrega a Homepage baseada no DOMÍNIO (ex: casaacasa.pt)
+     * Busca a consultora baseada no domínio ou slug.
      */
+    private function getConsultantByDomain($domain)
+    {
+        // Remove 'www.' se existir
+        $domain = str_replace('www.', '', $domain);
+        
+        // Pega a primeira parte do domínio (ex: 'casaacasa' de 'casaacasa.pt')
+        $slug = explode('.', $domain)[0];
+
+        // Tenta buscar pelo SLUG. 
+        // IMPORTANTE: No banco de dados, o slug da Margarida deve ser 'casaacasa' ou o nome do subdomínio.
+        // Se você tiver uma coluna 'custom_domain' no banco, descomente a linha abaixo:
+        // $consultant = Consultant::where('slug', $slug)->orWhere('custom_domain', $domain)->first();
+        
+        return Consultant::where('slug', $slug)->where('is_active', true)->firstOrFail();
+    }
+
+    // Nota: O parâmetro $domain vem da rota Route::domain('{domain}')
     public function index($domain)
     {
-        $consultant = $this->resolveConsultant($domain);
+        $consultant = $this->getConsultantByDomain($domain);
 
-        if (!$consultant) {
-            abort(404); 
-        }
-
-        // 3. Carrega os imóveis (Top 6 ordenados)
-        $properties = $this->getAvailableProperties();
+        $properties = Property::where('consultant_id', $consultant->id)
+            ->where('is_visible', true)
+            ->latest()
+            ->take(6)
+            ->get();
 
         return view('consultants.landing-page', compact('consultant', 'properties'));
     }
 
-    /**
-     * [NOVO] Carrega o Detalhe do Imóvel mantendo o domínio da Consultora
-     */
-    public function showProperty($domain, Property $property)
+    public function showProperty($domain, $slug)
     {
-        // 1. Identifica a consultora dona do domínio
-        $consultant = $this->resolveConsultant($domain);
+        $consultant = $this->getConsultantByDomain($domain);
 
-        if (!$consultant) {
-            abort(404);
-        }
+        $property = Property::where('slug', $slug)
+            ->where('is_visible', true)
+            ->firstOrFail();
 
-        // 2. Garante que o imóvel está visível
-        if (!$property->is_visible) {
-            abort(404);
-        }
-
-        // 3. Retorna a view padrão de imóvel, mas injetando a $consultant.
-        // A presença dessa variável é o que ativa o "Modo Personalizado" no layout (cores/logo).
         return view('properties.show', compact('property', 'consultant'));
     }
 
-    /**
-     * Preview Interno (Modal)
-     */
+    // --- MÉTODOS DAS FERRAMENTAS (CORRIGIDOS) ---
+    // Adicionamos $domain como primeiro argumento para casar com a rota
+
+    public function showCredit($domain)
+    {
+        $consultant = $this->getConsultantByDomain($domain);
+        return view('tools.credit', compact('consultant'));
+    }
+
+    public function showGains($domain)
+    {
+        $consultant = $this->getConsultantByDomain($domain);
+        return view('tools.gains', compact('consultant'));
+    }
+
+    public function showImt($domain)
+    {
+        $consultant = $this->getConsultantByDomain($domain);
+        return view('tools.imt', compact('consultant'));
+    }
+
+    // Preview interno (sem domínio)
     public function preview(Consultant $consultant)
     {
-        if (!$consultant->has_lp || !$consultant->is_active) {
-            abort(404);
-        }
-        $properties = $this->getAvailableProperties();
-        return view('consultants.landing-page', compact('consultant', 'properties'));
-    }
-
-    /**
-     * Helper privado para resolver a Consultora pelo Domínio ou Slug
-     * (Evita repetição de código)
-     */
-    private function resolveConsultant($domain)
-    {
-        // 1. Limpeza do domínio (remove www. se existir)
-        $domain = preg_replace('/^www\./', '', $domain);
-
-        // 2. Busca pelo domínio exato
-        $consultant = Consultant::where('domain', $domain)
-                        ->where('has_lp', true)
-                        ->where('is_active', true)
-                        ->first();
-
-        // 3. Fallback: Tenta pelo slug
-        if (!$consultant) {
-             $consultant = Consultant::where('lp_slug', $domain)
-                        ->where('has_lp', true)
-                        ->where('is_active', true)
-                        ->first();
-        }
-
-        return $consultant;
-    }
-
-    /**
-     * Helper privado para pegar imóveis da home
-     */
-    private function getAvailableProperties()
-    {
-        return Property::where('is_visible', true)
-            ->ordered()
-            ->take(6) 
+        $properties = Property::where('consultant_id', $consultant->id)
+            ->where('is_visible', true)
+            ->latest()
+            ->take(6)
             ->get();
+
+        return view('consultants.landing-page', compact('consultant', 'properties'));
     }
 }

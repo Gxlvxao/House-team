@@ -13,25 +13,26 @@ use App\Http\Controllers\ConsultantPageController;
 // ==============================================================================
 // 1. ROTAS DE DOMÍNIO EXTERNO (CONSULTORAS) - PRIORIDADE MÁXIMA
 // ==============================================================================
-// Captura domínios personalizados (ex: casaacasa.pt ou margarida.houseteam.pt)
+// Captura qualquer domínio que NÃO SEJA o principal ou localhost
 Route::domain('{domain}')
     ->where(['domain' => '^(?!houseteamconsultores\.pt|www\.houseteamconsultores\.pt|localhost|127\.0\.0\.1).*$'])
     ->group(function () {
         
-        // 1.1 Landing Page da Consultora (Home)
+        // 1.1 Home da Consultora (Landing Page)
         Route::get('/', [ConsultantPageController::class, 'index'])->name('consultant.home');
         
-        // 1.2 Detalhe do Imóvel no domínio da Consultora
+        // 1.2 Detalhe do Imóvel (Com design da consultora)
         Route::get('/imoveis/{property:slug}', [ConsultantPageController::class, 'showProperty'])->name('consultant.property.show');
 
-        // 1.3 FERRAMENTAS (Com design herdado)
-        // Estas rotas chamam o ConsultantPageController para injetar a variável $consultant na view
+        // 1.3 FERRAMENTAS (Views personalizadas)
+        // Estas rotas chamam o ConsultantPageController para injetar a variável $consultant e ativar o modo Navy & Gold
         Route::get('/ferramentas/mais-valias', [ConsultantPageController::class, 'showGains'])->name('consultant.tools.gains');
         Route::get('/ferramentas/simulador-credito', [ConsultantPageController::class, 'showCredit'])->name('consultant.tools.credit');
         Route::get('/ferramentas/imt', [ConsultantPageController::class, 'showImt'])->name('consultant.tools.imt');
 
-        // 1.4 POSTS (Cálculos e Envios)
-        // Necessário definir aqui para evitar erros de Cross-Origin (CORS) ao submeter formulários do domínio da consultora
+        // 1.4 AÇÕES (POST) - Cálculos e Envios
+        // Necessário estar aqui para que o formulário submeta para o PRÓPRIO domínio da consultora
+        // O Laravel injeta o ToolsController, que processa a lógica independentemente do domínio
         Route::post('/ferramentas/mais-valias/calcular', [ToolsController::class, 'calculateGains']);
         Route::post('/ferramentas/simulador-credito/enviar', [ToolsController::class, 'sendCreditSimulation']);
         Route::post('/ferramentas/imt/enviar', [ToolsController::class, 'sendImtSimulation']);
@@ -67,7 +68,7 @@ Route::get('lang/{locale}', function ($locale) {
 Route::get('/imoveis', [PropertyController::class, 'publicIndex'])->name('portfolio');
 Route::get('/imoveis/{property:slug}', [PropertyController::class, 'show'])->name('properties.show');
 
-// --- FERRAMENTAS ---
+// --- FERRAMENTAS (Site Principal - Views Padrão) ---
 Route::get('/ferramentas/simulador-credito', function () { return view('tools.credit'); })->name('tools.credit');
 Route::post('/ferramentas/simulador-credito/enviar', [ToolsController::class, 'sendCreditSimulation'])->name('tools.credit.send');
 

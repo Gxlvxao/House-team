@@ -126,15 +126,15 @@
                     <p class="text-xs uppercase tracking-widest text-slate-400">{{ __('consultant_lp.stats_years') }}</p>
                 </div>
                 <div data-aos="fade-up" data-aos-delay="100">
-                    <p class="text-4xl font-serif text-gold font-bold mb-2">700+</p>
+                    <p class="text-4xl font-serif text-gold font-bold mb-2">1.000.000$</p>
                     <p class="text-xs uppercase tracking-widest text-slate-400">{{ __('consultant_lp.stats_dreams') }}</p>
                 </div>
                 <div data-aos="fade-up" data-aos-delay="200">
-                    <p class="text-4xl font-serif text-gold font-bold mb-2">Top</p>
+                    <p class="text-4xl font-serif text-gold font-bold mb-2">1.000+</p>
                     <p class="text-xs uppercase tracking-widest text-slate-400">{{ __('consultant_lp.stats_producer') }}</p>
                 </div>
                 <div data-aos="fade-up" data-aos-delay="300">
-                    <p class="text-4xl font-serif text-gold font-bold mb-2">100%</p>
+                    <p class="text-4xl font-serif text-gold font-bold mb-2">50+</p>
                     <p class="text-xs uppercase tracking-widest text-slate-400">{{ __('consultant_lp.stats_dedication') }}</p>
                 </div>
             </div>
