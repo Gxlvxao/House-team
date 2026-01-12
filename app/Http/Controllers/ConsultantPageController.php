@@ -6,34 +6,37 @@ use Illuminate\Http\Request;
 use App\Models\Consultant;
 use App\Models\Property;
 
-class ConsultantPageController extends Controller
+// ATENÇÃO: O nome da classe DEVE ser igual ao nome do arquivo (ConsultantController.php)
+class ConsultantController extends Controller
 {
     /**
      * Busca a consultora de forma segura (Subdomínio ou Domínio Principal).
      */
     private function getConsultantByDomain($domain)
     {
-        // 1. Sanitização: remove 'www.' para padronizar
-        $host = strtolower(str_replace('www.', '', $domain));
+        // 1. Sanitização: remove 'www.', 'http://', etc.
+        $host = strtolower(str_replace(['http://', 'https://', 'www.'], '', $domain));
 
-        // 2. Identifica o possível slug (primeira parte do domínio)
-        // Ex: 'margarida.casaacasa.pt' -> $slug = 'margarida'
-        // Ex: 'casaacasa.pt' -> $slug = 'casaacasa' (Isso causava o erro antes)
-        $slug = explode('.', $host)[0];
+        // 2. Tenta extrair um possível slug (ex: 'margarida' de 'margarida.casaacasa.pt')
+        $possibleSlug = explode('.', $host)[0];
 
         // 3. Tenta buscar primeiro pelo SLUG (Lógica de Subdomínio)
-        $consultant = Consultant::where('slug', $slug)
+        $consultant = Consultant::where('slug', $possibleSlug)
             ->where('is_active', true)
             ->first();
 
-        // 4. Se não achou pelo slug, tenta pelo DOMÍNIO PERSONALIZADO (Lógica da Raiz)
-        // Isso permite que 'casaacasa.pt' carregue a consultora correta se ela tiver
-        // o campo 'custom_domain' preenchido ou se você definir uma lógica de fallback.
+        // 4. Se não achou pelo slug, tenta pelo DOMÍNIO EXATO (Lógica da Raiz)
+        // Isso resolve o problema de 'casaacasa.pt' tentar buscar o slug 'casaacasa'.
+        // Agora ele vai procurar um consultor que tenha 'custom_domain' = 'casaacasa.pt'
         if (! $consultant) {
-            $consultant = Consultant::where('custom_domain', $host) // Certifique-se que esta coluna existe
-                ->orWhere('domain', $host) // Fallback caso o nome da coluna seja 'domain'
+            // Nota: Certifique-se de que a coluna 'custom_domain' ou 'domain' existe no seu banco.
+            // Se sua coluna chamar apenas 'domain', troque abaixo.
+            $consultant = Consultant::where(function($query) use ($host) {
+                    $query->where('custom_domain', $host)
+                          ->orWhere('domain', $host);
+                })
                 ->where('is_active', true)
-                ->firstOrFail(); // Agora sim lançamos 404 se não achar nada
+                ->firstOrFail(); // Lança 404 se não encontrar nada
         }
 
         return $consultant;
@@ -86,7 +89,6 @@ class ConsultantPageController extends Controller
     }
 
     // --- PREVIEW INTERNO (ADMIN) ---
-    // Este método não usa $domain, pois recebe o Model direto (Route Model Binding)
     public function preview(Consultant $consultant)
     {
         $properties = Property::where('consultant_id', $consultant->id)
