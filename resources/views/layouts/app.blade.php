@@ -67,11 +67,11 @@
                 @if(Str::startsWith(Route::currentRouteName(), 'consultant.'))
                     {{-- MENU DA CONSULTORA --}}
                     
-                    {{-- Logo Desktop (Aumentada para h-12) --}}
+                    {{-- Logo Desktop (AUMENTADA PARA h-14) --}}
                     <a href="#home" class="mr-4 hover:opacity-80 transition-opacity">
                         <img src="{{ asset('img/logo/casaacasa.png') }}" 
                              alt="Casa a Casa" 
-                             class="h-12 w-auto object-contain brightness-0 invert">
+                             class="h-14 w-auto object-contain brightness-0 invert">
                     </a>
 
                     <a href="#home" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">{{ __('consultant_lp.menu_home') }}</a>
@@ -115,9 +115,9 @@
             <div class="hidden md:flex items-center gap-6 ml-4">
                 @if(Str::startsWith(Route::currentRouteName(), 'consultant.'))
                     <div class="flex items-center gap-2 text-[10px] font-bold tracking-widest">
-                        <a href="{{ route('lang.switch', 'pt') }}" class="{{ app()->getLocale() == 'pt' ? 'text-ht-gold scale-110' : 'text-slate-400 hover:text-white transition' }}">PT</a>
+                        <a href="{{ route('lang.switch', 'pt') }}" class="{{ app()->getLocale() == 'pt' ? 'text-ht-gold scale-110' : 'text-slate-400 hover:text-white transition' }}" title="Português">PT</a>
                         <span class="text-white/20">|</span>
-                        <a href="{{ route('lang.switch', 'en') }}" class="{{ app()->getLocale() == 'en' ? 'text-ht-gold scale-110' : 'text-slate-400 hover:text-white transition' }}">EN</a>
+                        <a href="{{ route('lang.switch', 'en') }}" class="{{ app()->getLocale() == 'en' ? 'text-ht-gold scale-110' : 'text-slate-400 hover:text-white transition' }}" title="English">EN</a>
                     </div>
                     <a href="#contact" class="bg-ht-gold text-white px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-yellow-600 hover:shadow-lg hover:shadow-yellow-500/30 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">
                         {{ __('consultant_lp.menu_contact') }}
@@ -131,17 +131,15 @@
 
             {{-- ================= MENU HAMBURGUER (MOBILE) ================= --}}
             <div class="md:hidden flex w-full justify-between items-center">
-                 {{-- LOGO NO MOBILE (AUMENTADA) --}}
+                 {{-- LOGO NO MOBILE (AUMENTADA PARA h-14) --}}
                  <div class="flex items-center gap-2">
                      @if(Str::startsWith(Route::currentRouteName(), 'consultant.'))
-                        {{-- Versão Consultora: Logo Grande e Branca --}}
                         <a href="#home">
-                            {{-- MUDANÇA AQUI: h-10 (40px) para ficar bem visível --}}
+                            {{-- MUDANÇA: h-14 (56px) para destaque total --}}
                             <img src="{{ asset('img/logo/casaacasa.png') }}" 
-                                 class="h-10 w-auto brightness-0 invert object-contain">
+                                 class="h-14 w-auto brightness-0 invert object-contain">
                         </a>
                      @else
-                        {{-- Versão House Team: Texto Padrão --}}
                         <span class="text-white text-xs font-bold uppercase tracking-widest">
                             {{ __('menu.label_menu') }}
                         </span>
