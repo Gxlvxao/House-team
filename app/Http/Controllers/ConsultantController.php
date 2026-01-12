@@ -2,87 +2,83 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Consultant;
 use App\Models\Property;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\View;
 
 class ConsultantPageController extends Controller
 {
-    // Método auxiliar para identificar a consultora pelo domínio
+    /**
+     * Helper privado para resolver o consultor e evitar repetição de código (DRY).
+     */
     private function getConsultantByDomain($domain)
     {
-        // Se o domínio for "margarida.houseteam.pt", pega "margarida"
-        // Se for "casaacasa.pt", você precisará de uma lógica para mapear domínios personalizados no banco
-        // Por enquanto, assumimos subdomínio = slug
-        
-        $parts = explode('.', $domain);
-        $slug = $parts[0]; 
-        
-        // Tenta buscar pelo slug, se não achar, falha 404
-        return Consultant::where('slug', $slug)->where('is_active', true)->firstOrFail();
+        // Remove www. se existir para normalizar
+        $cleanDomain = preg_replace('/^www\./', '', $domain);
+
+        $consultant = Consultant::where('domain', $cleanDomain)
+            ->orWhere('lp_slug', $cleanDomain)
+            ->firstOrFail(); // Usa fail para dar 404 se o domínio não existir no banco
+
+        // Injeta globalmente nas views para que o Layout (header/footer) tenha acesso
+        View::share('consultant', $consultant);
+
+        return $consultant;
     }
 
-    public function index(Request $request)
+    public function index($domain)
     {
-        $host = $request->getHost();
-        $consultant = $this->getConsultantByDomain($host);
-
-        // Busca imóveis associados a esta consultora
+        $consultant = $this->getConsultantByDomain($domain);
+        
+        // Carrega imóveis do consultor ou gerais, conforme sua regra
+        // Exemplo: Imóveis captados pelo consultor
         $properties = Property::where('consultant_id', $consultant->id)
             ->where('is_visible', true)
-            ->latest()
-            ->take(6)
-            ->get();
+            ->ordered()
+            ->paginate(9);
 
         return view('consultants.landing-page', compact('consultant', 'properties'));
     }
 
-    public function showProperty(Request $request, $slug)
+    public function showProperty($domain, Property $property)
     {
-        $host = $request->getHost();
-        $consultant = $this->getConsultantByDomain($host);
+        // NOTA: A ordem dos parâmetros deve bater com a URL: {domain}/imoveis/{property}
+        $consultant = $this->getConsultantByDomain($domain);
 
-        $property = Property::where('slug', $slug)
-            ->where('is_visible', true)
-            ->firstOrFail();
-
-        // Injetamos $consultant para que a view "show.blade.php" saiba que deve ativar o modo Navy & Gold
         return view('properties.show', compact('property', 'consultant'));
     }
 
-    // --- NOVOS MÉTODOS PARA AS FERRAMENTAS ---
+    // --- FERRAMENTAS ---
 
-    public function showCredit(Request $request)
+    public function showGains($domain)
     {
-        $host = $request->getHost();
-        $consultant = $this->getConsultantByDomain($host);
-        
-        // Retorna a view da ferramenta injetando a consultora (ativa o design personalizado)
-        return view('tools.credit', compact('consultant'));
-    }
-
-    public function showGains(Request $request)
-    {
-        $host = $request->getHost();
-        $consultant = $this->getConsultantByDomain($host);
-        
+        $consultant = $this->getConsultantByDomain($domain);
+        // Retorna a view da ferramenta injetando o consultor (via View::share acima ou compact)
         return view('tools.gains', compact('consultant'));
     }
 
-    public function showImt(Request $request)
+    public function showCredit($domain)
     {
-        $host = $request->getHost();
-        $consultant = $this->getConsultantByDomain($host);
-        
-        return view('tools.imt', compact('consultant'));
+        $consultant = $this->getConsultantByDomain($domain);
+        return view('tools.credit', compact('consultant'));
     }
 
-    // Pré-visualização interna (Admin)
+    public function showImt($domain)
+    {
+        $consultant = $this->getConsultantByDomain($domain);
+        return view('tools.imt', compact('consultant'));
+    }
+    
+    // Método para o preview interno (Modal)
     public function preview(Consultant $consultant)
     {
+        // Aqui não tem $domain na rota, é rota normal do admin/site principal
+        View::share('consultant', $consultant);
+        
         $properties = Property::where('consultant_id', $consultant->id)
             ->where('is_visible', true)
-            ->latest()
+            ->ordered()
             ->take(6)
             ->get();
 
