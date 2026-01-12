@@ -67,32 +67,42 @@
                 @if(Str::startsWith(Route::currentRouteName(), 'consultant.'))
                     {{-- === MENU DA CONSULTORA (NAVY & GOLD) === --}}
                     
+                    {{-- LOGO DA CONSULTORA NA NAVBAR --}}
+                    <a href="#home" class="mr-4 hover:opacity-80 transition-opacity">
+                        <img src="{{ asset('img/logo/casaacasa.png') }}" 
+                             alt="Casa a Casa" 
+                             class="h-8 w-auto object-contain brightness-0 invert" 
+                             onerror="this.style.display='none'">
+                    </a>
+
                     <a href="#home" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">{{ __('consultant_lp.menu_home') }}</a>
                     <a href="#about" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">{{ __('consultant_lp.menu_about') }}</a>
                     <a href="#testimonials" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">{{ __('consultant_lp.menu_feedback') }}</a>
                     <a href="#portfolio" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">{{ __('consultant_lp.menu_portfolio') }}</a>
 
-                    {{-- DROPDOWN FERRAMENTAS (GOLD + CORREÇÃO DE ROTA) --}}
+                    {{-- DROPDOWN FERRAMENTAS (GOLD) --}}
                     <div class="relative group">
                         <button class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all flex items-center gap-1">
                             {{ __('menu.tools') }}
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                         </button>
                         <div class="absolute left-1/2 -translate-x-1/2 top-full mt-4 w-48 bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top overflow-hidden">
-                            {{-- 
-                                CORREÇÃO CRÍTICA AQUI: 
-                                Usamos $consultant->domain em vez de request()->route('domain').
-                                Isso resolve o erro no Preview onde a rota não tem domínio.
-                            --}}
-                            <a href="{{ route('consultant.tools.credit', ['domain' => $consultant->domain]) }}" class="block px-4 py-2 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-ht-gold transition text-center">{{ __('menu.credit') }}</a>
-                            <a href="{{ route('consultant.tools.gains', ['domain' => $consultant->domain]) }}" class="block px-4 py-2 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-ht-gold transition text-center">{{ __('menu.gains') }}</a>
-                            <a href="{{ route('consultant.tools.imt', ['domain' => $consultant->domain]) }}" class="block px-4 py-2 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-ht-gold transition text-center">{{ __('menu.imt') }}</a>
+                            {{-- Links com hover DOURADO --}}
+                            <a href="{{ route('consultant.tools.credit', ['domain' => $consultant->domain ?? 'casaacasa.pt']) }}" class="block px-4 py-2 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-ht-gold transition text-center">{{ __('menu.credit') }}</a>
+                            <a href="{{ route('consultant.tools.gains', ['domain' => $consultant->domain ?? 'casaacasa.pt']) }}" class="block px-4 py-2 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-ht-gold transition text-center">{{ __('menu.gains') }}</a>
+                            <a href="{{ route('consultant.tools.imt', ['domain' => $consultant->domain ?? 'casaacasa.pt']) }}" class="block px-4 py-2 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-ht-gold transition text-center">{{ __('menu.imt') }}</a>
                         </div>
                     </div>
 
                 @else
-                    {{-- === MENU DA HOUSE TEAM (PADRÃO - RED) === --}}
+                    {{-- === MENU DA HOUSE TEAM (PADRÃO) === --}}
                     
+                    {{-- LOGO DA HOUSE TEAM NA NAVBAR --}}
+                    {{-- Opcional: Se quiser a logo da HT aqui também, descomente --}}
+                    {{-- <a href="{{ route('home') }}" class="mr-4 hover:opacity-80 transition-opacity">
+                        <img src="{{ asset('img/logo.png') }}" class="h-8 w-auto brightness-0 invert">
+                    </a> --}}
+
                     <a href="{{ route('home') }}" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">{{ __('menu.home') }}</a>
                     <a href="{{ route('about') }}" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">{{ __('menu.team') }}</a>
                     <a href="{{ route('portfolio') }}" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">{{ __('menu.properties') }}</a>
@@ -116,24 +126,17 @@
                 {{-- LÓGICA DO SELETOR E BOTÃO (DESKTOP) --}}
                 @if(Str::startsWith(Route::currentRouteName(), 'consultant.'))
                     
-                    {{-- 1. Seletor de Idioma (SÓ APARECE NA CONSULTORA) --}}
                     <div class="flex items-center gap-2 text-[10px] font-bold tracking-widest">
-                        <a href="{{ route('lang.switch', 'pt') }}" 
-                           class="{{ app()->getLocale() == 'pt' ? 'text-ht-gold scale-110' : 'text-slate-400 hover:text-white transition' }}" 
-                           title="Português">PT</a>
+                        <a href="{{ route('lang.switch', 'pt') }}" class="{{ app()->getLocale() == 'pt' ? 'text-ht-gold scale-110' : 'text-slate-400 hover:text-white transition' }}" title="Português">PT</a>
                         <span class="text-white/20">|</span>
-                        <a href="{{ route('lang.switch', 'en') }}" 
-                           class="{{ app()->getLocale() == 'en' ? 'text-ht-gold scale-110' : 'text-slate-400 hover:text-white transition' }}" 
-                           title="English">EN</a>
+                        <a href="{{ route('lang.switch', 'en') }}" class="{{ app()->getLocale() == 'en' ? 'text-ht-gold scale-110' : 'text-slate-400 hover:text-white transition' }}" title="English">EN</a>
                     </div>
 
-                    {{-- 2. Botão Dourado (Consultora) --}}
                     <a href="#contact" class="bg-ht-gold text-white px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-yellow-600 hover:shadow-lg hover:shadow-yellow-500/30 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">
                         {{ __('consultant_lp.menu_contact') }}
                     </a>
 
                 @else
-                    {{-- SITE NORMAL: Apenas Botão Vermelho (Sem seletor) --}}
                     <a href="{{ route('contact') }}" class="bg-ht-accent text-white px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-red-700 hover:shadow-lg hover:shadow-red-500/30 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">
                         {{ __('menu.contact_us') }}
                     </a>
@@ -142,13 +145,14 @@
 
             {{-- MENU HAMBURGUER (MOBILE) --}}
             <div class="md:hidden flex w-full justify-between items-center">
-                 <span class="text-white text-xs font-bold uppercase tracking-widest">
-                    @if(Str::startsWith(Route::currentRouteName(), 'consultant.'))
-                        MENU
-                    @else
-                        {{ __('menu.label_menu') }}
-                    @endif
-                 </span>
+                 {{-- SE QUISER A LOGO NO MOBILE TAMBÉM: --}}
+                 {{-- @if(Str::startsWith(Route::currentRouteName(), 'consultant.'))
+                    <img src="{{ asset('img/logo/casaacasa.png') }}" class="h-6 w-auto brightness-0 invert">
+                 @else --}}
+                    <span class="text-white text-xs font-bold uppercase tracking-widest">
+                        @if(Str::startsWith(Route::currentRouteName(), 'consultant.')) MENU @else {{ __('menu.label_menu') }} @endif
+                    </span>
+                 {{-- @endif --}}
                  
                  <div class="flex items-center gap-3">
                     <button @click="isOpen = !isOpen" class="text-white p-1 rounded-full hover:bg-white/10 transition">
@@ -168,16 +172,14 @@
                     <a href="#testimonials" @click="isOpen=false" class="block px-4 py-3 rounded-xl hover:bg-white/5 text-white text-sm font-bold text-center transition">{{ __('consultant_lp.menu_feedback') }}</a>
                     <a href="#portfolio" @click="isOpen=false" class="block px-4 py-3 rounded-xl hover:bg-white/5 text-white text-sm font-bold text-center transition">{{ __('consultant_lp.menu_portfolio') }}</a>
                     
-                    {{-- FERRAMENTAS MÓVEL CONSULTORA (GOLD + CORREÇÃO) --}}
                     <div class="grid grid-cols-3 gap-2 border-t border-white/10 pt-2 mt-2">
-                        <a href="{{ route('consultant.tools.credit', ['domain' => $consultant->domain]) }}" class="bg-white/5 rounded-lg p-2 text-center text-[10px] font-bold text-slate-300 hover:bg-white/10 hover:text-white">{{ __('menu.credit') }}</a>
-                        <a href="{{ route('consultant.tools.gains', ['domain' => $consultant->domain]) }}" class="bg-white/5 rounded-lg p-2 text-center text-[10px] font-bold text-slate-300 hover:bg-white/10 hover:text-white">{{ __('menu.gains') }}</a>
-                        <a href="{{ route('consultant.tools.imt', ['domain' => $consultant->domain]) }}" class="bg-white/5 rounded-lg p-2 text-center text-[10px] font-bold text-slate-300 hover:bg-white/10 hover:text-white">{{ __('menu.imt') }}</a>
+                        <a href="{{ route('consultant.tools.credit', ['domain' => $consultant->domain ?? 'casaacasa.pt']) }}" class="bg-white/5 rounded-lg p-2 text-center text-[10px] font-bold text-slate-300 hover:bg-white/10 hover:text-white">{{ __('menu.credit') }}</a>
+                        <a href="{{ route('consultant.tools.gains', ['domain' => $consultant->domain ?? 'casaacasa.pt']) }}" class="bg-white/5 rounded-lg p-2 text-center text-[10px] font-bold text-slate-300 hover:bg-white/10 hover:text-white">{{ __('menu.gains') }}</a>
+                        <a href="{{ route('consultant.tools.imt', ['domain' => $consultant->domain ?? 'casaacasa.pt']) }}" class="bg-white/5 rounded-lg p-2 text-center text-[10px] font-bold text-slate-300 hover:bg-white/10 hover:text-white">{{ __('menu.imt') }}</a>
                     </div>
 
                     <a href="#contact" @click="isOpen=false" class="block px-4 py-3 rounded-xl bg-ht-gold text-white text-sm font-bold text-center mt-2 shadow-lg hover:bg-yellow-600 transition">{{ __('consultant_lp.menu_contact') }}</a>
                     
-                    {{-- SELETOR MOBILE --}}
                     <div class="flex justify-center items-center gap-6 py-4 border-t border-white/10 mt-2">
                         <a href="{{ route('lang.switch', 'pt') }}" class="{{ app()->getLocale() == 'pt' ? 'text-ht-gold font-bold scale-110' : 'text-slate-400 text-xs font-bold uppercase tracking-widest hover:text-white' }}">Português</a>
                         <span class="text-white/10">|</span>
@@ -205,7 +207,6 @@
     </main>
 
     {{-- RODAPÉ --}}
-    {{-- LÓGICA DE OCULTAÇÃO: Só mostra se NÃO for consultor --}}
     @unless(Str::startsWith(Route::currentRouteName(), 'consultant.'))
         <footer class="bg-ht-navy text-white pt-24 pb-12 border-t border-white/5">
             <div class="container mx-auto px-6">

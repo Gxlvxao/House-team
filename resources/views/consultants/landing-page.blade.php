@@ -98,11 +98,12 @@
                 
                 <div class="order-2 lg:order-1" data-aos="fade-right" data-aos-duration="1000">
                     
-                    {{-- LOGO DA CONSULTORA (CAMINHO VERIFICADO) --}}
-                    <div class="mb-10">
+                    {{-- LOGO DA CONSULTORA (ADICIONADA AQUI) --}}
+                    <div class="mb-8">
                         <img src="{{ asset('img/logo/casaacasa.png') }}" 
                              alt="Casa a Casa" 
-                             class="h-24 w-auto object-contain block">
+                             class="h-16 md:h-20 w-auto object-contain"
+                             onerror="this.style.display='none'">
                     </div>
 
                     <span class="text-gold font-bold tracking-[0.2em] text-xs uppercase mb-4 block">
