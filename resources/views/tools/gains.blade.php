@@ -60,14 +60,15 @@
     </style>
 @endif
 
-<div class="bg-slate-50 min-h-screen pt-40 pb-12 relative overflow-hidden">
+{{-- CORREÇÃO: x-data MOVIDO PARA CÁ (WRAPPER EXTERNO) PARA ENGLOBAR O MODAL --}}
+<div class="bg-slate-50 min-h-screen pt-40 pb-12 relative overflow-hidden" x-data="gainsForm()">
     
     {{-- Fundo Decorativo (Só aparece na versão Consultora) --}}
     @if(isset($consultant))
         <div class="absolute top-0 right-0 w-1/3 h-96 bg-ht-navy opacity-5 -z-10" style="clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 100%);"></div>
     @endif
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10" x-data="gainsForm()">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {{-- Cabeçalho da Ferramenta --}}
         <div class="text-center mb-10" data-aos="fade-down">
@@ -419,42 +420,54 @@
         </div>
 
     </div>
-</div>
 
-{{-- MODAL DE LEAD --}}
-<div x-data="{ open: false }" x-show="showLeadModal" @keydown.escape.window="showLeadModal = false" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-ht-navy/80 backdrop-blur-sm transition-opacity" @click="showLeadModal = false"></div>
-        <div class="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
-            <div class="px-8 pt-8 pb-6">
-                <div class="text-center">
-                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-ht-accent/10 mb-6">
-                        <svg class="h-8 w-8 text-ht-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                    </div>
-                    <h3 class="text-2xl font-black text-ht-navy mb-2">{{ __('tools.gains.modal_title') }}</h3>
-                    <p class="text-sm text-slate-500 mb-8">{{ __('tools.gains.modal_desc') }}</p>
-                    
-                    <div class="space-y-4 text-left">
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">{{ __('tools.gains.input_name') }}</label>
-                            <input type="text" x-model="form.lead_name" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-accent">
+    {{-- MODAL DE LEAD --}}
+    <div x-show="showLeadModal" @keydown.escape.window="showLeadModal = false" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            
+            {{-- Overlay Escuro --}}
+            <div x-show="showLeadModal" x-transition.opacity class="fixed inset-0 bg-ht-navy/80 backdrop-blur-sm transition-opacity" @click="showLeadModal = false"></div>
+
+            {{-- Conteúdo do Modal --}}
+            <div x-show="showLeadModal" 
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                class="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full relative z-10">
+                
+                <div class="px-8 pt-8 pb-6">
+                    <div class="text-center">
+                        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-ht-accent/10 mb-6">
+                            <svg class="h-8 w-8 text-ht-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">{{ __('tools.gains.input_email') }}</label>
-                            <input type="email" x-model="form.lead_email" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-accent">
+                        <h3 class="text-2xl font-black text-ht-navy mb-2">{{ __('tools.gains.modal_title') }}</h3>
+                        <p class="text-sm text-slate-500 mb-8">{{ __('tools.gains.modal_desc') }}</p>
+                        
+                        <div class="space-y-4 text-left">
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-slate-500 mb-1">{{ __('tools.gains.input_name') }}</label>
+                                <input type="text" x-model="form.lead_name" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-accent">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-slate-500 mb-1">{{ __('tools.gains.input_email') }}</label>
+                                <input type="email" x-model="form.lead_email" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ht-accent">
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="bg-slate-50 px-8 py-6 sm:flex sm:flex-row-reverse gap-3">
-                <button type="button" @click="submit" class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-lg px-6 py-3 bg-ht-accent text-sm font-bold text-white uppercase tracking-widest hover:bg-opacity-90 focus:outline-none sm:w-auto transition-all">
-                    {{ __('tools.gains.btn_get_results') }}
-                </button>
-                <button type="button" @click="showLeadModal = false" class="mt-3 w-full inline-flex justify-center rounded-xl border border-slate-300 shadow-sm px-6 py-3 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 focus:outline-none sm:mt-0 sm:w-auto transition-all">
-                    {{ __('tools.gains.btn_cancel') }}
-                </button>
+                <div class="bg-slate-50 px-8 py-6 sm:flex sm:flex-row-reverse gap-3">
+                    <button type="button" @click="submit" class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-lg px-6 py-3 bg-ht-accent text-sm font-bold text-white uppercase tracking-widest hover:bg-opacity-90 focus:outline-none sm:w-auto transition-all">
+                        {{ __('tools.gains.btn_get_results') }}
+                    </button>
+                    <button type="button" @click="showLeadModal = false" class="mt-3 w-full inline-flex justify-center rounded-xl border border-slate-300 shadow-sm px-6 py-3 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 focus:outline-none sm:mt-0 sm:w-auto transition-all">
+                        {{ __('tools.gains.btn_cancel') }}
+                    </button>
+                </div>
             </div>
         </div>
     </div>
