@@ -110,12 +110,28 @@ Route::prefix('admin')->group(function () {
         
         Route::resource('properties', PropertyController::class)->names('admin.properties');
         
-        // ⚠️ ATENÇÃO SÊNIOR: 
-        // Se o arquivo ConsultantController agora só tem a lógica da Landing Page (index, showProperty),
-        // esta rota resource abaixo VAI QUEBRAR o admin, pois faltam os métodos store, update, destroy.
-        // Mantenha comentado se não tiver esses métodos, ou crie um AdminConsultantController separado.
-        //Route::resource('consultants', ConsultantController::class)->names('admin.consultants');
+        // ========================================================
+        // CORREÇÃO: Rotas de Consultores para Admin
+        // ========================================================
         
+        // 1. Rota manual para a listagem (apontando para adminIndex)
+        // Isso resolve o erro "Route [admin.consultants.index] not defined"
+        Route::get('consultants', [ConsultantController::class, 'adminIndex'])
+            ->name('admin.consultants.index');
+
+        // 2. Resource padrão para o resto (Criar, Editar, Salvar, Excluir)
+        // O 'except' garante que ele não tente criar a rota 'index' duplicada ou errada
+        Route::resource('consultants', ConsultantController::class)
+            ->except(['index', 'show']) 
+            ->names([
+                'create'  => 'admin.consultants.create',
+                'store'   => 'admin.consultants.store',
+                'edit'    => 'admin.consultants.edit',
+                'update'  => 'admin.consultants.update',
+                'destroy' => 'admin.consultants.destroy',
+            ]);
+        
+        // Outras rotas do admin...
         Route::post('/properties/reorder', [PropertyController::class, 'reorder'])->name('admin.properties.reorder');
         Route::post('/properties/{property}/move-to-top', [PropertyController::class, 'moveToTop'])->name('admin.properties.moveToTop');
     });
