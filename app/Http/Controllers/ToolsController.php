@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\CapitalGainsCalculatorService;
 use App\Services\HighLevelService;
-use App\Models\Consultant; // <--- IMPORTANTE
+use App\Models\Consultant;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
@@ -39,14 +39,14 @@ class ToolsController extends Controller
             ->first();
     }
 
-    // Views (Geralmente chamadas apenas no site principal, mas mantidas por compatibilidade)
+    // Views
     public function showGainsSimulator() { return view('tools.gains'); }
     public function showCreditSimulator() { return view('tools.credit'); }
     public function showImtSimulator() { return view('tools.imt'); }
 
 
     // =========================================================================
-    // MAIS-VALIAS (POST)
+    // MAIS-VALIAS (POST) -> VAI PARA FUNIL DE ANGARIAÇÃO (LISTING)
     // =========================================================================
     public function calculateGains(Request $request, $domain = null)
     {
@@ -90,31 +90,31 @@ class ToolsController extends Controller
         $results = $this->calculator->calculate($validated);
 
         if ($request->filled('lead_email')) {
-            // Envia PDF para o cliente (mantém lógica)
+            // Envia PDF para o cliente
             $this->sendEmailWithPdf($validated['lead_email'], $validated['lead_name'], 'Simulação de Mais-Valias', 'pdfs.simulation', ['data' => $validated, 'results' => $results]);
 
             $description = "Simulação Mais-Valias:\nCompra: {$validated['acquisition_value']}€ ({$validated['acquisition_year']})\nVenda: {$validated['sale_value']}€";
             
-            // --- PERSONALIZAÇÃO CRM ---
             $tags = ['Simulador Mais-Valias', 'Lead Site'];
             if ($consultant) {
                 $tags[] = 'Consultor: ' . $consultant->name;
                 $description .= "\nOrigem: Site " . $consultant->name;
             }
 
+            // CORREÇÃO: Enviando para 'listing' (Angariação)
             $this->sendToCrm([
                 'name'  => $validated['lead_name'],
                 'email' => $validated['lead_email'],
                 'tags'  => $tags,
                 'description' => $description
-            ], 'credit', $consultant); // Passa consultor se houver
+            ], 'listing', $consultant);
         }
 
         return response()->json($results);
     }
 
     // =========================================================================
-    // CRÉDITO (POST)
+    // CRÉDITO (POST) -> VAI PARA FUNIL DE CRÉDITO
     // =========================================================================
     public function sendCreditSimulation(Request $request, $domain = null)
     {
@@ -130,7 +130,6 @@ class ToolsController extends Controller
         $pdf = Pdf::loadView('pdfs.simple-report', $viewData);
         $pdfContent = $pdf->output();
 
-        // Envia email para o Lead
         try {
             Mail::send('emails.simulation-lead', ['name' => $data['lead_name'], 'simulationType' => 'Simulação Crédito Habitação'], function ($message) use ($data, $pdfContent) {
                 $message->to($data['lead_email'])
@@ -156,13 +155,13 @@ class ToolsController extends Controller
             Log::error('Erro ao salvar PDF: ' . $e->getMessage());
         }
 
-        // --- PERSONALIZAÇÃO CRM ---
         $tags = ['Simulador Crédito', 'Lead Site'];
         if ($consultant) {
             $tags[] = 'Consultor: ' . $consultant->name;
             $description .= "\nOrigem: Site " . $consultant->name;
         }
 
+        // CORREÇÃO: Enviando para 'credit'
         $this->sendToCrm([
             'name'  => $data['lead_name'],
             'email' => $data['lead_email'],
@@ -174,7 +173,7 @@ class ToolsController extends Controller
     }
 
     // =========================================================================
-    // IMT (POST)
+    // IMT (POST) -> VAI PARA FUNIL DE COMPRADORES (BUYER)
     // =========================================================================
     public function sendImtSimulation(Request $request, $domain = null)
     {
@@ -190,25 +189,25 @@ class ToolsController extends Controller
 
         $description = "Simulação IMT:\nValor: {$data['propertyValue']}€\nLocal: {$data['location']}\nTotal Impostos: {$data['totalPayable']}€";
 
-        // --- PERSONALIZAÇÃO CRM ---
         $tags = ['Simulador IMT', 'Lead Site'];
         if ($consultant) {
             $tags[] = 'Consultor: ' . $consultant->name;
             $description .= "\nOrigem: Site " . $consultant->name;
         }
 
+        // CORREÇÃO: Enviando para 'buyer' (Compradores)
         $this->sendToCrm([
             'name'  => $data['lead_name'],
             'email' => $data['lead_email'],
             'tags'  => $tags,
             'description' => $description
-        ], 'credit', $consultant);
+        ], 'buyer', $consultant);
 
         return response()->json(['success' => true]);
     }
 
     // =========================================================================
-    // CONTATO (POST) - AQUI O B.O. ERA MAIOR
+    // CONTATO (POST) -> VAI PARA FUNIL GERAL (LEAD)
     // =========================================================================
     public function sendContact(Request $request, $domain = null)
     {
@@ -238,16 +237,11 @@ class ToolsController extends Controller
         if (empty($data['subject'])) $data['subject'] = 'Novo Contacto Geral';
 
         try {
-            // DEFINE QUEM RECEBE O EMAIL
-            // Se for site de consultor, vai para ele. Se não, vai para admin.
-            // Recomendo manter o admin em Bcc para controle.
             $primaryEmail = $consultant ? $consultant->email : 'admin@houseteam.pt';
             $adminEmail = 'admin@houseteam.pt';
 
             Mail::send('emails.contact-lead', ['data' => $data], function ($message) use ($primaryEmail, $adminEmail, $data, $consultant) {
                 $message->to($primaryEmail);
-                
-                // Se for consultor, mandamos BCC para admin para garantir que nada se perde
                 if ($consultant) {
                     $message->bcc($adminEmail);
                     $message->subject("[House Team - {$consultant->name}] " . $data['subject']);
@@ -256,7 +250,6 @@ class ToolsController extends Controller
                 }
             });
 
-            // PREPARA TAGS CRM
             $crmTags = ['Lead Site'];
             if ($consultant) {
                 $crmTags[] = 'Consultor: ' . $consultant->name;
@@ -274,6 +267,7 @@ class ToolsController extends Controller
             }
             if (!empty($data['phone'])) $descriptionParts[] = "Telefone: " . $data['phone'];
 
+            // CORREÇÃO: Enviando para 'lead' (Geral)
             $this->sendToCrm([
                 'name'  => $data['name'],
                 'email' => $data['email'],
@@ -292,7 +286,6 @@ class ToolsController extends Controller
 
     private function sendEmailWithPdf($email, $name, $type, $pdfView, $viewData)
     {
-        // Mantido igual...
         try {
             $viewData['date'] = date('d/m/Y');
             $pdf = Pdf::loadView($pdfView, $viewData);
@@ -306,19 +299,26 @@ class ToolsController extends Controller
         }
     }
 
-    // Atualizado para aceitar $consultant opcional, caso seu Service suporte atribuição de dono
+    // --- FUNÇÃO CRUCIAL: AGORA COM ATRIBUIÇÃO DE USER ---
     private function sendToCrm(array $contactData, string $pipelineType, $consultant = null)
     {
         try {
+            // 1. Cria ou Recupera Contacto
             $contact = $this->crmService->createContact($contactData);
 
-            // Se o seu CRM (GHL?) suportar atribuir user, você faria aqui:
-            // if ($consultant && isset($contact['id'])) $this->crmService->assignUser($contact['id'], $consultant->crm_user_id);
-
             if ($contact && isset($contact['id'])) {
+                
+                // 2. ATRIBUIÇÃO AO CONSULTOR (SE HOUVER ID NO DB)
+                // Isto garante que a lead "herda" o rosto da Margarida
+                if ($consultant && !empty($consultant->crm_user_id)) {
+                    $this->crmService->assignUser($contact['id'], $consultant->crm_user_id);
+                }
+
                 if (!empty($contactData['description'])) {
                     $this->crmService->addNote($contact['id'], $contactData['description']);
                 }
+                
+                // 3. Cria Oportunidade no Funil Correto (listing, buyer, credit, lead)
                 $this->crmService->createOpportunity($contact['id'], $contactData, $pipelineType);
             }
         } catch (\Exception $e) {

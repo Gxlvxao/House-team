@@ -136,3 +136,6 @@ Route::prefix('admin')->group(function () {
         Route::post('/properties/{property}/move-to-top', [PropertyController::class, 'moveToTop'])->name('admin.properties.moveToTop');
     });
 });
+
+
+

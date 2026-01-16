@@ -50,13 +50,17 @@ return [
         'api_version' => env('GHL_API_VERSION', '2021-07-28'),
         
         'pipelines' => [
-            'leads_id'   => env('GHL_PIPELINE_LEADS_ID'),
-            'credit_id'  => env('GHL_PIPELINE_CREDIT_ID'),
+            'leads_id'   => env('GHL_PIPELINE_LEADS_ID'),   // Funil Geral
+            'credit_id'  => env('GHL_PIPELINE_CREDIT_ID'),  // Funil Crédito
+            'listing_id' => env('GHL_PIPELINE_LISTING_ID'), // Funil Angariação (Mais-Valias)
+            'buyers_id'  => env('GHL_PIPELINE_BUYERS_ID'),  // Funil Compradores (IMT)
         ],
         
         'stages' => [
             'leads_new_id'   => env('GHL_STAGE_LEADS_NEW_ID'),
             'credit_new_id'  => env('GHL_STAGE_CREDIT_NEW_ID'),
+            'listing_new_id' => env('GHL_STAGE_LISTING_NEW_ID'), // Etapa Angariação
+            'buyers_new_id'  => env('GHL_STAGE_BUYERS_NEW_ID'),  // Etapa Compradores
         ],
     ],
 

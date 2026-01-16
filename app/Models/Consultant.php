@@ -28,7 +28,8 @@ class Consultant extends Model
         'instagram',
         'linkedin',
         'tiktok',
-        'whatsapp'
+        'whatsapp',
+        'crm_user_id',
     ];
 
     protected $casts = [
