@@ -244,28 +244,28 @@ class PropertyController extends Controller
 
         return view('properties.index', compact('properties'));
     }
-
-    public function show(Request $request, Property $property)
-    {
-        if (!$property->is_visible) {
-            abort(404);
-        }
-
-        $property->load(['images' => function ($query) {
-            $query->orderBy('order', 'asc');
-        }, 'consultant']);
-
-        $consultant = null;
-
-        if ($request->has('cid')) {
-            $consultant = Consultant::find($request->cid);
-        } elseif ($request->route('domain')) {
-             $domain = preg_replace('/^www\./', '', $request->route('domain'));
-             $consultant = Consultant::where('domain', $domain)
-                ->orWhere('lp_slug', $domain)
-                ->first();
-        }
-
-        return view('properties.show', compact('property', $consultant));
+public function show(Request $request, Property $property)
+{
+    if (!$property->is_visible) {
+        abort(404);
     }
+
+    $property->load(['images' => function ($query) {
+        $query->orderBy('order', 'asc');
+    }, 'consultant']);
+
+    $consultant = null;
+
+    if ($request->has('cid')) {
+        $consultant = Consultant::find($request->cid);
+    } elseif ($request->route('domain')) {
+         $domain = preg_replace('/^www\./', '', $request->route('domain'));
+         $consultant = Consultant::where('domain', $domain)
+            ->orWhere('lp_slug', $domain)
+            ->first();
+    }
+
+    // A CORREÇÃO ESTÁ AQUI: 'consultant' como string dentro do compact
+    return view('properties.show', compact('property', 'consultant'));
+}
 }
