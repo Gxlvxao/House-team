@@ -7,9 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     {{-- IMPORTANTE: AlpineJS adicionado para o Dropdown funcionar --}}
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    {{-- Importante: SortableJS para reordenar fotos --}}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
-    
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
@@ -78,17 +75,9 @@
                     <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
                         <h3 class="text-lg font-bold text-ht-navy mb-6">Informações Básicas</h3>
                         <div class="grid grid-cols-1 gap-6">
-                            
-                            {{-- ALTERAÇÃO AQUI: Título e Ordem --}}
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                                <div class="md:col-span-3">
-                                    <label class="block text-xs font-bold uppercase tracking-wide text-ht-navy mb-2 ml-1">Título</label>
-                                    <input type="text" name="title" value="{{ old('title', $property->title) }}" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-ht-blue focus:ring-1 focus:ring-ht-blue transition-all">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold uppercase tracking-wide text-ht-navy mb-2 ml-1">Ordem</label>
-                                    <input type="number" name="order" value="{{ old('order', $property->order) }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-ht-blue focus:ring-1 focus:ring-ht-blue transition-all">
-                                </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wide text-ht-navy mb-2 ml-1">Título</label>
+                                <input type="text" name="title" value="{{ old('title', $property->title) }}" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-ht-blue focus:ring-1 focus:ring-ht-blue transition-all">
                             </div>
 
                             {{-- IMPLEMENTAÇÃO DO DROPDOWN DE CONSULTORES (EDIT) --}}
@@ -327,11 +316,10 @@
                         <div class="p-6 bg-slate-50 border border-dashed border-slate-300 rounded-2xl">
                             <label class="block text-sm font-bold text-ht-navy mb-2 ml-1">Adicionar Novas Fotos (Acumulativo)</label>
                             <input type="file" id="gallery-input" name="gallery[]" multiple accept="image/*" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-ht-navy file:text-white hover:file:bg-slate-700 cursor-pointer">
-                            <p class="text-[10px] text-slate-400 mt-2 ml-1 font-bold italic">Arraste para reordenar. Pode selecionar várias vezes.</p>
+                            <p class="text-[10px] text-slate-400 mt-2 ml-1 font-bold italic">As novas fotos selecionadas aparecerão abaixo para confirmação.</p>
 
                             <div id="gallery-preview" class="grid grid-cols-3 md:grid-cols-5 gap-4 mt-6">
-                                {{-- Preview via JS --}}
-                            </div>
+                                </div>
                         </div>
                     </div>
 
@@ -350,75 +338,52 @@
         </main>
     </div>
 
-    {{-- Script TUNADO com SortableJS e DataTransfer (Igual ao Create) --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const input = document.getElementById('gallery-input');
             const previewContainer = document.getElementById('gallery-preview');
-            
-            // Inicializa o SortableJS no container de preview
-            new Sortable(previewContainer, {
-                animation: 150,
-                ghostClass: 'opacity-50',
-                onEnd: function() {
-                    updateFileInput(); // Atualiza o input sempre que arrastar
-                }
-            });
+            const dt = new DataTransfer();
 
             input.addEventListener('change', function() {
-                // Processa os novos arquivos selecionados
-                Array.from(this.files).forEach(file => {
-                    // Cria o elemento visual
-                    const div = document.createElement('div');
-                    div.className = "relative h-24 w-full rounded-xl overflow-hidden shadow-sm border border-slate-200 group cursor-move hover:border-ht-blue transition-all bg-white";
-                    
-                    // Armazena o objeto File diretamente no elemento DOM
-                    div.file = file; 
+                for(let i = 0; i < this.files.length; i++) {
+                    const file = this.files[i];
+                    dt.items.add(file);
 
                     const reader = new FileReader();
                     reader.onload = function(e) {
+                        const div = document.createElement('div');
+                        div.className = "relative h-24 w-full rounded-xl overflow-hidden shadow-md border-2 border-white group animate-pulse-once";
+                        
                         div.innerHTML = `
-                            <img src="${e.target.result}" class="h-full w-full object-cover pointer-events-none">
-                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
-                            <button type="button" class="remove-btn absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110">
+                            <img src="${e.target.result}" class="h-full w-full object-cover">
+                            <button type="button" class="remove-btn absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
                                 &times;
                             </button>
-                            <div class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[8px] p-1 truncate text-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                ${file.name}
-                            </div>
                         `;
 
-                        // Lógica de remoção
                         div.querySelector('.remove-btn').addEventListener('click', function() {
                             div.remove();
-                            updateFileInput(); // Atualiza o input ao remover
+                            removeFromDataTransfer(file);
                         });
-                    };
-                    reader.readAsDataURL(file);
-                    
-                    previewContainer.appendChild(div);
-                });
 
-                // Atualiza o input com a nova coleção (acumulada)
-                updateFileInput();
+                        previewContainer.appendChild(div);
+                    }
+                    reader.readAsDataURL(file);
+                }
+                this.files = dt.files;
             });
 
-            /**
-             * A Mágica: Reconstrói o input.files baseado na ordem visual do DOM
-             */
-            function updateFileInput() {
-                const dt = new DataTransfer();
-                
-                // Itera sobre os elementos visuais na ordem atual
-                const previewItems = previewContainer.children;
-                
-                for (let i = 0; i < previewItems.length; i++) {
-                    if (previewItems[i].file) {
-                        dt.items.add(previewItems[i].file);
+            function removeFromDataTransfer(fileToRemove) {
+                const newDt = new DataTransfer();
+                for (let i = 0; i < dt.files.length; i++) {
+                    if (dt.files[i] !== fileToRemove) {
+                        newDt.items.add(dt.files[i]);
                     }
                 }
-
-                // Atualiza o input real (que será enviado ao servidor)
+                dt.items.clear();
+                for (let i = 0; i < newDt.files.length; i++) {
+                    dt.items.add(newDt.files[i]);
+                }
                 input.files = dt.files;
             }
         });
