@@ -29,7 +29,7 @@ class PropertyController extends Controller
     {
         $data = $request->validate([
             'title' => 'required|string|max:255',
-            'order' => 'nullable|integer', // <--- NOVO: Campo de Ordem
+            'order' => 'nullable|integer',
             'crm_code' => 'nullable|string|max:50',
             'consultant_id' => 'nullable|exists:consultants,id',
             'price' => 'nullable|numeric',
@@ -44,26 +44,16 @@ class PropertyController extends Controller
             'bathrooms' => 'nullable|integer',
             'garages' => 'nullable|integer',
             'energy_rating' => 'nullable|string',
-            'condition' => 'nullable|string',
             'video_url' => 'nullable|url',
             'whatsapp_number' => 'nullable|string',
             'description' => 'nullable|string',
             'cover_image' => 'nullable|image|max:20480',
             'gallery' => 'nullable|array',
             'gallery.*' => 'image|max:20480',
-            'has_pool' => 'nullable',
-            'has_garden' => 'nullable',
-            'has_lift' => 'nullable',
-            'has_terrace' => 'nullable',
-            'has_air_conditioning' => 'nullable',
-            'is_furnished' => 'nullable',
-            'is_kitchen_equipped' => 'nullable',
         ]);
 
         $data['slug'] = Str::slug($data['title']) . '-' . time();
         
-        // LÓGICA DE ORDEM AUTOMÁTICA (Igual Consultores)
-        // Se não preencher, assume o último + 1
         if (!isset($data['order']) || $data['order'] === null) {
             $maxOrder = Property::max('order');
             $data['order'] = $maxOrder ? $maxOrder + 1 : 1;
@@ -85,12 +75,13 @@ class PropertyController extends Controller
         $property = Property::create($data);
 
         if ($request->hasFile('gallery')) {
-            foreach ($request->file('gallery') as $image) {
+            foreach ($request->file('gallery') as $index => $image) {
                 if ($image->isValid()) {
                     $path = $image->store('properties/gallery', 'public');
                     PropertyImage::create([
                         'property_id' => $property->id,
-                        'path' => $path
+                        'path' => $path,
+                        'order' => $index
                     ]);
                 }
             }
@@ -105,11 +96,14 @@ class PropertyController extends Controller
         return view('admin.properties.edit', compact('property', 'consultants'));
     }
 
+    /**
+     * UPDATE PROFISSIONAL: Sincroniza Ordem Visual e Deleta do Disco
+     */
     public function update(Request $request, Property $property)
     {
         $data = $request->validate([
             'title' => 'required|string|max:255',
-            'order' => 'nullable|integer', // <--- NOVO: Campo de Ordem
+            'order' => 'nullable|integer',
             'crm_code' => 'nullable|string|max:50',
             'consultant_id' => 'nullable|exists:consultants,id',
             'price' => 'nullable|numeric',
@@ -124,30 +118,17 @@ class PropertyController extends Controller
             'bathrooms' => 'nullable|integer',
             'garages' => 'nullable|integer',
             'energy_rating' => 'nullable|string',
-            'condition' => 'nullable|string',
             'video_url' => 'nullable|url',
             'whatsapp_number' => 'nullable|string',
             'description' => 'nullable|string',
             'cover_image' => 'nullable|image|max:20480',
             'gallery' => 'nullable|array',
             'gallery.*' => 'image|max:20480',
-            'has_pool' => 'nullable',
-            'has_garden' => 'nullable',
-            'has_lift' => 'nullable',
-            'has_terrace' => 'nullable',
-            'has_air_conditioning' => 'nullable',
-            'is_furnished' => 'nullable',
-            'is_kitchen_equipped' => 'nullable',
+            'images_order' => 'nullable|string', // IDs das fotos existentes na nova ordem
         ]);
 
         if ($property->title !== $data['title']) {
             $data['slug'] = Str::slug($data['title']) . '-' . time();
-        }
-
-        // Se o usuário limpar o campo ordem, podemos manter o anterior ou deixar nulo.
-        // Aqui opto por manter o anterior para evitar "perder" o imóvel no fim da lista sem querer.
-        if (!isset($data['order']) && $request->filled('title')) {
-             unset($data['order']); 
         }
 
         $features = [
@@ -168,13 +149,38 @@ class PropertyController extends Controller
 
         $property->update($data);
 
+        // --- GESTÃO DA GALERIA UNIFICADA ---
+
+        // 1. Processar fotos existentes (Remoção e Reordenação)
+        $existingOrderIds = $request->filled('images_order') 
+            ? explode(',', $request->images_order) 
+            : [];
+
+        // Deletar do banco e do disco as fotos que o usuário removeu no painel
+        $imagesToDelete = $property->images()->whereNotIn('id', $existingOrderIds)->get();
+        foreach ($imagesToDelete as $img) {
+            Storage::disk('public')->delete($img->path);
+            $img->delete();
+        }
+
+        // Atualizar a ordem das fotos que ficaram conforme o drag & drop
+        foreach ($existingOrderIds as $index => $id) {
+            PropertyImage::where('id', $id)->update(['order' => $index]);
+        }
+
+        // 2. Processar novas fotos
         if ($request->hasFile('gallery')) {
+            // Pegamos o último índice para as novas entrarem depois das existentes
+            $lastOrder = PropertyImage::where('property_id', $property->id)->max('order') ?? -1;
+
             foreach ($request->file('gallery') as $image) {
                 if ($image->isValid()) {
+                    $lastOrder++;
                     $path = $image->store('properties/gallery', 'public');
                     PropertyImage::create([
                         'property_id' => $property->id,
-                        'path' => $path
+                        'path' => $path,
+                        'order' => $lastOrder
                     ]);
                 }
             }
@@ -194,7 +200,7 @@ class PropertyController extends Controller
         }
         
         $property->delete();
-        return back()->with('success', 'Imóvel removido.');
+        return back()->with('success', 'Imóvel removido permanentemente.');
     }
 
     public function publicIndex(Request $request)
@@ -260,6 +266,6 @@ class PropertyController extends Controller
                 ->first();
         }
 
-        return view('properties.show', compact('property', 'consultant'));
+        return view('properties.show', compact('property', $consultant));
     }
 }

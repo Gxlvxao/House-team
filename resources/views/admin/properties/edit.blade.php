@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Imóvel | House Team Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    {{-- IMPORTANTE: AlpineJS adicionado para o Dropdown funcionar --}}
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    {{-- Importante: SortableJS para reordenar fotos --}}
+    
+    {{-- Scripts de Terceiros - Ordem de carregamento crítica --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
@@ -79,7 +79,6 @@
                         <h3 class="text-lg font-bold text-ht-navy mb-6">Informações Básicas</h3>
                         <div class="grid grid-cols-1 gap-6">
                             
-                            {{-- ALTERAÇÃO AQUI: Título e Ordem --}}
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                                 <div class="md:col-span-3">
                                     <label class="block text-xs font-bold uppercase tracking-wide text-ht-navy mb-2 ml-1">Título</label>
@@ -91,9 +90,8 @@
                                 </div>
                             </div>
 
-                            {{-- IMPLEMENTAÇÃO DO DROPDOWN DE CONSULTORES (EDIT) --}}
+                            {{-- DROPWDOWN DE CONSULTORES BLINDADO --}}
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-50">
-                                {{-- LADO ESQUERDO: CONSULTOR --}}
                                 <div>
                                     <label class="block text-xs font-bold uppercase tracking-wide text-ht-navy mb-2 ml-1">Consultor Responsável</label>
                                     
@@ -102,7 +100,17 @@
                                             search: '', 
                                             selectedId: '{{ $property->consultant_id }}', 
                                             selectedName: '{{ $property->consultant ? $property->consultant->name : 'Selecione um Consultor' }}',
-                                            options: {{ $consultants->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'photo' => asset('img/team/'.$c->photo)])->toJson() }}
+                                            options: {{ $consultants->map(function($c) {
+                                                $photoPath = ($c->photo && file_exists(public_path('img/team/'.$c->photo))) 
+                                                    ? asset('img/team/'.$c->photo) 
+                                                    : 'https://ui-avatars.com/api/?name='.urlencode($c->name).'&color=7F9CF5&background=EBF4FF';
+                                                
+                                                return [
+                                                    'id' => $c->id,
+                                                    'name' => $c->name,
+                                                    'photo' => $photoPath
+                                                ];
+                                            })->toJson() }}
                                          }" 
                                          class="relative">
                                         
@@ -134,49 +142,32 @@
                                                     <span class="text-sm font-medium text-ht-navy" x-text="option.name"></span>
                                                 </div>
                                             </template>
-                                            
-                                            <div x-show="options.filter(i => i.name.toLowerCase().includes(search.toLowerCase())).length === 0" class="p-3 text-xs text-slate-400 text-center">
-                                                Nenhum consultor encontrado.
-                                            </div>
                                         </div>
                                     </div>
-                                    <p class="text-[10px] text-slate-400 mt-1 ml-1">Se vazio, usará o WhatsApp padrão nas páginas.</p>
                                 </div>
 
-                                {{-- LADO DIREITO: CÓDIGO CRM [NOVO] --}}
                                 <div>
                                     <label class="block text-xs font-bold uppercase tracking-wide text-ht-navy mb-2 ml-1">Código CRM (Ref)</label>
                                     <input type="text" name="crm_code" value="{{ old('crm_code', $property->crm_code) }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-ht-blue focus:ring-1 focus:ring-ht-blue transition-all" placeholder="Ex: IMO-1234">
-                                    <p class="text-[10px] text-slate-400 mt-1 ml-1">Referência para integração com HighLevel.</p>
                                 </div>
                             </div>
                             
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div>
                                     <label class="block text-xs font-bold uppercase tracking-wide text-ht-navy mb-2 ml-1">Tipo</label>
-                                    <div class="relative">
-                                        <select name="type" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 focus:outline-none focus:border-ht-blue focus:ring-1 focus:ring-ht-blue appearance-none transition-all">
-                                            <option value="Apartamento" {{ old('type', $property->type) == 'Apartamento' ? 'selected' : '' }}>Apartamento</option>
-                                            <option value="Moradia" {{ old('type', $property->type) == 'Moradia' ? 'selected' : '' }}>Moradia / Villa</option>
-                                            <option value="Terreno" {{ old('type', $property->type) == 'Terreno' ? 'selected' : '' }}>Terreno</option>
-                                            <option value="Comercial" {{ old('type', $property->type) == 'Comercial' ? 'selected' : '' }}>Comercial</option>
-                                        </select>
-                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
-                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                                        </div>
-                                    </div>
+                                    <select name="type" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 focus:outline-none focus:border-ht-blue focus:ring-1 focus:ring-ht-blue appearance-none transition-all">
+                                        <option value="Apartamento" {{ old('type', $property->type) == 'Apartamento' ? 'selected' : '' }}>Apartamento</option>
+                                        <option value="Moradia" {{ old('type', $property->type) == 'Moradia' ? 'selected' : '' }}>Moradia / Villa</option>
+                                        <option value="Terreno" {{ old('type', $property->type) == 'Terreno' ? 'selected' : '' }}>Terreno</option>
+                                        <option value="Comercial" {{ old('type', $property->type) == 'Comercial' ? 'selected' : '' }}>Comercial</option>
+                                    </select>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold uppercase tracking-wide text-ht-navy mb-2 ml-1">Status</label>
-                                    <div class="relative">
-                                        <select name="status" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 focus:outline-none focus:border-ht-blue focus:ring-1 focus:ring-ht-blue appearance-none transition-all">
-                                            <option value="Venda" {{ old('status', $property->status) == 'Venda' ? 'selected' : '' }}>Venda</option>
-                                            <option value="Arrendamento" {{ old('status', $property->status) == 'Arrendamento' ? 'selected' : '' }}>Arrendamento</option>
-                                        </select>
-                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
-                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                                        </div>
-                                    </div>
+                                    <select name="status" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 focus:outline-none focus:border-ht-blue focus:ring-1 focus:ring-ht-blue appearance-none transition-all">
+                                        <option value="Venda" {{ old('status', $property->status) == 'Venda' ? 'selected' : '' }}>Venda</option>
+                                        <option value="Arrendamento" {{ old('status', $property->status) == 'Arrendamento' ? 'selected' : '' }}>Arrendamento</option>
+                                    </select>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold uppercase tracking-wide text-ht-navy mb-2 ml-1">Preço (€)</label>
@@ -186,6 +177,7 @@
                         </div>
                     </div>
 
+                    {{-- LOCALIZAÇÃO E DETALHES --}}
                     <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
                         <h3 class="text-lg font-bold text-ht-navy mb-6">Localização e Detalhes</h3>
                         <div class="grid grid-cols-2 gap-6 mb-4">
@@ -213,51 +205,19 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold uppercase tracking-wide text-ht-navy mb-2 ml-1">Energia</label>
-                                <div class="relative">
-                                    <select name="energy_rating" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 focus:outline-none focus:border-ht-blue focus:ring-1 focus:ring-ht-blue appearance-none transition-all">
-                                        <option value="A+" {{ old('energy_rating', $property->energy_rating) == 'A+' ? 'selected' : '' }}>A+</option>
-                                        <option value="A" {{ old('energy_rating', $property->energy_rating) == 'A' ? 'selected' : '' }}>A</option>
-                                        <option value="B" {{ old('energy_rating', $property->energy_rating) == 'B' ? 'selected' : '' }}>B</option>
-                                        <option value="C" {{ old('energy_rating', $property->energy_rating) == 'C' ? 'selected' : '' }}>C</option>
-                                        <option value="D" {{ old('energy_rating', $property->energy_rating) == 'D' ? 'selected' : '' }}>D</option>
-                                        <option value="E" {{ old('energy_rating', $property->energy_rating) == 'E' ? 'selected' : '' }}>E</option>
-                                    </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
-                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- [NOVO] Grid atualizado para incluir garagem --}}
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-                            <div>
-                                <label class="block text-xs font-bold uppercase tracking-wide text-ht-navy mb-2 ml-1">Andar</label>
-                                <input type="text" name="floor" value="{{ old('floor', $property->floor) }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-ht-blue focus:ring-1 focus:ring-ht-blue transition-all" placeholder="Ex: 2º Esq, R/C">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold uppercase tracking-wide text-ht-navy mb-2 ml-1">Orientação Solar</label>
-                                <div class="relative">
-                                    <select name="orientation" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 focus:outline-none focus:border-ht-blue focus:ring-1 focus:ring-ht-blue appearance-none transition-all">
-                                        <option value="">Selecione</option>
-                                        <option value="Norte" {{ old('orientation', $property->orientation) == 'Norte' ? 'selected' : '' }}>Norte</option>
-                                        <option value="Sul" {{ old('orientation', $property->orientation) == 'Sul' ? 'selected' : '' }}>Sul</option>
-                                        <option value="Este" {{ old('orientation', $property->orientation) == 'Este' ? 'selected' : '' }}>Este</option>
-                                        <option value="Oeste" {{ old('orientation', $property->orientation) == 'Oeste' ? 'selected' : '' }}>Oeste</option>
-                                        <option value="Nascente/Poente" {{ old('orientation', $property->orientation) == 'Nascente/Poente' ? 'selected' : '' }}>Nascente/Poente</option>
-                                    </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
-                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                                    </div>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold uppercase tracking-wide text-ht-navy mb-2 ml-1">Garagens / Lugares</label>
-                                <input type="number" name="garages" value="{{ old('garages', $property->garages) }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-ht-blue focus:ring-1 focus:ring-ht-blue transition-all" placeholder="0">
+                                <select name="energy_rating" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 focus:outline-none focus:border-ht-blue focus:ring-1 focus:ring-ht-blue transition-all">
+                                    <option value="A+" {{ old('energy_rating', $property->energy_rating) == 'A+' ? 'selected' : '' }}>A+</option>
+                                    <option value="A" {{ old('energy_rating', $property->energy_rating) == 'A' ? 'selected' : '' }}>A</option>
+                                    <option value="B" {{ old('energy_rating', $property->energy_rating) == 'B' ? 'selected' : '' }}>B</option>
+                                    <option value="C" {{ old('energy_rating', $property->energy_rating) == 'C' ? 'selected' : '' }}>C</option>
+                                    <option value="D" {{ old('energy_rating', $property->energy_rating) == 'D' ? 'selected' : '' }}>D</option>
+                                    <option value="E" {{ old('energy_rating', $property->energy_rating) == 'E' ? 'selected' : '' }}>E</option>
+                                </select>
                             </div>
                         </div>
                     </div>
 
+                    {{-- COMODIDADES --}}
                     <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
                         <h3 class="text-lg font-bold text-ht-navy mb-6">Comodidades</h3>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -281,6 +241,7 @@
                         </div>
                     </div>
 
+                    {{-- MÍDIA E GALERIA UNIFICADA --}}
                     <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
                         <h3 class="text-lg font-bold text-ht-navy mb-6 text-center">Mídia e Imagens</h3>
                         
@@ -298,7 +259,7 @@
                         <div class="flex items-center gap-6 mb-8 p-6 bg-slate-50 border border-slate-200 rounded-2xl">
                             <div class="w-24 h-24 bg-slate-200 rounded-xl overflow-hidden shadow-inner flex-shrink-0">
                                 @if($property->cover_image)
-                                    <img src="{{ asset('storage/'.$property->cover_image) }}" class="w-full h-full object-cover">
+                                    <img src="{{ asset('storage/'.$property->cover_image) }}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x400?text=Sem+Capa'">
                                 @else
                                     <div class="w-full h-full flex items-center justify-center text-slate-400 text-[10px] font-bold">SEM CAPA</div>
                                 @endif
@@ -311,26 +272,31 @@
 
                         <hr class="mb-8 border-slate-100">
 
-                        @if($property->images && $property->images->count() > 0)
-                            <div class="mb-8">
-                                <label class="block text-xs font-bold uppercase tracking-wide text-slate-400 mb-4 ml-1">Galeria Atual (No Servidor)</label>
-                                <div class="grid grid-cols-4 md:grid-cols-6 gap-3">
-                                    @foreach($property->images as $img)
-                                        <div class="relative h-20 rounded-xl overflow-hidden border border-slate-200 group">
-                                            <img src="{{ asset('storage/'.$img->path) }}" class="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all">
+                        {{-- GALERIA UNIFICADA (ARRABSTÁVEL) --}}
+                        <div class="p-6 bg-slate-50 border border-dashed border-slate-300 rounded-2xl">
+                            <label class="block text-sm font-bold text-ht-navy mb-2 ml-1">Galeria de Fotos (Arraste para reordenar)</label>
+                            
+                            <input type="file" id="gallery-input" name="gallery[]" multiple accept="image/*" class="mb-6 block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-ht-navy file:text-white hover:file:bg-slate-700 cursor-pointer">
+
+                            {{-- Input oculto para enviar a ordem final dos IDs existentes --}}
+                            <input type="hidden" name="images_order" id="images_order">
+
+                            <div id="unified-gallery" class="grid grid-cols-3 md:grid-cols-5 gap-4">
+                                {{-- FOTOS EXISTENTES --}}
+                                @if($property->images)
+                                    @foreach($property->images->sortBy('order') as $img)
+                                        <div class="relative h-24 w-full rounded-xl overflow-hidden shadow-sm border border-slate-200 group cursor-move bg-white" 
+                                             data-id="{{ $img->id }}" 
+                                             data-type="existing">
+                                            <img src="{{ asset('storage/'.$img->path) }}" class="h-full w-full object-cover pointer-events-none" onerror="this.parentElement.remove();">
+                                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                                            <button type="button" onclick="this.parentElement.remove(); updateGalleryOrder();" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+                                                &times;
+                                            </button>
                                         </div>
                                     @endforeach
-                                </div>
-                            </div>
-                        @endif
-
-                        <div class="p-6 bg-slate-50 border border-dashed border-slate-300 rounded-2xl">
-                            <label class="block text-sm font-bold text-ht-navy mb-2 ml-1">Adicionar Novas Fotos (Acumulativo)</label>
-                            <input type="file" id="gallery-input" name="gallery[]" multiple accept="image/*" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-ht-navy file:text-white hover:file:bg-slate-700 cursor-pointer">
-                            <p class="text-[10px] text-slate-400 mt-2 ml-1 font-bold italic">Arraste para reordenar. Pode selecionar várias vezes.</p>
-
-                            <div id="gallery-preview" class="grid grid-cols-3 md:grid-cols-5 gap-4 mt-6">
-                                {{-- Preview via JS --}}
+                                @endif
+                                {{-- NOVAS FOTOS ENTRARÃO AQUI VIA JS --}}
                             </div>
                         </div>
                     </div>
@@ -350,77 +316,79 @@
         </main>
     </div>
 
-    {{-- Script TUNADO com SortableJS e DataTransfer (Igual ao Create) --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const input = document.getElementById('gallery-input');
-            const previewContainer = document.getElementById('gallery-preview');
-            
-            // Inicializa o SortableJS no container de preview
-            new Sortable(previewContainer, {
-                animation: 150,
-                ghostClass: 'opacity-50',
-                onEnd: function() {
-                    updateFileInput(); // Atualiza o input sempre que arrastar
-                }
-            });
+            const unifiedContainer = document.getElementById('unified-gallery');
+            const orderInput = document.getElementById('images_order');
 
+            // 1. Inicializa SortableJS no Container Unificado
+            if(typeof Sortable !== 'undefined' && unifiedContainer) {
+                new Sortable(unifiedContainer, {
+                    animation: 150,
+                    ghostClass: 'opacity-50',
+                    onEnd: function() {
+                        updateGalleryOrder();
+                    }
+                });
+            }
+
+            // 2. Lógica para Adicionar Novas Fotos na mesma grade
             input.addEventListener('change', function() {
-                // Processa os novos arquivos selecionados
                 Array.from(this.files).forEach(file => {
-                    // Cria o elemento visual
                     const div = document.createElement('div');
                     div.className = "relative h-24 w-full rounded-xl overflow-hidden shadow-sm border border-slate-200 group cursor-move hover:border-ht-blue transition-all bg-white";
-                    
-                    // Armazena o objeto File diretamente no elemento DOM
                     div.file = file; 
+                    div.setAttribute('data-type', 'new');
 
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         div.innerHTML = `
                             <img src="${e.target.result}" class="h-full w-full object-cover pointer-events-none">
-                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
-                            <button type="button" class="remove-btn absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110">
+                            <button type="button" class="remove-btn absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
                                 &times;
                             </button>
-                            <div class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[8px] p-1 truncate text-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                ${file.name}
-                            </div>
                         `;
 
-                        // Lógica de remoção
                         div.querySelector('.remove-btn').addEventListener('click', function() {
                             div.remove();
-                            updateFileInput(); // Atualiza o input ao remover
+                            updateGalleryOrder();
                         });
                     };
                     reader.readAsDataURL(file);
-                    
-                    previewContainer.appendChild(div);
+                    unifiedContainer.appendChild(div);
                 });
-
-                // Atualiza o input com a nova coleção (acumulada)
-                updateFileInput();
+                updateGalleryOrder();
             });
 
             /**
-             * A Mágica: Reconstrói o input.files baseado na ordem visual do DOM
+             * Sincroniza Ordem Visual com Inputs Reais
              */
-            function updateFileInput() {
+            function updateGalleryOrder() {
                 const dt = new DataTransfer();
-                
-                // Itera sobre os elementos visuais na ordem atual
-                const previewItems = previewContainer.children;
-                
-                for (let i = 0; i < previewItems.length; i++) {
-                    if (previewItems[i].file) {
-                        dt.items.add(previewItems[i].file);
+                const existingIds = [];
+                const items = unifiedContainer.children;
+
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
+                    
+                    // Se for imagem existente, guarda o ID na ordem
+                    if (item.getAttribute('data-type') === 'existing') {
+                        existingIds.push(item.getAttribute('data-id'));
+                    }
+                    
+                    // Se for nova, adiciona ao DataTransfer do file input
+                    if (item.getAttribute('data-type') === 'new' && item.file) {
+                        dt.items.add(item.file);
                     }
                 }
 
-                // Atualiza o input real (que será enviado ao servidor)
                 input.files = dt.files;
+                orderInput.value = existingIds.join(',');
             }
+
+            // Inicializa a ordem no carregamento
+            updateGalleryOrder();
         });
     </script>
 </body>
