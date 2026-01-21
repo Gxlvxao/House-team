@@ -14,52 +14,9 @@ class PropertyController extends Controller
 {
     public function index()
     {
-        // Alterado para respeitar a ordenação manual no painel
+        // Mantém a ordenação definida no Model (order ASC, created_at DESC)
         $properties = Property::ordered()->paginate(10);
         return view('admin.properties.index', compact('properties'));
-    }
-
-    /**
-     * Recebe a nova ordem via AJAX e salva no banco (Drag & Drop na página atual)
-     */
-    public function reorder(Request $request)
-    {
-        $request->validate([
-            'ids' => 'required|array',
-            'ids.*' => 'exists:properties,id',
-        ]);
-
-        try {
-            DB::transaction(function () use ($request) {
-                foreach ($request->ids as $index => $id) {
-                    // O índice do array vira a ordem (1, 2, 3...)
-                    Property::where('id', $id)->update(['order' => $index + 1]);
-                }
-            });
-
-            return response()->json(['status' => 'success']);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error'], 500);
-        }
-    }
-
-    /**
-     * NOVO: Move o imóvel para a primeira posição absoluta da lista (todas as páginas).
-     * Resolve o problema da paginação no Drag & Drop.
-     */
-    public function moveToTop(Property $property)
-    {
-        // Encontra o menor valor de ordem atual na tabela inteira
-        // Se a tabela estiver vazia (null), assume 0
-        $minOrder = Property::min('order') ?? 0;
-
-        // Define a ordem deste imóvel para ser menor que o mínimo atual
-        // Ex: Se o mínimo é 1, este vira 0. Se é -10, vira -11.
-        $property->update([
-            'order' => $minOrder - 1
-        ]);
-
-        return back()->with('success', 'Imóvel movido para o topo com sucesso!');
     }
 
     public function create()
@@ -72,6 +29,7 @@ class PropertyController extends Controller
     {
         $data = $request->validate([
             'title' => 'required|string|max:255',
+            'order' => 'nullable|integer', // <--- NOVO: Campo de Ordem
             'crm_code' => 'nullable|string|max:50',
             'consultant_id' => 'nullable|exists:consultants,id',
             'price' => 'nullable|numeric',
@@ -103,6 +61,13 @@ class PropertyController extends Controller
         ]);
 
         $data['slug'] = Str::slug($data['title']) . '-' . time();
+        
+        // LÓGICA DE ORDEM AUTOMÁTICA (Igual Consultores)
+        // Se não preencher, assume o último + 1
+        if (!isset($data['order']) || $data['order'] === null) {
+            $maxOrder = Property::max('order');
+            $data['order'] = $maxOrder ? $maxOrder + 1 : 1;
+        }
         
         $features = [
             'has_pool', 'has_garden', 'has_lift', 'has_terrace', 'has_air_conditioning', 
@@ -144,6 +109,7 @@ class PropertyController extends Controller
     {
         $data = $request->validate([
             'title' => 'required|string|max:255',
+            'order' => 'nullable|integer', // <--- NOVO: Campo de Ordem
             'crm_code' => 'nullable|string|max:50',
             'consultant_id' => 'nullable|exists:consultants,id',
             'price' => 'nullable|numeric',
@@ -176,6 +142,12 @@ class PropertyController extends Controller
 
         if ($property->title !== $data['title']) {
             $data['slug'] = Str::slug($data['title']) . '-' . time();
+        }
+
+        // Se o usuário limpar o campo ordem, podemos manter o anterior ou deixar nulo.
+        // Aqui opto por manter o anterior para evitar "perder" o imóvel no fim da lista sem querer.
+        if (!isset($data['order']) && $request->filled('title')) {
+             unset($data['order']); 
         }
 
         $features = [
@@ -262,7 +234,6 @@ class PropertyController extends Controller
             }
         }
 
-        // Alterado de latest() para ordered() para o site refletir a ordem manual
         $properties = $query->ordered()->paginate(9)->withQueryString();
 
         return view('properties.index', compact('properties'));
@@ -270,25 +241,19 @@ class PropertyController extends Controller
 
     public function show(Request $request, Property $property)
     {
-        // Garante que o imóvel está visível
         if (!$property->is_visible) {
             abort(404);
         }
 
-        // Carrega imagens ordenadas
         $property->load(['images' => function ($query) {
             $query->orderBy('order', 'asc');
         }, 'consultant']);
 
-        // LÓGICA DO MODO CONSULTORA
         $consultant = null;
 
-        // 1. Se a URL tiver ?cid=X (Preview ou link compartilhado)
         if ($request->has('cid')) {
             $consultant = Consultant::find($request->cid);
-        }
-        // 2. Se estiver acessando via domínio próprio da consultora
-        elseif ($request->route('domain')) {
+        } elseif ($request->route('domain')) {
              $domain = preg_replace('/^www\./', '', $request->route('domain'));
              $consultant = Consultant::where('domain', $domain)
                 ->orWhere('lp_slug', $domain)

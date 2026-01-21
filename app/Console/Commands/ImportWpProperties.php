@@ -3,70 +3,75 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Http;
-use App\Models\Property;
-use Illuminate\Support\Str;
+use App\Services\WpMigrationService;
+use Illuminate\Support\Facades\DB;
 
 class ImportWpProperties extends Command
 {
-    protected $signature = 'import:wp {url}';
-    protected $description = 'Importa imóveis de um site WordPress via REST API';
+    protected $signature = 'import:wp-properties {--limit= : Quantidade para teste}';
+    protected $description = 'Importa imóveis do Real Homes WP Legacy';
+
+    protected $service;
+
+    public function __construct(WpMigrationService $service)
+    {
+        parent::__construct();
+        $this->service = $service;
+    }
 
     public function handle()
     {
-        $url = $this->argument('url');
-        // Garante que a URL não tem barra no final para evitar //wp-json
-        $endpoint = rtrim($url, '/') . '/wp-json/wp/v2/posts?per_page=100';
-
-        $this->info("Conectando em: $endpoint");
+        $this->info("🔌 Conectando ao banco legado...");
 
         try {
-            $response = Http::get($endpoint);
+            DB::connection('wordpress')->getPdo();
         } catch (\Exception $e) {
-            $this->error('Erro de conexão: ' . $e->getMessage());
-            return;
+            $this->error("Erro de conexão: " . $e->getMessage());
+            $this->warn("Verifique o config/database.php e se o banco 'house_legacy_wp' existe.");
+            return 1;
         }
 
-        if ($response->failed()) {
-            $this->error('Falha ao conectar na API do WP. Status: ' . $response->status());
-            return;
+        $query = DB::connection('wordpress')
+            ->table('posts')
+            ->where('post_type', 'property') // O post_type que descobrimos
+            ->where('post_status', 'publish')
+            ->orderBy('ID', 'desc');
+
+        if ($this->option('limit')) {
+            $query->limit($this->option('limit'));
         }
 
-        $posts = $response->json();
+        $total = $query->count();
+        $this->info("🏠 Encontrados {$total} imóveis ativos.");
 
-        if (empty($posts)) {
-            $this->warn('Nenhum imóvel encontrado nessa URL.');
-            return;
-        }
+        $bar = $this->output->createProgressBar($total);
+        $bar->start();
 
-        $bar = $this->output->createProgressBar(count($posts));
+        $stats = ['imported' => 0, 'skipped' => 0, 'error' => 0];
 
-        foreach ($posts as $post) {
-            $title = $post['title']['rendered'] ?? 'Sem Título';
-            $slug = $post['slug'] ?? Str::slug($title);
-            $content = strip_tags($post['content']['rendered'] ?? '');
-
-            // CORREÇÃO:
-            // 1. Usamos 'slug' no updateOrCreate pois 'external_id' não existe na sua tabela.
-            // 2. 'venda' vai para o campo 'status', e definimos um 'type' padrão.
-            
-            Property::updateOrCreate(
-                ['slug' => $slug], 
-                [
-                    'title'       => $title,
-                    'description' => $content,
-                    'price'       => 0, 
-                    'status'      => 'Venda',        // Correção: Status é Venda/Arrendamento
-                    'type'        => 'Apartamento',  // Valor padrão obrigatório (ajuste se o WP fornecer isso)
-                    'is_visible'  => false           // Sugestão: Importar como oculto para você revisar depois
-                ]
-            );
-
+        foreach ($query->cursor() as $post) {
+            try {
+                $result = $this->service->importProperty($post);
+                
+                if ($result === 'imported') $stats['imported']++;
+                elseif ($result === 'skipped') $stats['skipped']++;
+                
+            } catch (\Exception $e) {
+                $stats['error']++;
+                // $this->error("Erro no ID {$post->ID}: " . $e->getMessage()); // Descomente para debug
+            }
             $bar->advance();
         }
 
         $bar->finish();
-        $this->newLine();
-        $this->info('Importação concluída com sucesso!');
+        $this->newLine(2);
+        $this->table(
+            ['Status', 'Quantidade'],
+            [
+                ['Importados', $stats['imported']],
+                ['Pulados (Já existiam)', $stats['skipped']],
+                ['Erros', $stats['error']],
+            ]
+        );
     }
 }

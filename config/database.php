@@ -113,6 +113,21 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
+        'wordpress' => [
+            'driver' => 'mysql',
+            'host' => '127.0.0.1',
+            'port' => '3306',
+            'database' => 'house_legacy_wp', // O banco que criamos no terminal
+            'username' => 'root',
+            'password' => '', // Se tiver senha no XAMPP, coloque aqui
+            'unix_socket' => '',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => 'wphz_', // O prefixo das tabelas que vimos no SQL
+            'strict' => false,
+            'engine' => null,
+        ],
+
     ],
 
     /*
