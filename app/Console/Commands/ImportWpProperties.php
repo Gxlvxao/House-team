@@ -31,20 +31,45 @@ class ImportWpProperties extends Command
             return 1;
         }
 
+        // 1. Diagnóstico: Conta quantos existem no total vs quantos estão publicados
+        $totalGeral = DB::connection('wordpress')
+            ->table('posts')
+            ->where('post_type', 'property')
+            ->count();
+            
+        $totalPublicados = DB::connection('wordpress')
+            ->table('posts')
+            ->where('post_type', 'property')
+            ->where('post_status', 'publish')
+            ->count();
+
+        $this->info("📊 Diagnóstico do Banco Legado:");
+        $this->line("   - Total de Imóveis (Tudo): $totalGeral");
+        $this->line("   - Apenas Publicados: $totalPublicados");
+        
+        // 2. Pergunta qual estratégia seguir
+        $importarTudo = $this->confirm("Deseja importar TODOS os $totalGeral imóveis (incluindo rascunhos, vendidos e lixeira)?", true);
+
         $query = DB::connection('wordpress')
             ->table('posts')
-            ->where('post_type', 'property') // O post_type que descobrimos
-            ->where('post_status', 'publish')
-            ->orderBy('ID', 'desc');
+            ->where('post_type', 'property');
+
+        // Se NÃO quiser tudo, mantém o filtro de 'publish'
+        if (!$importarTudo) {
+            $query->where('post_status', 'publish');
+        }
+        // Se quiser tudo, removemos o filtro de status e ele trará tudo
+
+        $query->orderBy('ID', 'desc');
 
         if ($this->option('limit')) {
             $query->limit($this->option('limit'));
         }
 
-        $total = $query->count();
-        $this->info("🏠 Encontrados {$total} imóveis ativos.");
+        $totalParaImportar = $query->count();
+        $this->info("🚀 Iniciando importação de {$totalParaImportar} imóveis...");
 
-        $bar = $this->output->createProgressBar($total);
+        $bar = $this->output->createProgressBar($totalParaImportar);
         $bar->start();
 
         $stats = ['imported' => 0, 'skipped' => 0, 'error' => 0];
@@ -58,7 +83,8 @@ class ImportWpProperties extends Command
                 
             } catch (\Exception $e) {
                 $stats['error']++;
-                // $this->error("Erro no ID {$post->ID}: " . $e->getMessage()); // Descomente para debug
+                // Descomente abaixo para ver erros específicos no terminal
+                // $this->error("Erro no ID {$post->ID}: " . $e->getMessage());
             }
             $bar->advance();
         }

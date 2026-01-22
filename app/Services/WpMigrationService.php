@@ -38,7 +38,7 @@ class WpMigrationService
 
     public function importProperty($wpPost)
     {
-        // 1. Verifica duplicidade (se já rodou antes)
+        // 1. Verifica duplicidade (Ignora se já existir)
         $legacySlug = Str::slug($wpPost->post_title) . '-' . $wpPost->ID;
         if (Property::where('slug', $legacySlug)->exists()) {
             return 'skipped';
@@ -63,7 +63,7 @@ class WpMigrationService
         
         // Descrição limpa
         $desc = strip_tags($wpPost->post_content, '<p><br><ul><li>');
-        $property->description = preg_replace('/\[.*?\]/', '', $desc); // Remove shortcodes
+        $property->description = preg_replace('/\[.*?\]/', '', $desc); 
 
         // Status e Tipo
         $property->status = $this->statusMap[$statusTerm] ?? 'Venda';
@@ -109,7 +109,11 @@ class WpMigrationService
         $property->has_air_conditioning = $this->hasFeature($wpPost->ID, ['ar condicionado', 'air']);
         $property->is_furnished = $this->hasFeature($wpPost->ID, ['mobilado', 'furnished']);
 
+        // [ALTERAÇÃO AQUI] Lógica inteligente de visibilidade
+        // Se no WP era 'publish', entra como VISÍVEL.
+        // Se era 'draft', 'trash', 'pending', entra como INVISÍVEL.
         $property->is_visible = ($wpPost->post_status === 'publish');
+        
         $property->order = 9999;
 
         $property->save();
@@ -162,15 +166,22 @@ class WpMigrationService
 
         if (!$wpPath) return null;
 
-        // Tenta encontrar o arquivo na estrutura extraída
-        $sourcePath = storage_path('app/legacy_uploads/' . $wpPath);
-        
-        if (!file_exists($sourcePath)) {
-            $filename = basename($wpPath);
-            $sourcePath = storage_path('app/legacy_uploads/' . $filename);
+        // Caminhos possíveis (Lógica "blindada" que criamos antes)
+        $pathsToCheck = [
+            storage_path('app/legacy_uploads/wp-content/uploads/' . $wpPath), // Padrão novo
+            storage_path('app/legacy_uploads/' . $wpPath),                   // Padrão antigo
+            storage_path('app/legacy_uploads/wp-content/uploads/' . basename($wpPath)), // Fallback na raiz
+        ];
+
+        $sourcePath = null;
+        foreach ($pathsToCheck as $path) {
+            if (file_exists($path)) {
+                $sourcePath = $path;
+                break;
+            }
         }
 
-        if (!file_exists($sourcePath)) {
+        if (!$sourcePath) {
             return null;
         }
 
@@ -178,7 +189,8 @@ class WpMigrationService
         $newFilename = 'imp_' . Str::random(10) . '.' . $extension;
         $destPath = "properties/{$subfolder}/{$newFilename}";
 
-        Storage::disk('public')->put($destPath, file_get_contents($sourcePath));
+        // Stream para economizar memória nos 13GB
+        Storage::disk('public')->put($destPath, fopen($sourcePath, 'r'));
 
         return $destPath;
     }
@@ -218,7 +230,7 @@ class WpMigrationService
     }
 }
 
-// Helpers fora da classe para lidar com serialização do WP
+// Helpers para serialização
 if (!function_exists('maybe_unserialize')) {
     function maybe_unserialize($data) {
         if (is_serialized($data)) return @unserialize($data);
@@ -230,8 +242,7 @@ if (!function_exists('maybe_unserialize')) {
         $data = trim($data);
         if ('N;' == $data) return true;
         if (strlen($data) < 4) return false;
-        if (':' !== $data[1]) return false; // <--- CORRIGIDO AQUI (Adicionei parênteses)
-        
+        if (':' !== $data[1]) return false;
         if ($strict) {
             $lastc = substr($data, -1);
             if (';' !== $lastc && '}' !== $lastc) return false;
