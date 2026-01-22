@@ -12,10 +12,28 @@ use Illuminate\Support\Facades\DB;
 
 class PropertyController extends Controller
 {
-    public function index()
+    /**
+     * INDEX ADMIN: Com filtros de Status e Visibilidade corrigidos
+     */
+    public function index(Request $request)
     {
-        // Mantém a ordenação definida no Model (order ASC, created_at DESC)
-        $properties = Property::ordered()->paginate(10);
+        $query = Property::query();
+
+        // Filtro por Negócio (Venda/Arrendamento)
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filtro por Visibilidade (Ativo/Inativo)
+        // Ajuste: Forçando 1 ou 0 para garantir compatibilidade com o MySQL tinyint
+        if ($request->filled('visibility')) {
+            $value = ($request->visibility === 'active') ? 1 : 0;
+            $query->where('is_visible', $value);
+        }
+
+        // Mantém a ordenação definida no Model e persiste os filtros na paginação
+        $properties = $query->ordered()->paginate(10)->withQueryString();
+
         return view('admin.properties.index', compact('properties'));
     }
 
@@ -96,9 +114,6 @@ class PropertyController extends Controller
         return view('admin.properties.edit', compact('property', 'consultants'));
     }
 
-    /**
-     * UPDATE PROFISSIONAL: Sincroniza Ordem Visual e Deleta do Disco
-     */
     public function update(Request $request, Property $property)
     {
         $data = $request->validate([
@@ -124,7 +139,7 @@ class PropertyController extends Controller
             'cover_image' => 'nullable|image|max:20480',
             'gallery' => 'nullable|array',
             'gallery.*' => 'image|max:20480',
-            'images_order' => 'nullable|string', // IDs das fotos existentes na nova ordem
+            'images_order' => 'nullable|string', 
         ]);
 
         if ($property->title !== $data['title']) {
@@ -149,28 +164,21 @@ class PropertyController extends Controller
 
         $property->update($data);
 
-        // --- GESTÃO DA GALERIA UNIFICADA ---
-
-        // 1. Processar fotos existentes (Remoção e Reordenação)
         $existingOrderIds = $request->filled('images_order') 
             ? explode(',', $request->images_order) 
             : [];
 
-        // Deletar do banco e do disco as fotos que o usuário removeu no painel
         $imagesToDelete = $property->images()->whereNotIn('id', $existingOrderIds)->get();
         foreach ($imagesToDelete as $img) {
             Storage::disk('public')->delete($img->path);
             $img->delete();
         }
 
-        // Atualizar a ordem das fotos que ficaram conforme o drag & drop
         foreach ($existingOrderIds as $index => $id) {
             PropertyImage::where('id', $id)->update(['order' => $index]);
         }
 
-        // 2. Processar novas fotos
         if ($request->hasFile('gallery')) {
-            // Pegamos o último índice para as novas entrarem depois das existentes
             $lastOrder = PropertyImage::where('property_id', $property->id)->max('order') ?? -1;
 
             foreach ($request->file('gallery') as $image) {
@@ -244,40 +252,67 @@ class PropertyController extends Controller
 
         return view('properties.index', compact('properties'));
     }
-public function show(Request $request, Property $property)
-{
-    if (!$property->is_visible) {
-        abort(404);
-    }
 
-    $property->load(['images' => function ($query) {
-        $query->orderBy('order', 'asc');
-    }, 'consultant']);
-
-    $consultant = null;
-
-    if ($request->has('cid')) {
-        $consultant = Consultant::find($request->cid);
-    } elseif ($request->route('domain')) {
-         $domain = preg_replace('/^www\./', '', $request->route('domain'));
-         $consultant = Consultant::where('domain', $domain)
-            ->orWhere('lp_slug', $domain)
-            ->first();
-    }
-
-    // A CORREÇÃO ESTÁ AQUI: 'consultant' como string dentro do compact
-    return view('properties.show', compact('property', 'consultant'));
-}
-
-public function toggleVisibility(Property $property)
+    public function show(Request $request, Property $property)
     {
-        // Inverte o booleano (Toggle)
+        if (!$property->is_visible) {
+            abort(404);
+        }
+
+        $property->load(['images' => function ($query) {
+            $query->orderBy('order', 'asc');
+        }, 'consultant']);
+
+        $consultant = null;
+
+        if ($request->has('cid')) {
+            $consultant = Consultant::find($request->cid);
+        } elseif ($request->route('domain')) {
+             $domain = preg_replace('/^www\./', '', $request->route('domain'));
+             $consultant = Consultant::where('domain', $domain)
+                ->orWhere('lp_slug', $domain)
+                ->first();
+        }
+
+        return view('properties.show', compact('property', 'consultant'));
+    }
+
+    /**
+     * TOGGLE VISIBILITY: Inverte o status e retorna feedback com HTML
+     */
+    public function toggleVisibility(Property $property)
+    {
         $property->update([
             'is_visible' => !$property->is_visible
         ]);
 
         $status = $property->is_visible ? 'Ativo' : 'Inativo';
+        $color = $property->is_visible ? 'text-emerald-600' : 'text-slate-600';
         
-        return back()->with('success', "Imóvel agora está <strong>{$status}</strong>.");
+        return back()->with('success', "Imóvel agora está <strong class='{$color}'>{$status}</strong>.");
+    }
+
+    /**
+     * REORDER: Salva a ordem vinda do Drag & Drop (AJAX)
+     */
+    public function reorder(Request $request)
+    {
+        $ids = $request->ids;
+        foreach ($ids as $index => $id) {
+            Property::where('id', $id)->update(['order' => $index]);
+        }
+
+        return response()->json(['status' => 'success']);
+    }
+
+    /**
+     * MOVE TO TOP: Coloca o imóvel na primeira posição
+     */
+    public function moveToTop(Property $property)
+    {
+        $minOrder = Property::min('order') ?? 0;
+        $property->update(['order' => $minOrder - 1]);
+
+        return back()->with('success', 'Imóvel movido para o topo com sucesso!');
     }
 }
