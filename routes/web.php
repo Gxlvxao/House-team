@@ -107,6 +107,9 @@ Route::prefix('admin')->group(function () {
     Route::middleware('auth')->group(function () {
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
         Route::view('/dashboard', 'admin.dashboard')->name('admin.dashboard');
+
+        Route::patch('/properties/{property}/toggle', [App\Http\Controllers\PropertyController::class, 'toggleVisibility'])
+    ->name('admin.properties.toggle');
         
         Route::resource('properties', PropertyController::class)->names('admin.properties');
         

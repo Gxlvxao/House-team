@@ -268,4 +268,16 @@ public function show(Request $request, Property $property)
     // A CORREÇÃO ESTÁ AQUI: 'consultant' como string dentro do compact
     return view('properties.show', compact('property', 'consultant'));
 }
+
+public function toggleVisibility(Property $property)
+    {
+        // Inverte o booleano (Toggle)
+        $property->update([
+            'is_visible' => !$property->is_visible
+        ]);
+
+        $status = $property->is_visible ? 'Ativo' : 'Inativo';
+        
+        return back()->with('success', "Imóvel agora está <strong>{$status}</strong>.");
+    }
 }

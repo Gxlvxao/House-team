@@ -8,6 +8,14 @@
     {{-- 1. Carregar biblioteca de Drag & Drop (CDN rápido) --}}
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
+    {{-- Feedback de Sucesso (Toast simples) --}}
+    @if(session('success'))
+        <div class="mb-4 bg-emerald-50 border border-emerald-200 text-emerald-600 px-4 py-3 rounded-xl flex items-center gap-3 shadow-sm" role="alert">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <div>{!! session('success') !!}</div>
+        </div>
+    @endif
+
     {{-- Header + Actions --}}
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
@@ -34,20 +42,20 @@
             <table class="w-full text-left border-collapse">
                 <thead class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase text-slate-400 font-bold tracking-wider">
                     <tr>
-                        {{-- 2. Coluna Nova para o ícone de arrastar --}}
+                        {{-- Coluna do ícone de arrastar --}}
                         <th class="pl-4 py-4 w-10"></th> 
                         <th class="px-6 py-4">Imóvel</th>
                         <th class="px-6 py-4">Preço</th>
                         <th class="px-6 py-4">Localização</th>
-                        <th class="px-6 py-4">Status</th>
+                        <th class="px-6 py-4">Tipo</th>
+                        <th class="px-6 py-4">Visibilidade</th> {{-- NOVA COLUNA --}}
                         <th class="px-6 py-4 text-right">Ações</th>
                     </tr>
                 </thead>
                 
-                {{-- 3. ID adicionado para o SortableJS encontrar a lista --}}
+                {{-- ID adicionado para o SortableJS --}}
                 <tbody class="divide-y divide-slate-100" id="properties-list">
                     @foreach($properties as $property)
-                    {{-- 4. data-id adicionado para sabermos o ID do imóvel ao arrastar --}}
                     <tr data-id="{{ $property->id }}" class="hover:bg-slate-50/80 transition-colors group bg-white">
                         
                         {{-- Célula do Handle (Ícone de mover) --}}
@@ -91,10 +99,46 @@
                                 {{ $property->status }}
                             </span>
                         </td>
+
+                        {{-- COLUNA DE VISIBILIDADE --}}
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-between gap-2 max-w-[140px]">
+                                {{-- Badge --}}
+                                @if($property->is_visible)
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700 border border-green-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                        Ativo
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 border border-slate-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                        Inativo
+                                    </span>
+                                @endif
+
+                                {{-- Botão Toggle --}}
+                                <form action="{{ route('admin.properties.toggle', $property->id) }}" method="POST">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" 
+                                            class="p-1.5 rounded-md transition-colors {{ $property->is_visible ? 'text-slate-400 hover:text-amber-500 hover:bg-amber-50' : 'text-slate-400 hover:text-green-600 hover:bg-green-50' }}"
+                                            title="{{ $property->is_visible ? 'Ocultar do site' : 'Publicar no site' }}">
+                                        @if($property->is_visible)
+                                            {{-- Ícone Olho Cortado (Ocultar) --}}
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+                                        @else
+                                            {{-- Ícone Olho (Publicar) --}}
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                        @endif
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+
                         <td class="px-6 py-4 text-right">
                             <div class="flex items-center justify-end gap-2">
                                 
-                                {{-- NOVO: BOTÃO MOVER PARA O TOPO --}}
+                                {{-- BOTÃO MOVER PARA O TOPO --}}
                                 <form action="{{ route('admin.properties.moveToTop', $property) }}" method="POST">
                                     @csrf
                                     <button type="submit" class="p-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-500 hover:bg-amber-100 transition-all shadow-sm" title="Mover para o topo (1ª Página)">
@@ -133,14 +177,12 @@
         document.addEventListener('DOMContentLoaded', function () {
             var el = document.getElementById('properties-list');
             var sortable = Sortable.create(el, {
-                handle: '.handle', // Só arrasta se clicar no ícone
+                handle: '.handle', 
                 animation: 150,
-                ghostClass: 'bg-blue-50', // Classe visual enquanto arrasta
+                ghostClass: 'bg-blue-50', 
                 onEnd: function () {
-                    // Pega a nova ordem dos IDs
                     var order = sortable.toArray(); 
                     
-                    // Envia para o backend
                     fetch("{{ route('admin.properties.reorder') }}", {
                         method: "POST",
                         headers: {
@@ -151,7 +193,6 @@
                     })
                     .then(response => response.json())
                     .then(data => {
-                        // Feedback visual opcional
                         console.log('Ordem salva com sucesso!');
                     })
                     .catch(error => {
