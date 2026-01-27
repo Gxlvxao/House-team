@@ -67,18 +67,26 @@
                 @if(Str::startsWith(Route::currentRouteName(), 'consultant.'))
                     {{-- MENU DA CONSULTORA --}}
                     
-                    {{-- Logo Desktop (AGORA ENORME: h-20) --}}
-                    <a href="#home" class="mr-6 hover:opacity-80 transition-opacity">
+                    {{-- Lógica de Prefixo: Se não for a Home, adiciona '/' antes da âncora --}}
+                    @php
+                        $isHome = Route::currentRouteName() === 'consultant.home';
+                        $linkPrefix = $isHome ? '' : '/';
+                    @endphp
+                    
+                    {{-- Logo Desktop --}}
+                    <a href="{{ $linkPrefix }}#home" class="mr-6 hover:opacity-80 transition-opacity">
                         <img src="{{ asset('img/logo/casaacasa.png') }}" 
                              alt="Casa a Casa" 
                              class="h-20 w-auto object-contain brightness-0 invert" 
                              onerror="this.style.display='none'">
                     </a>
 
-                    <a href="#home" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">{{ __('consultant_lp.menu_home') }}</a>
-                    <a href="#about" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">{{ __('consultant_lp.menu_about') }}</a>
-                    <a href="#testimonials" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">{{ __('consultant_lp.menu_feedback') }}</a>
-                    <a href="#portfolio" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">{{ __('consultant_lp.menu_portfolio') }}</a>
+                    <a href="{{ $linkPrefix }}#home" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">{{ __('consultant_lp.menu_home') }}</a>
+                    <a href="{{ $linkPrefix }}#about" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">{{ __('consultant_lp.menu_about') }}</a>
+                    <a href="{{ $linkPrefix }}#testimonials" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">{{ __('consultant_lp.menu_feedback') }}</a>
+                    
+                    {{-- O link do Portfolio aponta para a seção na Home, o menu 'Imóveis' é que leva para a lista completa --}}
+                    <a href="{{ $linkPrefix }}#portfolio" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">{{ __('consultant_lp.menu_portfolio') }}</a>
 
                     {{-- Dropdown Ferramentas --}}
                     <div class="relative group">
@@ -95,6 +103,11 @@
 
                 @else
                     {{-- MENU DA HOUSE TEAM --}}
+                    @php
+                        $isHomeMain = Route::currentRouteName() === 'home';
+                        $linkPrefixMain = $isHomeMain ? '' : '/';
+                    @endphp
+
                     <a href="{{ route('home') }}" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">{{ __('menu.home') }}</a>
                     <a href="{{ route('about') }}" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">{{ __('menu.team') }}</a>
                     <a href="{{ route('portfolio') }}" class="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white hover:bg-white/10 transition-all">{{ __('menu.properties') }}</a>
@@ -120,7 +133,7 @@
                         <span class="text-white/20">|</span>
                         <a href="{{ route('lang.switch', 'en') }}" class="{{ app()->getLocale() == 'en' ? 'text-ht-gold scale-110' : 'text-slate-400 hover:text-white transition' }}" title="English">EN</a>
                     </div>
-                    <a href="#contact" class="bg-ht-gold text-white px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-yellow-600 hover:shadow-lg hover:shadow-yellow-500/30 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">
+                    <a href="{{ $linkPrefix }}#contact" class="bg-ht-gold text-white px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-yellow-600 hover:shadow-lg hover:shadow-yellow-500/30 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">
                         {{ __('consultant_lp.menu_contact') }}
                     </a>
                 @else
@@ -134,8 +147,12 @@
             <div class="md:hidden flex w-full justify-between items-center">
                  <div class="flex items-center gap-2">
                      @if(Str::startsWith(Route::currentRouteName(), 'consultant.'))
-                        <a href="#home">
-                            {{-- LOGO MOBILE (AUMENTADA PARA h-14) --}}
+                        @php
+                            $isHomeMobile = Route::currentRouteName() === 'consultant.home';
+                            $linkPrefixMobile = $isHomeMobile ? '' : '/';
+                        @endphp
+                        <a href="{{ $linkPrefixMobile }}#home">
+                            {{-- LOGO MOBILE --}}
                             <img src="{{ asset('img/logo/casaacasa.png') }}" 
                                  class="h-14 w-auto brightness-0 invert object-contain" 
                                  onerror="this.style.display='none'">
@@ -159,11 +176,16 @@
         <div x-show="isOpen" x-collapse class="md:hidden mt-2 mx-auto w-[95%]">
             <div class="glass-nav rounded-2xl p-4 shadow-2xl flex flex-col gap-2">
                 @if(Str::startsWith(Route::currentRouteName(), 'consultant.'))
-                    {{-- LINKS CONSULTORA --}}
-                    <a href="#home" @click="isOpen=false" class="block px-4 py-3 rounded-xl bg-white/5 text-white text-sm font-bold text-center">{{ __('consultant_lp.menu_home') }}</a>
-                    <a href="#about" @click="isOpen=false" class="block px-4 py-3 rounded-xl hover:bg-white/5 text-white text-sm font-bold text-center transition">{{ __('consultant_lp.menu_about') }}</a>
-                    <a href="#testimonials" @click="isOpen=false" class="block px-4 py-3 rounded-xl hover:bg-white/5 text-white text-sm font-bold text-center transition">{{ __('consultant_lp.menu_feedback') }}</a>
-                    <a href="#portfolio" @click="isOpen=false" class="block px-4 py-3 rounded-xl hover:bg-white/5 text-white text-sm font-bold text-center transition">{{ __('consultant_lp.menu_portfolio') }}</a>
+                    {{-- LINKS CONSULTORA MOBILE --}}
+                    @php
+                        $isHomeMobile = Route::currentRouteName() === 'consultant.home';
+                        $linkPrefixMobile = $isHomeMobile ? '' : '/';
+                    @endphp
+
+                    <a href="{{ $linkPrefixMobile }}#home" @click="isOpen=false" class="block px-4 py-3 rounded-xl bg-white/5 text-white text-sm font-bold text-center">{{ __('consultant_lp.menu_home') }}</a>
+                    <a href="{{ $linkPrefixMobile }}#about" @click="isOpen=false" class="block px-4 py-3 rounded-xl hover:bg-white/5 text-white text-sm font-bold text-center transition">{{ __('consultant_lp.menu_about') }}</a>
+                    <a href="{{ $linkPrefixMobile }}#testimonials" @click="isOpen=false" class="block px-4 py-3 rounded-xl hover:bg-white/5 text-white text-sm font-bold text-center transition">{{ __('consultant_lp.menu_feedback') }}</a>
+                    <a href="{{ $linkPrefixMobile }}#portfolio" @click="isOpen=false" class="block px-4 py-3 rounded-xl hover:bg-white/5 text-white text-sm font-bold text-center transition">{{ __('consultant_lp.menu_portfolio') }}</a>
                     
                     <div class="grid grid-cols-3 gap-2 border-t border-white/10 pt-2 mt-2">
                         <a href="{{ route('consultant.tools.credit', ['domain' => $consultant->domain ?? 'casaacasa.pt']) }}" class="bg-white/5 rounded-lg p-2 text-center text-[10px] font-bold text-slate-300 hover:bg-white/10 hover:text-white">{{ __('menu.credit') }}</a>
@@ -171,7 +193,7 @@
                         <a href="{{ route('consultant.tools.imt', ['domain' => $consultant->domain ?? 'casaacasa.pt']) }}" class="bg-white/5 rounded-lg p-2 text-center text-[10px] font-bold text-slate-300 hover:bg-white/10 hover:text-white">{{ __('menu.imt') }}</a>
                     </div>
 
-                    <a href="#contact" @click="isOpen=false" class="block px-4 py-3 rounded-xl bg-ht-gold text-white text-sm font-bold text-center mt-2 shadow-lg hover:bg-yellow-600 transition">{{ __('consultant_lp.menu_contact') }}</a>
+                    <a href="{{ $linkPrefixMobile }}#contact" @click="isOpen=false" class="block px-4 py-3 rounded-xl bg-ht-gold text-white text-sm font-bold text-center mt-2 shadow-lg hover:bg-yellow-600 transition">{{ __('consultant_lp.menu_contact') }}</a>
                     
                     <div class="flex justify-center items-center gap-6 py-4 border-t border-white/10 mt-2">
                         <a href="{{ route('lang.switch', 'pt') }}" class="{{ app()->getLocale() == 'pt' ? 'text-ht-gold font-bold scale-110' : 'text-slate-400 text-xs font-bold uppercase tracking-widest hover:text-white' }}">Português</a>
@@ -179,7 +201,7 @@
                         <a href="{{ route('lang.switch', 'en') }}" class="{{ app()->getLocale() == 'en' ? 'text-ht-gold font-bold scale-110' : 'text-slate-400 text-xs font-bold uppercase tracking-widest hover:text-white' }}">English</a>
                     </div>
                 @else
-                    {{-- LINKS HOUSE TEAM --}}
+                    {{-- LINKS HOUSE TEAM MOBILE --}}
                     <a href="{{ route('home') }}" class="block px-4 py-3 rounded-xl bg-white/5 text-white text-sm font-bold text-center">{{ __('menu.home') }}</a>
                     <a href="{{ route('about') }}" class="block px-4 py-3 rounded-xl hover:bg-white/5 text-white text-sm font-bold text-center transition">{{ __('menu.team') }}</a>
                     <a href="{{ route('portfolio') }}" class="block px-4 py-3 rounded-xl hover:bg-white/5 text-white text-sm font-bold text-center transition">{{ __('menu.properties') }}</a>
