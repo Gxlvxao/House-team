@@ -30,15 +30,15 @@ class HighLevelService
      */
     public function createContact(array $data)
     {
-        // 1. Tenta encontrar primeiro pelo email para evitar erros
+        // 1. Tenta encontrar primeiro pelo email
         if (!empty($data['email'])) {
             $existing = $this->lookupContact($data['email']);
             if ($existing) {
-                return $existing; // Retorna o existente para continuar o processo
+                return $existing; 
             }
         }
 
-        // 2. Se não existe, prepara os dados para criar
+        // 2. Se não existe, prepara para criar
         $names = $this->splitName($data['name'] ?? '');
 
         $payload = [
@@ -47,11 +47,10 @@ class HighLevelService
             'email'     => $data['email'] ?? null,
             'phone'     => $data['phone'] ?? null,
             'tags'      => $data['tags'] ?? [],
-            // CORREÇÃO: Usa a source passada no array ou fallback para padrão
-            'source'    => $data['source'] ?? 'Site House Team - Whatsapp',
+            'source'    => $data['source'] ?? 'Site House Team',
         ];
 
-        // Remove campos vazios para limpar o payload
+        // Limpa campos vazios
         $payload = array_filter($payload, fn($value) => !empty($value));
 
         try {
@@ -60,22 +59,22 @@ class HighLevelService
 
             if ($response->successful()) {
                 $contact = $response->json('contact');
-                Log::info('GHL: Contato criado com sucesso. ID: ' . ($contact['id'] ?? 'N/A'));
+                Log::info('GHL: Contato criado. ID: ' . ($contact['id'] ?? 'N/A'));
                 return $contact;
             }
 
-            // Fallback: Se der erro (ex: api lenta na sincronia), tenta buscar novamente
-            Log::warning('GHL: Erro ao criar (possível duplicado), tentando recuperar...', ['body' => $response->body()]);
+            // Fallback para duplicados não detectados antes
+            Log::warning('GHL: Erro criação (possível duplicado), recuperando...', ['body' => $response->body()]);
             return $this->lookupContact($data['email']);
 
         } catch (\Exception $e) {
-            Log::error('GHL: Exceção ao Criar Contato', ['msg' => $e->getMessage()]);
+            Log::error('GHL: Exceção CreateContact', ['msg' => $e->getMessage()]);
             return null;
         }
     }
 
     /**
-     * Procura um contacto existente pelo Email
+     * Procura contato pelo Email
      */
     public function lookupContact($email)
     {
@@ -87,17 +86,16 @@ class HighLevelService
             
             if ($response->successful()) {
                 $contacts = $response->json('contacts');
-                // Retorna o primeiro da lista, se houver
                 return $contacts[0] ?? null;
             }
         } catch (\Exception $e) {
-            Log::error('GHL: Erro no Lookup de contato', ['msg' => $e->getMessage()]);
+            Log::error('GHL: Erro Lookup', ['msg' => $e->getMessage()]);
         }
         return null;
     }
 
     /**
-     * Atribui o Contacto a um Consultor (User do GHL)
+     * Atribui o Contacto a um Consultor
      */
     public function assignUser($contactId, $userId)
     {
@@ -110,7 +108,7 @@ class HighLevelService
                 ]);
             Log::info("GHL: Contacto {$contactId} atribuído ao user {$userId}");
         } catch (\Exception $e) {
-            Log::error('GHL: Erro ao atribuir user', ['msg' => $e->getMessage()]);
+            Log::error('GHL: Erro assignUser', ['msg' => $e->getMessage()]);
         }
     }
 
@@ -124,42 +122,54 @@ class HighLevelService
                     'body' => $noteContent
                 ]);
         } catch (\Exception $e) {
-            Log::error('GHL: Erro ao adicionar nota', ['msg' => $e->getMessage()]);
+            Log::error('GHL: Erro addNote', ['msg' => $e->getMessage()]);
         }
     }
 
     /**
-     * Cria Oportunidade no Funil Correto
+     * Cria Oportunidade no Funil Correto (Lógica Atualizada)
      */
     public function createOpportunity(string $contactId, array $data, string $type = 'lead')
     {
-        // Mapeamento dos tipos para as configurações do services.php
+        // 1. Mapeamento Inteligente (Tipo -> Configuração no services.php)
         $configMap = [
-            'credit'  => ['pipe' => 'credit_id',  'stage' => 'credit_new_id',  'suffix' => ' - Crédito Habitação'],
-            'listing' => ['pipe' => 'listing_id', 'stage' => 'listing_new_id', 'suffix' => ' - Angariação (Mais-Valias)'],
-            'buyer'   => ['pipe' => 'buyers_id',  'stage' => 'buyers_new_id',  'suffix' => ' - Comprador (IMT)'],
-            'lead'    => ['pipe' => 'leads_id',   'stage' => 'leads_new_id',   'suffix' => ' - Lead Site'],
+            // Compradores
+            'buyer'       => ['pipe' => 'buyers',      'stage' => 'buyers_new',      'suffix' => ' - Comprador'],
+            
+            // Vendedores / Proprietários
+            'seller'      => ['pipe' => 'sellers',     'stage' => 'sellers_new',     'suffix' => ' - Venda de Imóvel'],
+            'valuation'   => ['pipe' => 'sellers',     'stage' => 'sellers_new',     'suffix' => ' - Pedido de Avaliação'],
+            
+            // Recrutamento
+            'recruitment' => ['pipe' => 'recruitment', 'stage' => 'recruitment_new', 'suffix' => ' - Candidatura Espontânea'],
+            
+            // Crédito
+            'credit'      => ['pipe' => 'credit',      'stage' => 'credit_new',      'suffix' => ' - Crédito Habitação'],
+            
+            // Padrão (Lead Geral)
+            'lead'        => ['pipe' => 'buyers',      'stage' => 'buyers_new',      'suffix' => ' - Lead Site'],
         ];
 
-        // Se o tipo não existir, usa 'lead' (Geral) como padrão
+        // 2. Define a configuração a usar
         $conf = $configMap[$type] ?? $configMap['lead'];
 
+        // 3. Busca os IDs HARDCODED no config/services.php
         $pipelineId = config("services.ghl.pipelines.{$conf['pipe']}");
         $stageId    = config("services.ghl.stages.{$conf['stage']}");
 
         if (!$pipelineId || !$stageId) {
-            Log::warning("GHL: Configuração de Pipeline/Stage ausente para o tipo: $type");
+            Log::critical("GHL: Configuração CRÍTICA ausente para: {$type}. Verifique config/services.php");
             return false;
         }
 
+        // 4. Monta o payload
         $payload = [
             'pipelineId' => $pipelineId,
             'stageId'    => $stageId,
             'contactId'  => $contactId,
-            'title'      => ($data['name'] ?? 'Cliente') . $conf['suffix'],
+            'title'      => ($data['name'] ?? 'Lead') . $conf['suffix'],
             'status'     => 'open',
-            // CORREÇÃO: Usa a source dinâmica também na oportunidade
-            'source'     => $data['source'] ?? 'Site House Team - Whatsapp',
+            'source'     => $data['source'] ?? 'Site House Team',
         ];
 
         if (!empty($data['property_price'])) {
@@ -170,16 +180,22 @@ class HighLevelService
             $response = Http::withHeaders($this->getHeaders())
                 ->post("{$this->baseUrl}/pipelines/{$pipelineId}/opportunities", $payload);
 
-            return $response->successful();
+            if ($response->successful()) {
+                Log::info("GHL: Oportunidade criada no pipeline [{$conf['pipe']}]");
+                return true;
+            }
+
+            Log::error('GHL: Falha API Opportunity', ['body' => $response->body()]);
+            return false;
 
         } catch (\Exception $e) {
-            Log::error('GHL: Exceção ao criar Oportunidade', ['msg' => $e->getMessage()]);
+            Log::error('GHL: Exceção CreateOpportunity', ['msg' => $e->getMessage()]);
             return false;
         }
     }
 
     /**
-     * Busca pipelines para DEBUG (Ajuda a encontrar os IDs)
+     * Busca pipelines para DEBUG
      */
     public function getPipelines()
     {

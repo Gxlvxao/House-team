@@ -46,7 +46,7 @@ class ToolsController extends Controller
 
 
     // =========================================================================
-    // MAIS-VALIAS (POST) -> VAI PARA FUNIL DE ANGARIAÇÃO (LISTING)
+    // MAIS-VALIAS (POST) -> VAI PARA FUNIL DE VENDEDORES (SELLER)
     // =========================================================================
     public function calculateGains(Request $request, $domain = null)
     {
@@ -101,14 +101,14 @@ class ToolsController extends Controller
                 $description .= "\nOrigem: Site " . $consultant->name;
             }
 
-            // CORREÇÃO: Enviando para 'listing' (Angariação)
+            // CORREÇÃO: Enviando para 'seller' (Era 'listing')
             $this->sendToCrm([
                 'name'  => $validated['lead_name'],
                 'email' => $validated['lead_email'],
                 'tags'  => $tags,
                 'description' => $description,
-                'source' => 'Site House Team - Mais Valias'
-            ], 'listing', $consultant);
+                'source' => 'Site House Team'
+            ], 'seller', $consultant);
         }
 
         return response()->json($results);
@@ -132,7 +132,6 @@ class ToolsController extends Controller
         $pdfContent = $pdf->output();
 
         try {
-            // CORREÇÃO: Forçar remetente correto
             Mail::send('emails.simulation-lead', ['name' => $data['lead_name'], 'simulationType' => 'Simulação Crédito Habitação'], function ($message) use ($data, $pdfContent) {
                 $message->from('clientes@houseteamconsultores.pt', 'House Team')
                     ->to($data['lead_email'])
@@ -164,7 +163,6 @@ class ToolsController extends Controller
             $description .= "\nOrigem: Site " . $consultant->name;
         }
 
-        // CORREÇÃO: Enviando para 'credit'
         $this->sendToCrm([
             'name'  => $data['lead_name'],
             'email' => $data['lead_email'],
@@ -199,7 +197,6 @@ class ToolsController extends Controller
             $description .= "\nOrigem: Site " . $consultant->name;
         }
 
-        // CORREÇÃO: Enviando para 'buyer' (Compradores)
         $this->sendToCrm([
             'name'  => $data['lead_name'],
             'email' => $data['lead_email'],
@@ -212,7 +209,7 @@ class ToolsController extends Controller
     }
 
     // =========================================================================
-    // CONTATO (POST) -> AGORA GERE AVALIAÇÃO + GERAL
+    // CONTATO (POST) -> LÓGICA INTELIGENTE DE PIPELINE
     // =========================================================================
     public function sendContact(Request $request, $domain = null)
     {
@@ -233,7 +230,7 @@ class ToolsController extends Controller
             'garages'     => 'nullable|integer',
             'parking_type' => 'nullable|string',
             'features'    => 'nullable|array',
-            'features_text' => 'nullable|string', // Novo campo de texto livre
+            'features_text' => 'nullable|string', 
             'condition'   => 'nullable|string',
             'address'     => 'nullable|string',
             'is_owner'    => 'nullable|string',
@@ -241,8 +238,7 @@ class ToolsController extends Controller
             'property_code' => 'nullable|string',
         ];
 
-        // 2. Validação Estrita para Avaliação (Listing)
-        // Se o assunto for avaliação, obrigamos o preenchimento dos campos chave
+        // 2. Validação Estrita para Avaliação
         $isValuation = ($request->input('subject') === 'Avaliação Detalhada de Imóvel');
         
         if ($isValuation) {
@@ -265,7 +261,6 @@ class ToolsController extends Controller
             $adminEmail = 'admin@houseteam.pt';
 
             Mail::send('emails.contact-lead', ['data' => $data], function ($message) use ($primaryEmail, $adminEmail, $data, $consultant) {
-                // CORREÇÃO: Remetente forçado para evitar erro de "email inexistente"
                 $message->from('clientes@houseteamconsultores.pt', 'House Team');
                 
                 $message->to($primaryEmail);
@@ -277,26 +272,24 @@ class ToolsController extends Controller
                 }
             });
 
-            // 3. Preparação para CRM (Tags, Descrição e Pipeline)
+            // 3. Preparação para CRM (Tags, Descrição)
             $crmTags = ['Lead Site'];
             if ($consultant) {
                 $crmTags[] = 'Consultor: ' . $consultant->name;
             }
 
-            // Constrói Descrição Rica com todos os detalhes
+            // Constrói Descrição Rica
             $descriptionParts = [];
             
-            // Dados de Contacto & Proprietário
             if (!empty($data['phone'])) $descriptionParts[] = "📞 Telefone: " . $data['phone'];
             if (!empty($data['is_owner'])) {
                 $descriptionParts[] = "👤 Proprietário? " . $data['is_owner'];
-                // Se é proprietário e é avaliação, quer vender
                 if ($data['is_owner'] === 'Sim' || $isValuation) {
-                    $crmTags[] = 'Vendedor'; // Tag mais apropriada
+                    $crmTags[] = 'Vendedor';
                 }
             }
 
-            // Detalhes do Imóvel (Avaliação)
+            // Detalhes do Imóvel
             if ($isValuation || !empty($data['year'])) {
                 $descriptionParts[] = "\n🏡 DETALHES DO IMÓVEL:";
                 $descriptionParts[] = "Tipo: " . ($data['property_type'] ?? 'N/A');
@@ -330,24 +323,34 @@ class ToolsController extends Controller
                 }
             }
 
-            // Mensagem e Referência
             if (!empty($data['message'])) $descriptionParts[] = "\n💬 Mensagem:\n" . $data['message'];
             if (!empty($data['property_code'])) {
                 $crmTags[] = 'Interesse Imóvel';
                 $descriptionParts[] = "Ref. Imóvel: " . $data['property_code'];
             }
 
-            // 4. Definição do Funil (Pipeline)
-            // Se for Avaliação -> Listing (Angariação)
-            // Se for Geral -> Lead
-            $pipelineType = $isValuation ? 'listing' : 'lead';
+            // 4. Definição INTELIGENTE do Funil (Pipeline)
+            $subjectLower = mb_strtolower($data['subject']);
             
-            // Se for interesse em imóvel específico, talvez fosse buyer, mas mantemos lead por segurança
-            // a menos que especificado
+            // Lógica Padrão: Começa como 'lead' (Compradores)
+            $pipelineType = 'lead';
+
+            if ($isValuation || str_contains($subjectLower, 'avalia')) {
+                // Avaliação -> Vai para Sellers (com título específico)
+                $pipelineType = 'valuation';
+            } elseif (str_contains($subjectLower, 'vender') || str_contains($subjectLower, 'proprietário') || str_contains($subjectLower, 'venda')) {
+                // Vender -> Vai para Sellers
+                $pipelineType = 'seller';
+            } elseif (str_contains($subjectLower, 'recrutamento') || str_contains($subjectLower, 'carreira') || str_contains($subjectLower, 'candidatura')) {
+                // Recrutamento -> Vai para Recrutamento
+                $pipelineType = 'recruitment';
+            } elseif (str_contains($subjectLower, 'comprar') || str_contains($subjectLower, 'compra') || str_contains($subjectLower, 'visita')) {
+                // Comprar -> Vai para Compradores
+                $pipelineType = 'buyer';
+            }
 
             // 5. Atribuição de Owner (Se não houver consultor, atribui ao Hugo Gaito)
             if (!$consultant) {
-                // Tenta encontrar o Hugo Gaito na BD
                 $consultant = Consultant::where('name', 'like', '%Hugo Gaito%')->first();
             }
 
@@ -358,7 +361,7 @@ class ToolsController extends Controller
                 'phone' => $data['phone'] ?? null,
                 'tags'  => $crmTags,
                 'description' => implode("\n", $descriptionParts),
-                'source' => 'Site House Team' // Força a source correta
+                'source' => 'Site House Team'
             ], $pipelineType, $consultant);
 
             return back()->with('success', 'O seu pedido foi enviado com sucesso! Entraremos em contacto brevemente.');
@@ -390,13 +393,11 @@ class ToolsController extends Controller
     {
         try {
             // 1. Cria ou Recupera Contacto
-            // O contactData agora leva o 'source' correto
             $contact = $this->crmService->createContact($contactData);
 
             if ($contact && isset($contact['id'])) {
                 
                 // 2. ATRIBUIÇÃO AO CONSULTOR
-                // Se temos consultor (veio do site dele ou forçámos Hugo Gaito), atribuímos
                 if ($consultant && !empty($consultant->crm_user_id)) {
                     $this->crmService->assignUser($contact['id'], $consultant->crm_user_id);
                 }

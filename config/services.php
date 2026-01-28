@@ -40,27 +40,28 @@ return [
         'key' => env('IDEALISTA_API_KEY'),
         'secret' => env('IDEALISTA_SECRET'),
         'base_url' => env('IDEALISTA_BASE_URL', 'https://api.idealista.com'),
-        'feed_key' => env('IDEALISTA_FEED_KEY'), // Código do cliente para exportação
+        'feed_key' => env('IDEALISTA_FEED_KEY'),
     ],
 
     // --- INTEGRAÇÃO CRM HIGHLEVEL (GO HIGH LEVEL) ---
     'ghl' => [
         'api_key'     => env('GHL_API_KEY'),
-        'location_id' => env('GHL_LOCATION_ID'),
-        'api_version' => env('GHL_API_VERSION', '2021-07-28'),
+        'location_id' => env('GHL_LOCATION_ID'), // Mantido caso precise no futuro
         
+        // MAPA DE PIPELINES (Funis) - IDs FIXOS extraídos do Debug
         'pipelines' => [
-            'leads_id'   => env('GHL_PIPELINE_LEADS_ID'),   // Funil Geral
-            'credit_id'  => env('GHL_PIPELINE_CREDIT_ID'),  // Funil Crédito
-            'listing_id' => env('GHL_PIPELINE_LISTING_ID'), // Funil Angariação (Mais-Valias)
-            'buyers_id'  => env('GHL_PIPELINE_BUYERS_ID'),  // Funil Compradores (IMT)
+            'sellers'     => 'YbkGFQfX4kxvsQaN6JTg', // 1 - Vendedores - Angariação
+            'buyers'      => 'qDFhaKgEI0HW6Yj7gCtT', // 2 - Compradores
+            'recruitment' => 'iAi2kqsBqTRtQpc5DHGP', // 7 - Recrutamento
+            'credit'      => 'y5wz3084omNZ2WuhrjPn', // 3 - Créditos
         ],
         
+        // MAPA DE STAGES (Etapa Inicial: "Contactar" ou "Entrar em Contato")
         'stages' => [
-            'leads_new_id'   => env('GHL_STAGE_LEADS_NEW_ID'),
-            'credit_new_id'  => env('GHL_STAGE_CREDIT_NEW_ID'),
-            'listing_new_id' => env('GHL_STAGE_LISTING_NEW_ID'), // Etapa Angariação
-            'buyers_new_id'  => env('GHL_STAGE_BUYERS_NEW_ID'),  // Etapa Compradores
+            'sellers_new'     => 'c5ea0034-f90f-46a2-ad76-8037f7602d2e', // Contactar (Vendedores)
+            'buyers_new'      => 'f68fd383-affd-412c-96f2-881cfe1363f7', // Contactar (Compradores)
+            'recruitment_new' => 'b148333a-bef6-495b-809e-e5f79ea05a91', // Contactar (Recrutamento)
+            'credit_new'      => '8d9d7bf6-4874-45a6-93b4-a03962d1659d', // Entrar em Contato (Créditos)
         ],
     ],
 

@@ -20,6 +20,7 @@
     <div class="container mx-auto px-6 md:px-12">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
             
+            {{-- LADO ESQUERDO: INFORMAÇÕES DE CONTATO --}}
             <div class="space-y-10">
                 <div>
                     <h3 class="text-3xl font-black text-ht-navy mb-8">{{ __('contact.channels_title') }}</h3>
@@ -89,37 +90,58 @@
                 </div>
             </div>
 
+            {{-- LADO DIREITO: FORMULÁRIO --}}
             <div class="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-2xl border border-slate-100 h-fit sticky top-32">
                 <h3 class="text-2xl font-black text-ht-navy mb-2">{{ __('contact.form_title') }}</h3>
                 <p class="text-slate-400 text-sm mb-8">{{ __('contact.form_subtitle') }}</p>
                 
-                <form action="#" method="POST" class="space-y-5">
+                {{-- MENSAGENS DE FEEDBACK --}}
+                @if(session('success'))
+                    <div class="mb-6 p-4 bg-green-50 text-green-700 rounded-xl text-sm font-bold border border-green-200 flex items-center gap-3">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="mb-6 p-4 bg-red-50 text-red-700 rounded-xl text-sm font-bold border border-red-200 flex items-center gap-3">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                        {{ session('error') }}
+                    </div>
+                @endif
+                
+                {{-- FORMULÁRIO --}}
+                <form action="{{ route('contact.submit') }}" method="POST" class="space-y-5">
                     @csrf
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div class="space-y-1">
                             <label class="text-xs font-bold uppercase tracking-wide text-ht-navy ml-1">{{ __('contact.form_name') }}</label>
-                            <input type="text" name="name" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-ht-accent focus:ring-1 focus:ring-ht-accent transition-all" placeholder="{{ __('contact.placeholder_name') }}">
+                            <input type="text" name="name" value="{{ old('name') }}" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-ht-accent focus:ring-1 focus:ring-ht-accent transition-all" placeholder="{{ __('contact.placeholder_name') }}">
+                            @error('name') <span class="text-xs text-red-500 ml-1">{{ $message }}</span> @enderror
                         </div>
                         <div class="space-y-1">
                             <label class="text-xs font-bold uppercase tracking-wide text-ht-navy ml-1">{{ __('contact.form_phone') }}</label>
-                            <input type="tel" name="phone" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-ht-accent focus:ring-1 focus:ring-ht-accent transition-all" placeholder="{{ __('contact.placeholder_phone') }}">
+                            <input type="tel" name="phone" value="{{ old('phone') }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-ht-accent focus:ring-1 focus:ring-ht-accent transition-all" placeholder="{{ __('contact.placeholder_phone') }}">
+                            @error('phone') <span class="text-xs text-red-500 ml-1">{{ $message }}</span> @enderror
                         </div>
                     </div>
 
                     <div class="space-y-1">
                         <label class="text-xs font-bold uppercase tracking-wide text-ht-navy ml-1">{{ __('contact.form_email') }}</label>
-                        <input type="email" name="email" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-ht-accent focus:ring-1 focus:ring-ht-accent transition-all" placeholder="{{ __('contact.placeholder_email') }}">
+                        <input type="email" name="email" value="{{ old('email') }}" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-ht-accent focus:ring-1 focus:ring-ht-accent transition-all" placeholder="{{ __('contact.placeholder_email') }}">
+                        @error('email') <span class="text-xs text-red-500 ml-1">{{ $message }}</span> @enderror
                     </div>
 
                     <div class="space-y-1">
                         <label class="text-xs font-bold uppercase tracking-wide text-ht-navy ml-1">{{ __('contact.form_subject') }}</label>
                         <div class="relative">
+                            {{-- IMPORTANTE: Values fixos para o Controller entender o funil correto --}}
                             <select name="subject" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-ht-accent focus:ring-1 focus:ring-ht-accent transition-all appearance-none text-slate-600">
-                                <option>{{ __('contact.subject_buy') }}</option>
-                                <option>{{ __('contact.subject_sell') }}</option>
-                                <option>{{ __('contact.subject_valuation') }}</option>
-                                <option>{{ __('contact.subject_recruitment') }}</option>
-                                <option>{{ __('contact.subject_other') }}</option>
+                                <option value="comprar" {{ old('subject') == 'comprar' ? 'selected' : '' }}>{{ __('contact.subject_buy') }}</option>
+                                <option value="vender" {{ old('subject') == 'vender' ? 'selected' : '' }}>{{ __('contact.subject_sell') }}</option>
+                                <option value="avaliacao" {{ old('subject') == 'avaliacao' ? 'selected' : '' }}>{{ __('contact.subject_valuation') }}</option>
+                                <option value="recrutamento" {{ old('subject') == 'recrutamento' ? 'selected' : '' }}>{{ __('contact.subject_recruitment') }}</option>
+                                <option value="outros" {{ old('subject') == 'outros' ? 'selected' : '' }}>{{ __('contact.subject_other') }}</option>
                             </select>
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -129,7 +151,7 @@
 
                     <div class="space-y-1">
                         <label class="text-xs font-bold uppercase tracking-wide text-ht-navy ml-1">{{ __('contact.form_message') }}</label>
-                        <textarea name="message" rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-ht-accent focus:ring-1 focus:ring-ht-accent transition-all resize-none" placeholder="{{ __('contact.placeholder_message') }}"></textarea>
+                        <textarea name="message" rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-ht-accent focus:ring-1 focus:ring-ht-accent transition-all resize-none" placeholder="{{ __('contact.placeholder_message') }}">{{ old('message') }}</textarea>
                     </div>
 
                     <button type="submit" class="w-full bg-ht-accent text-white font-black uppercase tracking-widest text-xs py-4 mt-2 rounded-xl hover:bg-blue-700 transition-all shadow-lg hover:shadow-blue-500/30 transform active:scale-95">
